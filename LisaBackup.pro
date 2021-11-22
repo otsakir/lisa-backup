@@ -2,6 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     Lib \
-    ../QuickBackup3 \
+    QuickBackup3 \
     TestSuite
 
