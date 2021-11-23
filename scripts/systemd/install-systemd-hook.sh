@@ -121,12 +121,14 @@ case $COMMAND in
 			BACKUP_NAME=$SERVICE_NAME
 		fi
 
-		doinstall && echo "Successfully installed and enabled '$SYSTEMD_SERVICE' systemd service." && read -p "Press any key to continue" a
+		doinstall && echo "Successfully installed and enabled '$SYSTEMD_SERVICE' systemd service." 
 		;;
 	*)
 		help
 		exit 1
 		;;
 esac
+
+read -p "Press any key to continue" a
 
 

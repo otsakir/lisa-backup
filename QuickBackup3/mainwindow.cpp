@@ -141,10 +141,10 @@ void MainWindow::on_pushButton_2_clicked()
     QProcess process;
     //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
 
-    QString backupName = "backup11";
+    QString backupName = "backup1.sh";
     QString backupScriptPath = Lb::scriptsDirectory() + "/" + backupName;
 
-    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install",backupName,ui->lineEditSystemdUnit->text(),backupScriptPath});
+    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", "gui-service", "-u", ui->lineEditSystemdUnit->text(), backupScriptPath});
     process.waitForFinished(-1);
 }
 
@@ -183,5 +183,14 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
         qInfo() << "resulting value: " << stringResult;
         ui->lineEditSystemdUnit->setText(stringResult);
     }
+}
+
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    QProcess process;
+
+    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", "gui-service"});
+    process.waitForFinished(-1);
 }
 

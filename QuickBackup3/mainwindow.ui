@@ -353,6 +353,12 @@
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <widget class="QGroupBox" name="groupBoxDestination">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Destination</string>
          </property>
@@ -377,6 +383,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -434,23 +443,59 @@
            </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="minimumSize">
-             <size>
-              <width>122</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>125</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Install trigger</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="minimumSize">
+               <size>
+                <width>122</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>125</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Install trigger</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_4">
+              <property name="minimumSize">
+               <size>
+                <width>122</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>125</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Remove trigger</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
