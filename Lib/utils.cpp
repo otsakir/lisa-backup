@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include <QProcessEnvironment>
 #include <QDir>
+#include <QRandomGenerator>
 
 
 #include <QDebug>
@@ -100,6 +101,21 @@ QString runShellCommand(QString commandString) {
 
     QString out = process.readAllStandardOutput();
     return out;
+}
+
+QString randomString(unsigned int size) {
+#define MAX_RANDOM_STRING 64
+    assert (size <= MAX_RANDOM_STRING);
+
+    char buffer[MAX_RANDOM_STRING+1]; // account for null terminating character
+    const char oneofthese[] = "abcdefghizklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+
+    unsigned int i = 0;
+    for (i = 0; i < size; i++ ) {
+        buffer[i] = oneofthese[QRandomGenerator::global()->bounded((int) sizeof(oneofthese)-1)];
+    }
+    buffer[i] = 0;
+    return QString(buffer);
 }
 
 

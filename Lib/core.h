@@ -2,6 +2,7 @@
 #define CORE_H
 
 #include <QDataStream>
+#include <QVector>
 
 /*!
  * \class SourceDetails
@@ -54,14 +55,47 @@ public:
      * The predicate syntactically takes the form a bash command.
      */
     QString predicate;
-
+    QString sourcePath;
 
 public:
-    SourceDetails(const BackupType psourceType = selective, const QString& ppredicate = nullptr, const BackupDepth pbackupDepth = rootOnly);
+    SourceDetails(const BackupType psourceType = all, const QString& ppredicate = nullptr, const BackupDepth pbackupDepth = rootOnly);
     ~SourceDetails();
 
     friend QDataStream& operator<<(QDataStream& s, const SourceDetails& item);
     friend QDataStream& operator>>(QDataStream& s, SourceDetails& item);
+};
+
+// Model struct to keep everything related to a backup in a single data structure.
+struct BackupDetails {
+
+    QString systemdId; // identifier part for the systemd service name
+    QString backupName;
+
+    BackupDetails() {}
+
+    BackupDetails& operator=(const BackupDetails& from) {
+        systemdId = from.systemdId;
+        backupName = from.backupName;
+        return *this;
+    }
+
+    BackupDetails(const BackupDetails& from) {
+        systemdId = from.systemdId;
+        backupName = from.backupName;
+    }
+};
+
+// Data model used for readind/writing to disk. It doesn't allocate memory.
+
+class PersistenceModel {
+public:
+    BackupDetails backupDetails;
+    QVector<SourceDetails> allSourceDetails;
+
+    PersistenceModel() {};
+
+    friend QDataStream& operator << (QDataStream& s, const PersistenceModel& pmodel);
+    friend QDataStream& operator >> (QDataStream& s, PersistenceModel& pmodel);
 };
 
 

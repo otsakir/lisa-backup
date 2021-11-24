@@ -25,6 +25,7 @@ QString userGroup();
 
 QString runShellCommand(QString commandString);
 
+QString randomString(unsigned int size);
 }
 
 #endif // UTILS_H

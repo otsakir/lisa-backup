@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DISPLAY=:0 xmessage -buttons Ok:1,Cancel:0 -default Cancel -timeout 10 -nearmouse "'$BACKUP_NAME' process initiated! Shall I proceed ?"
+
+if [ $? -eq 1 ]; then
+        logger "'$BACKUP_NAME' process initiated on `date`"
+
+        # Backup commands
+        # rsync -avzh /home/nando/jason /home/nando/Pictures /home/nando/Documents /home/nando/Πληρωμές /home/nando/Education /home/nando/ΟΕ /home/nando/Ατομική\ επιχείρηση /home/nando/scripts /home/nando/keys /home/nando/καλλιέργεια /home/nando/orestis /home/nando/πελάτες /home/nando/μουσική /media/nando/backup1/nando
+        $BACKUP_COMMANDS
+
+        # now backup git repositories using 'git bundle' method
+        # find /home/nando/Projects -name 'dobackup' -exec /home/nando/scripts/bundle-git-repo.sh {} /media/nando/backup1/nando/REPO \;
+        logger "'$BACKUP_NAME' process completed"
+else
+        logger "'backup1 '$BACKUP_NAME' process cancelled"
+fi
