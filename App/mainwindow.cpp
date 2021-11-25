@@ -39,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::on_currentChanged);
 
-    QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::activated), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
+    QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
+    QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex);
 
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
@@ -123,9 +124,11 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
             ui->radioButtonAll->setChecked(true);
         else if (pDetails->backupType == SourceDetails::selective)
             ui->radioButtonSelective->setChecked(true);
-        //ui->lineEdit_3->setText(pDetails->predicate);
-        //ui->lineEdit_2->setText(sourcePath);
-        qInfo() << "In updateSourceDetailControls: " << pDetails->predicate;
+        ui->lineEditContainsFilename->setText(pDetails->containsFilename);
+        ui->lineEditNameMatches->setText(pDetails->nameMatches);
+        //ui->comboBoxPredicate->currentIndexChanged(pDetails->predicateType);
+        ui->comboBoxPredicate->setCurrentIndex(pDetails->predicateType);
+        //qInfo() << "In updateSourceDetailControls: " << pDetails->predicate;
         ui->groupBoxSourceDetails->setTitle( QString("Source %1").arg(sourcePath) );
         ui->groupBoxSourceDetails->setHidden(false);
     } else {
@@ -189,6 +192,9 @@ void MainWindow::collectAppData(PersistenceModel& persisted) {
 
 void MainWindow::initAppData(const PersistenceModel& persisted) {
     *backupDetails = persisted.backupDetails;
+    ui->lineEditSystemdId->setText(backupDetails->systemdId);
+    ui->lineEditBackupName->setText(backupDetails->backupName);
+    ui->lineEditSystemdUnit->setText(backupDetails->systemdMountUnit);
     sourcesModel->clear();
     for (int i=0; i<persisted.allSourceDetails.size(); i++) {
         appendSource(new SourceDetails(persisted.allSourceDetails.at(i)));
@@ -284,4 +290,37 @@ void MainWindow::on_radioButtonSelective_toggled(bool checked)
             sourcep->backupType = SourceDetails::selective;
     }
 }
+
+
+void MainWindow::on_lineEditContainsFilename_editingFinished()
+{
+    SourceDetails* sourcep = getSelectedSourceDetails();
+    if (sourcep)
+        sourcep->containsFilename = ui->lineEditContainsFilename->text();
+}
+
+
+void MainWindow::on_lineEditNameMatches_editingFinished()
+{
+    SourceDetails* sourcep = getSelectedSourceDetails();
+    if (sourcep)
+        sourcep->nameMatches = ui->lineEditNameMatches->text();
+
+}
+
+// when combo box value changes, we should update the index variable stored in
+// current SourceDetails struct
+void MainWindow::updatePredicateTypeIndex(int index)
+{
+    SourceDetails* sourcep = getSelectedSourceDetails();
+    if (sourcep)
+        sourcep->predicateType = (SourceDetails::PredicateType) index;
+}
+
+
+void MainWindow::on_lineEditSystemdUnit_editingFinished()
+{
+    backupDetails->systemdMountUnit = ui->lineEditSystemdUnit->text();
+}
+
 

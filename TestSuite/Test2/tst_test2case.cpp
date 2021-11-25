@@ -34,7 +34,7 @@ void Test2Case::test_case1()
     SourceDetails details;
     details.backupDepth = SourceDetails::rootOnly;
 
-    SourceDetails details2(SourceDetails::all);
+    SourceDetails details2;
 
     Lb::username();
     Lb::userGroup();

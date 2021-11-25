@@ -44,6 +44,11 @@ public:
         directChildren = 1
     } backupDepth;
 
+    enum PredicateType {
+        containsFilenameId = 0,
+        nameMatchesId = 1
+    } predicateType;
+
     /*!
      * \variable SourceDetails::precicate
      * \brief Applies filtering criteria for subdir selection.
@@ -57,8 +62,14 @@ public:
     QString predicate;
     QString sourcePath;
 
+    QString containsFilename; // match when _traversed_ directory contains a file like this (use bash shell patterns)
+    QString nameMatches; // match when _traversed_ directory's name is like this (use bash shell pattern)
+
 public:
-    SourceDetails(const BackupType psourceType = all, const QString& ppredicate = nullptr, const BackupDepth pbackupDepth = rootOnly);
+    //SourceDetails(const BackupType psourceType = all, const QString& ppredicate = nullptr, const BackupDepth pbackupDepth = rootOnly);
+    SourceDetails();
+
+
     ~SourceDetails();
 
     friend QDataStream& operator<<(QDataStream& s, const SourceDetails& item);
@@ -70,18 +81,21 @@ struct BackupDetails {
 
     QString systemdId; // identifier part for the systemd service name
     QString backupName;
+    QString systemdMountUnit; // e.g.  media-username-label
 
     BackupDetails() {}
 
     BackupDetails& operator=(const BackupDetails& from) {
         systemdId = from.systemdId;
         backupName = from.backupName;
+        systemdMountUnit = from.systemdMountUnit;
         return *this;
     }
 
     BackupDetails(const BackupDetails& from) {
         systemdId = from.systemdId;
         backupName = from.backupName;
+        systemdMountUnit = from.systemdMountUnit;
     }
 };
 

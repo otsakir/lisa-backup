@@ -343,7 +343,7 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <widget class="QLineEdit" name="lineEdit_4">
+              <widget class="QLineEdit" name="lineEditContainsFilename">
                <property name="geometry">
                 <rect>
                  <x>10</x>
@@ -366,12 +366,12 @@
                 <string>Filename</string>
                </property>
                <property name="buddy">
-                <cstring>lineEdit_4</cstring>
+                <cstring>lineEditContainsFilename</cstring>
                </property>
               </widget>
              </widget>
              <widget class="QWidget" name="page_2">
-              <widget class="QLineEdit" name="lineEdit_5">
+              <widget class="QLineEdit" name="lineEditNameMatches">
                <property name="geometry">
                 <rect>
                  <x>10</x>

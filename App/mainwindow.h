@@ -54,6 +54,16 @@ private slots:
 
     void on_radioButtonSelective_toggled(bool checked);
 
+    void on_lineEditContainsFilename_editingFinished();
+
+    void on_lineEditNameMatches_editingFinished();
+
+    //void on_comboBoxPredicate_currentIndexChanged(int index);
+
+    void updatePredicateTypeIndex(int index);
+
+    void on_lineEditSystemdUnit_editingFinished();
+
 private:
     Ui::MainWindow *ui;
 
