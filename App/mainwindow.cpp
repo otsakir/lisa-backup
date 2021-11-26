@@ -47,15 +47,17 @@ MainWindow::MainWindow(QWidget *parent)
     qInfo() << "Data directory: " << Lb::dataDirectory();
 
     Lb::setupDirs();
-
     backupDetails = new BackupDetails();
-    backupDetails->systemdId = Lb::randomString(16);
-    backupDetails->backupName = "personal-stuff";
 
-    ui->lineEditSystemdId->setText(backupDetails->systemdId);
-    ui->lineEditBackupName->setText(backupDetails->backupName);
+    PersistenceModel persisted;
+    // Try to load existing configuration. If not available, defaults from PersistenceModel constructor will be used.
+    if (! loadPersisted(persisted)) {
+        // init with defaults
+        persisted.backupDetails.systemdId = Lb::randomString(16);
+        persisted.backupDetails.backupName = "personal-stuff";
+    }
+    initAppData(persisted);
 
-    //qInfo() << "random: " << s;
 
 }
 
@@ -195,6 +197,8 @@ void MainWindow::initAppData(const PersistenceModel& persisted) {
     ui->lineEditSystemdId->setText(backupDetails->systemdId);
     ui->lineEditBackupName->setText(backupDetails->backupName);
     ui->lineEditSystemdUnit->setText(backupDetails->systemdMountUnit);
+    ui->lineEditDestinationBasePath->setText(backupDetails->destinationBasePath);
+
     sourcesModel->clear();
     for (int i=0; i<persisted.allSourceDetails.size(); i++) {
         appendSource(new SourceDetails(persisted.allSourceDetails.at(i)));
@@ -240,15 +244,21 @@ void MainWindow::on_pushButton_4_clicked()
 }
 
 
+bool MainWindow::loadPersisted(PersistenceModel& persisted) {
+    QFile ifile("out.txt");
+    if (ifile.open(QIODevice::ReadOnly)) {
+        QDataStream istream(&ifile);
+        istream >> persisted;
+        ifile.close();
+        return true;
+    }
+    return false;
+}
+
 void MainWindow::on_pushButtonLoad_clicked()
 {
     PersistenceModel persisted;
-    QFile ifile("out.txt");
-    ifile.open(QIODevice::ReadOnly);
-    QDataStream istream(&ifile);
-    istream >> persisted;
-    ifile.close();
-
+    loadPersisted(persisted);
     initAppData(persisted);
 }
 
@@ -317,10 +327,14 @@ void MainWindow::updatePredicateTypeIndex(int index)
         sourcep->predicateType = (SourceDetails::PredicateType) index;
 }
 
-
-void MainWindow::on_lineEditSystemdUnit_editingFinished()
+void MainWindow::on_lineEditSystemdUnit_textChanged(const QString &arg1)
 {
     backupDetails->systemdMountUnit = ui->lineEditSystemdUnit->text();
 }
 
+
+void MainWindow::on_lineEditDestinationBasePath_textChanged(const QString &arg1)
+{
+    backupDetails->destinationBasePath = ui->lineEditDestinationBasePath->text();
+}
 

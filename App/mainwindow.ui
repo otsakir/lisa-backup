@@ -446,12 +446,12 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Root path</string>
+             <string>Base path</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_2">
+           <widget class="QLineEdit" name="lineEditDestinationBasePath">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>

@@ -43,6 +43,7 @@ QDataStream& operator << (QDataStream& s, const BackupDetails& backupDetails) {
     s << backupDetails.backupName;
     s << backupDetails.systemdId;
     s << backupDetails.systemdMountUnit;
+    s << backupDetails.destinationBasePath;
     return s;
 }
 
@@ -50,6 +51,7 @@ QDataStream& operator >> (QDataStream& s, BackupDetails& backupDetails) {
     s >> backupDetails.backupName;
     s >> backupDetails.systemdId;
     s >> backupDetails.systemdMountUnit;
+    s >> backupDetails.destinationBasePath;
     return s;
 }
 

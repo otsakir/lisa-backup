@@ -82,6 +82,7 @@ struct BackupDetails {
     QString systemdId; // identifier part for the systemd service name
     QString backupName;
     QString systemdMountUnit; // e.g.  media-username-label
+    QString destinationBasePath; // destination directory under which the backup will be saved
 
     BackupDetails() {}
 
@@ -89,6 +90,8 @@ struct BackupDetails {
         systemdId = from.systemdId;
         backupName = from.backupName;
         systemdMountUnit = from.systemdMountUnit;
+        destinationBasePath = from.destinationBasePath;
+
         return *this;
     }
 
@@ -96,7 +99,14 @@ struct BackupDetails {
         systemdId = from.systemdId;
         backupName = from.backupName;
         systemdMountUnit = from.systemdMountUnit;
+        destinationBasePath = from.destinationBasePath;
     }
+
+public:
+    const QString &getDestinationBasePath() const;
+
+private:
+    Q_PROPERTY(QString destinationBasePath READ getDestinationBasePath CONSTANT)
 };
 
 // Data model used for readind/writing to disk. It doesn't allocate memory.

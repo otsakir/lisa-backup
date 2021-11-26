@@ -62,7 +62,9 @@ private slots:
 
     void updatePredicateTypeIndex(int index);
 
-    void on_lineEditSystemdUnit_editingFinished();
+    void on_lineEditSystemdUnit_textChanged(const QString &arg1);
+
+    void on_lineEditDestinationBasePath_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -71,6 +73,7 @@ private:
     QDataWidgetMapper* sourcesDataMapper;
     BackupDetails* backupDetails; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
 
+    bool loadPersisted(PersistenceModel& persisted);
     void appendSource(SourceDetails* sourceDetails);
     void collectAppData(PersistenceModel& persisted);
     void initAppData(const PersistenceModel& persisted);
