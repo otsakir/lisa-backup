@@ -11,10 +11,12 @@ CONFIG += c++11
 
 SOURCES += \
     core.cpp \
+    scripting.cpp \
     utils.cpp
 
 HEADERS += \
     core.h \
+    scripting.h \
     utils.h
 
 # Default rules for deployment.

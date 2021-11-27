@@ -7,14 +7,6 @@ SourceDetails::SourceDetails() :
     backupDepth(rootOnly),
     predicateType(containsFilenameId) {}
 
-/*
-SourceDetails::SourceDetails(const BackupType psourceType, const QString& ppredicate, const BackupDepth pbackupDepth)
-    : backupType(psourceType)
-    , backupDepth(pbackupDepth)
-    , predicate(ppredicate) {
-    qInfo() << "creating MyData - " << backupType;
-}*/
-
 SourceDetails::~SourceDetails() {
     qInfo() << "destroying MyData - ";
 }

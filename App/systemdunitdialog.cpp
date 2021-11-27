@@ -5,11 +5,11 @@
 
 #include "utils.h"
 
-SystemdUnitDialog::SystemdUnitDialog(QString& pstringResult, QWidget *parent) :
+SystemdUnitDialog::SystemdUnitDialog(DialogResult& pdialogResult, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SystemdUnitDialog),
     systemdUnitsModel(new QStandardItemModel(0,2,this)),
-    stringResult(pstringResult)
+    dialogResult(pdialogResult)
 {
     ui->setupUi(this);
     ui->systemdUnitsView->setModel(systemdUnitsModel);
@@ -60,7 +60,8 @@ void SystemdUnitDialog::on_buttonOk_clicked()
 {
     QModelIndex index = ui->systemdUnitsView->selectionModel()->selection().indexes().first();
 
-    stringResult = index.siblingAtColumn(1).data().toString();
+    dialogResult.mountId = index.siblingAtColumn(1).data().toString();
+    dialogResult.mountPath = index.data().toString();
     qInfo() << "Accepted";
 }
 

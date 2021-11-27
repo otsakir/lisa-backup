@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "systemdunitdialog.h"
 #include "utils.h"
+#include "scripting.h"
 
 #include <core.h>
 
@@ -221,16 +222,20 @@ void MainWindow::on_pushButton_3_clicked()
     stream << persisted;
     file.close();
 
+    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", "/tmp", persisted);
+
 }
 
 
 void MainWindow::on_pushButtonSelectDevice_clicked()
 {
     QString stringResult;
-    SystemdUnitDialog dialog(stringResult,this);
+    DialogResult dialogResult;
+    SystemdUnitDialog dialog(dialogResult,this);
     if ( dialog.exec() == QDialog::Accepted) {
-        qInfo() << "resulting value: " << stringResult;
-        ui->lineEditSystemdUnit->setText(stringResult);
+        qInfo() << "result: " << dialogResult.mountId << " - " << dialogResult.mountPath;
+        ui->lineEditSystemdUnit->setText(dialogResult.mountId);
+        ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
     }
 }
 
@@ -337,4 +342,5 @@ void MainWindow::on_lineEditDestinationBasePath_textChanged(const QString &arg1)
 {
     backupDetails->destinationBasePath = ui->lineEditDestinationBasePath->text();
 }
+
 

@@ -9,12 +9,17 @@ namespace Ui {
 class SystemdUnitDialog;
 }
 
+struct DialogResult {
+    QString mountId;
+    QString mountPath;
+};
+
 class SystemdUnitDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SystemdUnitDialog(QString& pstringResult, QWidget *parent = nullptr);
+    explicit SystemdUnitDialog(DialogResult& dialogResult, QWidget *parent = nullptr);
     ~SystemdUnitDialog();
 protected:
 
@@ -28,7 +33,7 @@ private slots:
 private:
     Ui::SystemdUnitDialog *ui;
     QStandardItemModel* systemdUnitsModel;
-    QString& stringResult;
+    DialogResult& dialogResult;
 
     void reloadMountUnits();
 };
