@@ -16,7 +16,7 @@ void buildBackupCommands(const PersistenceModel& appstate, QVector<QString>& com
             command.reserve(100);
             command.append("rsync -avzh \"");
             command.append(source.sourcePath).append("\" ");
-            command.append("\"").append(appstate.backupDetails.destinationBasePath).append("\"");
+            command.append("\"").append(appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath).append("\"");
 
             commands.append(command);
         }

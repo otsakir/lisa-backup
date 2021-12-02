@@ -27,8 +27,6 @@ public:
 private slots:
     void on_pushButton_clicked();
 
-    void on_lineEdit_2_editingFinished();
-
     void on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected);
 
     void on_currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -64,7 +62,15 @@ private slots:
 
     void on_lineEditSystemdUnit_textChanged(const QString &arg1);
 
-    void on_lineEditDestinationBasePath_textChanged(const QString &arg1);
+    void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
+
+    void on_toolButton_toggled(bool checked);
+
+    void on_lineEditBackupName_editingFinished();
+
+    void on_lineEditDestinationSuffixPath_editingFinished();
+
+    void on_pushButtonChooseDestinationSubdir_clicked();
 
 private:
     Ui::MainWindow *ui;

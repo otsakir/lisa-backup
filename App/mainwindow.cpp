@@ -139,11 +139,6 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
     }
 }
 
-void MainWindow::on_lineEdit_2_editingFinished()
-{
-    qInfo() << "editing finished";
-}
-
 void MainWindow::on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected)
 {
     if ( !selected.empty()) {
@@ -198,7 +193,8 @@ void MainWindow::initAppData(const PersistenceModel& persisted) {
     ui->lineEditSystemdId->setText(backupDetails->systemdId);
     ui->lineEditBackupName->setText(backupDetails->backupName);
     ui->lineEditSystemdUnit->setText(backupDetails->systemdMountUnit);
-    ui->lineEditDestinationBasePath->setText(backupDetails->destinationBasePath);
+    ui->lineEditDestinationBasePath->setText(backupDetails->destinationBasePath + "/");
+    ui->lineEditDestinationSuffixPath->setText(backupDetails->destinationBaseSuffixPath);
 
     sourcesModel->clear();
     for (int i=0; i<persisted.allSourceDetails.size(); i++) {
@@ -235,7 +231,10 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
     if ( dialog.exec() == QDialog::Accepted) {
         qInfo() << "result: " << dialogResult.mountId << " - " << dialogResult.mountPath;
         ui->lineEditSystemdUnit->setText(dialogResult.mountId);
+        backupDetails->destinationBasePath = dialogResult.mountPath;
         ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
+        ui->lineEditDestinationSuffixPath->setText(dialogResult.backupSubdir);
+        //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
     }
 }
 
@@ -337,10 +336,97 @@ void MainWindow::on_lineEditSystemdUnit_textChanged(const QString &arg1)
     backupDetails->systemdMountUnit = ui->lineEditSystemdUnit->text();
 }
 
-
-void MainWindow::on_lineEditDestinationBasePath_textChanged(const QString &arg1)
+void MainWindow::on_lineEditDestinationSuffixPath_textChanged(const QString &arg1)
 {
-    backupDetails->destinationBasePath = ui->lineEditDestinationBasePath->text();
+    backupDetails->destinationBaseSuffixPath = ui->lineEditDestinationSuffixPath->text();
 }
 
+
+void MainWindow::on_toolButton_toggled(bool checked)
+{
+    if (! checked) {
+        // looks like we're done editing
+        if ( ui->lineEditBackupName->text() != backupDetails->backupName) {
+            //qInfo() << "backupName updated";
+            // at this point we can display a confirmation for the passing on the udpate or prevent the update
+            backupDetails->backupName = ui->lineEditBackupName->text();
+        }
+    }
+    ui->lineEditBackupName->setEnabled(checked);
+}
+
+
+void MainWindow::on_lineEditBackupName_editingFinished()
+{
+}
+
+void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
+{
+    QString path = backupDetails->destinationBasePath + "/" + backupDetails->destinationBaseSuffixPath;
+
+    QFileInfo dirInfo(path);
+    qInfo() << "exists: " << dirInfo.exists();
+    qInfo() << "isDir: " << dirInfo.isDir();
+    qInfo() << "is writable: " << dirInfo.isWritable();
+
+    QString message;
+    bool ok;
+    if (dirInfo.isDir() && dirInfo.isWritable()) {
+        ok = true;
+    } else {
+        if (! dirInfo.exists() )
+            message = "Directory does not exist";
+        else if (!dirInfo.isDir())
+            message = "This is not a directory";
+        else if (!dirInfo.isWritable())
+            message = "Directory is not writable. Make sure you can write to it";
+        ok = false;
+    }
+
+    if (ok) {
+        ui->labelDirectoryStatusMessage->clear();
+    } else {
+        ui->labelDirectoryStatusMessage->setText(message);
+    }
+}
+
+
+void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOptions(QFileDialog::ShowDirsOnly);
+    dialog.setDirectory(backupDetails->destinationBasePath);
+
+    QStringList selectedItems;
+    if (dialog.exec()) {
+        selectedItems = dialog.selectedFiles();
+        for (int i=0; i<selectedItems.size(); i++) {
+            QString selected = selectedItems.at(i);
+            qInfo() << "selected dir: " << selected;
+
+            if (selected.startsWith( backupDetails->destinationBasePath )) {
+                QString suffix = selected.right(selected.size()-backupDetails->destinationBasePath.size());
+                qInfo() << "suffix: " << suffix;
+
+                if (suffix.startsWith("/"))
+                    suffix.remove(0,1);
+
+                qInfo() << "suffix after: " << suffix;
+                ui->lineEditDestinationSuffixPath->setText(suffix);
+                ui->lineEditDestinationSuffixPath->editingFinished();
+
+
+
+            }
+
+
+            //SourceDetails* sourceDetails = new SourceDetails();
+            //sourceDetails->sourcePath = selected.at(i);
+            //appendSource(sourceDetails); // sourceDetails memory willbe automatically released
+        }
+    }
+
+
+}
 

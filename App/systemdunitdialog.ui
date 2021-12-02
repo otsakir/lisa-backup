@@ -27,6 +27,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBoxCreateSubdir">
+     <property name="text">
+      <string>Create backup sub-directory</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="buttonReload">

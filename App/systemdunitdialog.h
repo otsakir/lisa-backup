@@ -12,6 +12,7 @@ class SystemdUnitDialog;
 struct DialogResult {
     QString mountId;
     QString mountPath;
+    QString backupSubdir;
 };
 
 class SystemdUnitDialog : public QDialog

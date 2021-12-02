@@ -82,7 +82,8 @@ struct BackupDetails {
     QString systemdId; // identifier part for the systemd service name
     QString backupName;
     QString systemdMountUnit; // e.g.  media-username-label
-    QString destinationBasePath; // destination directory under which the backup will be saved
+    QString destinationBasePath; // root directory of the inserted medium when mounted
+    QString destinationBaseSuffixPath; // together with 'destinationBasePath' it form the destination directory for the backup
 
     BackupDetails() {}
 
@@ -91,6 +92,7 @@ struct BackupDetails {
         backupName = from.backupName;
         systemdMountUnit = from.systemdMountUnit;
         destinationBasePath = from.destinationBasePath;
+        destinationBaseSuffixPath = from.destinationBaseSuffixPath;
 
         return *this;
     }
@@ -100,6 +102,7 @@ struct BackupDetails {
         backupName = from.backupName;
         systemdMountUnit = from.systemdMountUnit;
         destinationBasePath = from.destinationBasePath;
+        destinationBaseSuffixPath = from.destinationBaseSuffixPath;
     }
 
 public:
