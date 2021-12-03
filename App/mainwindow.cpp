@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex);
 
+    QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
+
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
@@ -58,8 +60,11 @@ MainWindow::MainWindow(QWidget *parent)
         persisted.backupDetails.backupName = "personal-stuff";
     }
     initAppData(persisted);
+}
 
-
+void MainWindow::on_activeBackupMethodChanged(int backupType) {
+    qInfo() << "backup method changed: " << backupType;
+    ui->groupBoxCriteria->setEnabled(backupType != SourceDetails::all);
 }
 
 MainWindow::~MainWindow()
@@ -125,10 +130,14 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
         QString sourcePath = rowIndex.data().toString();
         SourceDetails* pDetails = rowIndex.siblingAtColumn(1).data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
         ui->comboBoxDepth->setCurrentIndex(pDetails->backupDepth);
-        if (pDetails->backupType == SourceDetails::all)
+        if (pDetails->backupType == SourceDetails::all) {
             ui->radioButtonAll->setChecked(true);
-        else if (pDetails->backupType == SourceDetails::selective)
+            emit methodChanged(SourceDetails::all);
+        }
+        else if (pDetails->backupType == SourceDetails::selective) {
             ui->radioButtonSelective->setChecked(true);
+            emit methodChanged(SourceDetails::selective);
+        }
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
         ui->lineEditNameMatches->setText(pDetails->nameMatches);
         //ui->comboBoxPredicate->currentIndexChanged(pDetails->predicateType);
@@ -294,6 +303,8 @@ void MainWindow::on_radioButtonAll_toggled(bool checked)
         SourceDetails* sourcep = getSelectedSourceDetails();
         if (sourcep)
             sourcep->backupType = SourceDetails::all;
+
+        emit methodChanged(SourceDetails::BackupType::all);
     }
 }
 
@@ -304,7 +315,11 @@ void MainWindow::on_radioButtonSelective_toggled(bool checked)
         SourceDetails* sourcep = getSelectedSourceDetails();
         if (sourcep)
             sourcep->backupType = SourceDetails::selective;
+
+        emit methodChanged(SourceDetails::BackupType::selective);
     }
+
+
 }
 
 
@@ -428,7 +443,6 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
             //appendSource(sourceDetails); // sourceDetails memory willbe automatically released
         }
     }
-
-
 }
+
 

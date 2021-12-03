@@ -228,7 +228,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="groupBox_5">
+           <widget class="QGroupBox" name="groupBoxCriteria">
             <property name="minimumSize">
              <size>
               <width>409</width>

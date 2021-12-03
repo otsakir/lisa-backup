@@ -14,7 +14,7 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 // Forward (abstract) type declarations
-class BackupDetails;
+struct BackupDetails;
 class PersistenceModel;
 class SourceDetails;
 class Session;
@@ -26,6 +26,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+signals:
+    void methodChanged(int methodIndex); // signal raised when the backup method is altered between all/selective cases
 
 private slots:
     void on_pushButton_clicked();
@@ -74,6 +77,8 @@ private slots:
     void on_lineEditDestinationSuffixPath_editingFinished();
 
     void on_pushButtonChooseDestinationSubdir_clicked();
+
+    void on_activeBackupMethodChanged(int backupType);
 
 private:
     Ui::MainWindow *ui;
