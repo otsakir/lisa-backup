@@ -90,10 +90,12 @@ void MainWindow::appendSource(SourceDetails* sourceDetails) {
 }
 
 void MainWindow::on_pushButton_clicked()
-{
+{    
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOptions(QFileDialog::ShowDirsOnly);
+    dialog.setDirectory("/home/nando");
+
 
     QStringList selected;
     if (dialog.exec()) {

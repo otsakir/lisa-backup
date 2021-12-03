@@ -11,10 +11,12 @@ CONFIG += c++11 debug
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    mylistview.cpp \
     systemdunitdialog.cpp
 
 HEADERS += \
     mainwindow.h \
+    mylistview.h \
     systemdunitdialog.h
 
 FORMS += \

@@ -8,6 +8,7 @@ namespace Lb {
 QString dataDirectory();
 QString configDirectory();
 QString scriptsDirectory();
+QString homeDirectory();
 
 /*!
  * \brief setupDirs conditionally creates application directory structure

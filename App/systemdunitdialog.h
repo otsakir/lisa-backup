@@ -5,6 +5,9 @@
 #include <QItemSelection>
 #include <QStandardItemModel>
 
+// forward declarations
+class MyListView;
+
 namespace Ui {
 class SystemdUnitDialog;
 }
@@ -14,6 +17,7 @@ struct DialogResult {
     QString mountPath;
     QString backupSubdir;
 };
+
 
 class SystemdUnitDialog : public QDialog
 {
@@ -35,6 +39,7 @@ private:
     Ui::SystemdUnitDialog *ui;
     QStandardItemModel* systemdUnitsModel;
     DialogResult& dialogResult;
+    MyListView* myListView;
 
     void reloadMountUnits();
 };

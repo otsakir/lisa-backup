@@ -28,6 +28,11 @@ QString configDirectory() {
     return pathlist.first();
 }
 
+QString homeDirectory() {
+    QStringList pathlist = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    return pathlist.first();
+}
+
 // TODO - fix fallback logic (?)
 QString scriptsDirectory() {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();

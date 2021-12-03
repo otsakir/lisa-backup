@@ -5,6 +5,8 @@
 
 #include "utils.h"
 
+#include "mylistview.h"
+
 SystemdUnitDialog::SystemdUnitDialog(DialogResult& pdialogResult, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SystemdUnitDialog),
@@ -12,12 +14,21 @@ SystemdUnitDialog::SystemdUnitDialog(DialogResult& pdialogResult, QWidget *paren
     dialogResult(pdialogResult)
 {
     ui->setupUi(this);
-    ui->systemdUnitsView->setModel(systemdUnitsModel);
 
-    QObject::connect(ui->systemdUnitsView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SystemdUnitDialog::on_UpdateSelection);
+    myListView = new MyListView();
+    ui->verticalLayout_2->addWidget(myListView);
+    myListView->setModel(systemdUnitsModel);
+    //ui->systemdUnitsView->setModel(systemdUnitsModel);
+
+    //QObject::connect(ui->systemdUnitsView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SystemdUnitDialog::on_UpdateSelection);
+    QObject::connect(myListView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SystemdUnitDialog::on_UpdateSelection);
+
+    //QObject::connect(myListView, &MyListView::doubleClicked, this, &SystemdUnitDialog::on_systemdUnitsView_doubleClicked);
+    QObject::connect(myListView, &MyListView::doubleClicked, this, &SystemdUnitDialog::on_buttonOk_clicked); // not really a double click handler but will get the job done i.e. update return values and accept()
 
     // initialize buttonOk enabled state
-    ui->buttonOk->setEnabled(! ui->systemdUnitsView->selectionModel()->selection().isEmpty());
+    //ui->buttonOk->setEnabled(! ui->systemdUnitsView->selectionModel()->selection().isEmpty());
+    ui->buttonOk->setEnabled(! myListView->selectionModel()->selection().isEmpty());
 
     reloadMountUnits();
 }
@@ -25,6 +36,7 @@ SystemdUnitDialog::SystemdUnitDialog(DialogResult& pdialogResult, QWidget *paren
 SystemdUnitDialog::~SystemdUnitDialog()
 {
     delete systemdUnitsModel;
+    delete myListView;
     delete ui;
 }
 
@@ -58,11 +70,13 @@ void SystemdUnitDialog::on_UpdateSelection(const QItemSelection &selected, const
 
 void SystemdUnitDialog::on_buttonOk_clicked()
 {
-    QModelIndex index = ui->systemdUnitsView->selectionModel()->selection().indexes().first();
+    //QModelIndex index = ui->systemdUnitsView->selectionModel()->selection().indexes().first();
+    QModelIndex index = myListView->selectionModel()->selection().indexes().first();
 
     dialogResult.mountId = index.siblingAtColumn(1).data().toString();
     dialogResult.mountPath = index.data().toString();
     qInfo() << "Accepted";
+    this->accept();
 }
 
 
