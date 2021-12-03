@@ -126,6 +126,14 @@ public:
 };
 
 
+// 'volatile' application state lost when application closes
+
+class Session {
+public:
+    QString defaultBrowseBackupDirectory; // that's the starting location when browsing fs for the directory to backup
+};
+
+
 
 
 #endif // CORE_H

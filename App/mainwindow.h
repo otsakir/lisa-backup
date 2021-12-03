@@ -7,6 +7,8 @@
 #include <QStandardItemModel>
 #include <systemdunitdialog.h>
 
+#include <core.h>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -15,6 +17,7 @@ QT_END_NAMESPACE
 class BackupDetails;
 class PersistenceModel;
 class SourceDetails;
+class Session;
 
 class MainWindow : public QMainWindow
 {
@@ -78,6 +81,7 @@ private:
     QStandardItemModel* sourcesModel;
     QDataWidgetMapper* sourcesDataMapper;
     BackupDetails* backupDetails; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
+    Session session;
 
     bool loadPersisted(PersistenceModel& persisted);
     void appendSource(SourceDetails* sourceDetails);

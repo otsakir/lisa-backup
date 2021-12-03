@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
-    qInfo() << "Data directory: " << Lb::dataDirectory();
+    session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
     Lb::setupDirs();
     backupDetails = new BackupDetails();
@@ -94,12 +94,12 @@ void MainWindow::on_pushButton_clicked()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOptions(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory("/home/nando");
-
+    dialog.setDirectory(session.defaultBrowseBackupDirectory);
 
     QStringList selected;
     if (dialog.exec()) {
         selected= dialog.selectedFiles();
+        session.defaultBrowseBackupDirectory = dialog.directory().path();
     }
 
     for (int i=0; i<selected.size(); i++) {
