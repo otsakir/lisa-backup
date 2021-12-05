@@ -5,7 +5,7 @@
 
 namespace Lb {
 
-bool generateBackupScript(QString scriptTemplate, QString outputDirectory, const PersistenceModel& appstate);
+bool generateBackupScript(QString scriptTemplate, QString outfilename, const PersistenceModel& appstate);
 
 }
 #endif // SCRIPTING_H

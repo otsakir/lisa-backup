@@ -43,6 +43,15 @@ QString scriptsDirectory() {
         return QString("%1/.lbackup").arg(homepath);
 }
 
+// generates the full path to the backup data file based on the 'backup name'
+QString backupDataFilePath(const QString& backupName) {
+    return dataDirectory() + "/" + backupName + ".data";
+}
+
+QString backupScriptFilePath(const QString& backupName) {
+    return scriptsDirectory() + "/backup-" + backupName + ".sh";
+}
+
 void setupDirs() {
     QString datadir = dataDirectory();
 

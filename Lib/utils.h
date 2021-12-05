@@ -10,6 +10,9 @@ QString configDirectory();
 QString scriptsDirectory();
 QString homeDirectory();
 
+QString backupDataFilePath(const QString& backupName);
+QString backupScriptFilePath(const QString& backupName);
+
 /*!
  * \brief setupDirs conditionally creates application directory structure
  */

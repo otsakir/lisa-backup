@@ -24,7 +24,7 @@ void buildBackupCommands(const PersistenceModel& appstate, QVector<QString>& com
     return;
 }
 
-bool generateBackupScript(QString scriptTemplate, QString outputDirectory, const PersistenceModel& appstate) {
+bool generateBackupScript(QString scriptTemplate, QString outfilename, const PersistenceModel& appstate) {
 
     // open script template file
     QFile f(scriptTemplate);
@@ -48,14 +48,19 @@ bool generateBackupScript(QString scriptTemplate, QString outputDirectory, const
     content.replace("$BACKUP_COMMANDS", commandsString);
 
     // create executable script
-    QString outfilename = outputDirectory + "/backup-" + appstate.backupDetails.systemdId + ".sh";
+    //QString outfilename = outputDirectory + "/backup-" + appstate.backupDetails.backupName + ".sh";
     QFile outf(outfilename);
     if (! outf.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
     QTextStream outs(&outf);
     outs << content;
 
-    return (outs.status() == QTextStream::Ok);
+    if (outs.status() != QTextStream::Ok) {
+        return false;
+    }
+
+    outf.setPermissions(QFile::ExeOwner | QFile::ReadOwner | QFile::WriteOwner);
+    return true;
 }
 
-}
+} // namespace Lb

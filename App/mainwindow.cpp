@@ -168,9 +168,9 @@ void MainWindow::on_pushButton_2_clicked()
     //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
 
     QString backupName = "backup1.sh";
-    QString backupScriptPath = Lb::scriptsDirectory() + "/" + backupName;
+    QString backupScriptPath = Lb::backupScriptFilePath(backupDetails->backupName);
 
-    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", "gui-service", "-u", ui->lineEditSystemdUnit->text(), backupScriptPath});
+    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backupDetails->backupName, "-u", backupDetails->systemdMountUnit, backupScriptPath});
     process.waitForFinished(-1);
 }
 
@@ -223,13 +223,17 @@ void MainWindow::on_pushButton_3_clicked()
     PersistenceModel persisted;
     collectAppData(persisted);
 
-    QFile file("out.txt");
+    QString dataFilePath = Lb::backupDataFilePath(backupDetails->backupName);
+    qInfo() << "data file path: " << dataFilePath;
+    QFile file(dataFilePath);
     file.open(QIODevice::WriteOnly);
     QDataStream stream(&file);
     stream << persisted;
     file.close();
 
-    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", "/tmp", persisted);
+    QString scriptName = Lb::backupScriptFilePath(backupDetails->backupName);
+    qInfo() << "script name: " << scriptName;
+    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", scriptName, persisted);
 
 }
 
@@ -254,13 +258,13 @@ void MainWindow::on_pushButton_4_clicked()
 {
     QProcess process;
 
-    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", "gui-service"});
+    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backupDetails->backupName});
     process.waitForFinished(-1);
 }
 
 
 bool MainWindow::loadPersisted(PersistenceModel& persisted) {
-    QFile ifile("out.txt");
+    QFile ifile(Lb::backupDataFilePath("personal-stuff"));
     if (ifile.open(QIODevice::ReadOnly)) {
         QDataStream istream(&ifile);
         istream >> persisted;
