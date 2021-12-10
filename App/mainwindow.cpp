@@ -12,6 +12,7 @@
 
 #include <QFileDialog>
 
+#include <QMessageBox>
 #include <QProcess>
 #include <QStandardPaths>
 
@@ -50,14 +51,19 @@ MainWindow::MainWindow(QWidget *parent)
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
     Lb::setupDirs();
-    backupDetails = new BackupDetails();
+    activeBackup = new BackupDetails();
 
     PersistenceModel persisted;
+
+    session.recentBackupNames.append("personal-stuff"); // manually initialize it for now. Later it will be loaded from file upon startup.
+
+    // load latest backup name from configuration
+    QString latestBackupName = session.recentBackupNames.first();
     // Try to load existing configuration. If not available, defaults from PersistenceModel constructor will be used.
-    if (! loadPersisted(persisted)) {
+    if (! loadPersisted(latestBackupName, persisted)) {
         // init with defaults
         persisted.backupDetails.systemdId = Lb::randomString(16);
-        persisted.backupDetails.backupName = "personal-stuff";
+        //persisted.backupDetails.backupName = "";
     }
     initAppData(persisted);
 }
@@ -69,7 +75,7 @@ void MainWindow::on_activeBackupMethodChanged(int backupType) {
 
 MainWindow::~MainWindow()
 {
-    delete backupDetails;
+    delete activeBackup;
     delete sourcesModel;
     delete ui;
 }
@@ -168,9 +174,9 @@ void MainWindow::on_pushButton_2_clicked()
     //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
 
     QString backupName = "backup1.sh";
-    QString backupScriptPath = Lb::backupScriptFilePath(backupDetails->backupName);
+    QString backupScriptPath = Lb::backupScriptFilePath(activeBackup->backupName);
 
-    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backupDetails->backupName, "-u", backupDetails->systemdMountUnit, backupScriptPath});
+    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", activeBackup->backupName, "-u", activeBackup->systemdMountUnit, backupScriptPath});
     process.waitForFinished(-1);
 }
 
@@ -190,8 +196,8 @@ void MainWindow::on_removeSourceButton_clicked()
 }
 
 // gathers application data and populates a PersistenceModel. Used right before storage.
-void MainWindow::collectAppData(PersistenceModel& persisted) {
-    persisted.backupDetails = *backupDetails;
+void MainWindow::   collectAppData(PersistenceModel& persisted) {
+    persisted.backupDetails = *activeBackup;
     for (int i=0; i<sourcesModel->rowCount(); i++) {
         SourceDetails* sourcep = sourcesModel->index(i, 1).data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
         persisted.allSourceDetails.append(*sourcep);
@@ -200,42 +206,20 @@ void MainWindow::collectAppData(PersistenceModel& persisted) {
 }
 
 void MainWindow::initAppData(const PersistenceModel& persisted) {
-    *backupDetails = persisted.backupDetails;
-    ui->lineEditSystemdId->setText(backupDetails->systemdId);
-    ui->lineEditBackupName->setText(backupDetails->backupName);
-    ui->lineEditSystemdUnit->setText(backupDetails->systemdMountUnit);
-    ui->lineEditDestinationBasePath->setText(backupDetails->destinationBasePath + "/");
-    ui->lineEditDestinationSuffixPath->setText(backupDetails->destinationBaseSuffixPath);
+    *activeBackup = persisted.backupDetails;
+    ui->lineEditBackupName->setText(activeBackup->backupName);
+    ui->lineEditSystemdUnit->setText(activeBackup->systemdMountUnit);
+    ui->lineEditDestinationBasePath->setText(activeBackup->destinationBasePath + "/");
+    ui->lineEditDestinationSuffixPath->setText(activeBackup->destinationBaseSuffixPath);
 
     sourcesModel->clear();
     for (int i=0; i<persisted.allSourceDetails.size(); i++) {
         appendSource(new SourceDetails(persisted.allSourceDetails.at(i)));
     }
+
+    emit ui->lineEditBackupName->editingFinished(); // simulate having finished editing the control to trigger handlers
 }
 
-// this saves backup configuration and generates scripts
-void MainWindow::on_pushButton_3_clicked()
-{
-    // 1. gather model data from UI and put in a big object
-    // 2. generate backup script file based on the model
-    // 3. store model to disk
-
-    PersistenceModel persisted;
-    collectAppData(persisted);
-
-    QString dataFilePath = Lb::backupDataFilePath(backupDetails->backupName);
-    qInfo() << "data file path: " << dataFilePath;
-    QFile file(dataFilePath);
-    file.open(QIODevice::WriteOnly);
-    QDataStream stream(&file);
-    stream << persisted;
-    file.close();
-
-    QString scriptName = Lb::backupScriptFilePath(backupDetails->backupName);
-    qInfo() << "script name: " << scriptName;
-    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", scriptName, persisted);
-
-}
 
 
 void MainWindow::on_pushButtonSelectDevice_clicked()
@@ -246,7 +230,7 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
     if ( dialog.exec() == QDialog::Accepted) {
         qInfo() << "result: " << dialogResult.mountId << " - " << dialogResult.mountPath;
         ui->lineEditSystemdUnit->setText(dialogResult.mountId);
-        backupDetails->destinationBasePath = dialogResult.mountPath;
+        activeBackup->destinationBasePath = dialogResult.mountPath;
         ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
         ui->lineEditDestinationSuffixPath->setText(dialogResult.backupSubdir);
         //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
@@ -258,13 +242,13 @@ void MainWindow::on_pushButton_4_clicked()
 {
     QProcess process;
 
-    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backupDetails->backupName});
+    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", activeBackup->backupName});
     process.waitForFinished(-1);
 }
 
 
-bool MainWindow::loadPersisted(PersistenceModel& persisted) {
-    QFile ifile(Lb::backupDataFilePath("personal-stuff"));
+bool MainWindow::loadPersisted(QString backupName, PersistenceModel& persisted) {
+    QFile ifile(Lb::backupDataFilePath(backupName));
     if (ifile.open(QIODevice::ReadOnly)) {
         QDataStream istream(&ifile);
         istream >> persisted;
@@ -277,7 +261,7 @@ bool MainWindow::loadPersisted(PersistenceModel& persisted) {
 void MainWindow::on_pushButtonLoad_clicked()
 {
     PersistenceModel persisted;
-    loadPersisted(persisted);
+    loadPersisted("personal-stuff",persisted);
     initAppData(persisted);
 }
 
@@ -354,12 +338,12 @@ void MainWindow::updatePredicateTypeIndex(int index)
 
 void MainWindow::on_lineEditSystemdUnit_textChanged(const QString &arg1)
 {
-    backupDetails->systemdMountUnit = ui->lineEditSystemdUnit->text();
+    activeBackup->systemdMountUnit = ui->lineEditSystemdUnit->text();
 }
 
 void MainWindow::on_lineEditDestinationSuffixPath_textChanged(const QString &arg1)
 {
-    backupDetails->destinationBaseSuffixPath = ui->lineEditDestinationSuffixPath->text();
+    activeBackup->destinationBaseSuffixPath = ui->lineEditDestinationSuffixPath->text();
 }
 
 
@@ -367,10 +351,10 @@ void MainWindow::on_toolButton_toggled(bool checked)
 {
     if (! checked) {
         // looks like we're done editing
-        if ( ui->lineEditBackupName->text() != backupDetails->backupName) {
+        if ( ui->lineEditBackupName->text() != activeBackup->backupName) {
             //qInfo() << "backupName updated";
             // at this point we can display a confirmation for the passing on the udpate or prevent the update
-            backupDetails->backupName = ui->lineEditBackupName->text();
+            activeBackup->backupName = ui->lineEditBackupName->text();
         }
     }
     ui->lineEditBackupName->setEnabled(checked);
@@ -379,11 +363,18 @@ void MainWindow::on_toolButton_toggled(bool checked)
 
 void MainWindow::on_lineEditBackupName_editingFinished()
 {
+    bool disableMostUi = (ui->lineEditBackupName->text() == "");
+    ui->groupBoxSourceList->setDisabled(disableMostUi);
+    ui->groupBoxSourceDetails->setDisabled(disableMostUi);
+    ui->groupBoxDestination->setDisabled(disableMostUi);
+    ui->lineEditBackupName->setDisabled(!disableMostUi);
+
+    activeBackup->backupName = ui->lineEditBackupName->text();
 }
 
 void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
 {
-    QString path = backupDetails->destinationBasePath + "/" + backupDetails->destinationBaseSuffixPath;
+    QString path = activeBackup->destinationBasePath + "/" + activeBackup->destinationBaseSuffixPath;
 
     QFileInfo dirInfo(path);
     qInfo() << "exists: " << dirInfo.exists();
@@ -417,7 +408,7 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOptions(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(backupDetails->destinationBasePath);
+    dialog.setDirectory(activeBackup->destinationBasePath);
 
     QStringList selectedItems;
     if (dialog.exec()) {
@@ -426,8 +417,8 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
             QString selected = selectedItems.at(i);
             qInfo() << "selected dir: " << selected;
 
-            if (selected.startsWith( backupDetails->destinationBasePath )) {
-                QString suffix = selected.right(selected.size()-backupDetails->destinationBasePath.size());
+            if (selected.startsWith( activeBackup->destinationBasePath )) {
+                QString suffix = selected.right(selected.size()-activeBackup->destinationBasePath.size());
                 qInfo() << "suffix: " << suffix;
 
                 if (suffix.startsWith("/"))
@@ -449,4 +440,56 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
     }
 }
 
+
+
+void MainWindow::on_action_New_triggered()
+{
+    qInfo() << "in action New";
+
+    // if the active backup or sources have been touched, show a confirmation dialog
+    // ...
+    int ret = QMessageBox::warning(this, tr("My Application"),
+                                   tr("The backup task has been modified.\nDo you want to save your changes?"),
+                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
+
+    if (ret == QMessageBox::Cancel) // or user pressed 'X' window key
+        return;
+
+    if (ret == QMessageBox::Save) {
+        on_ButtonApply_clicked();
+        // TODO possible errors when saving. Ask for confirmation and abort 'new' operation accordingly
+    }
+
+    // all clear or (ret == QMessageBox::Discard)
+
+    PersistenceModel persisted;
+    initAppData(persisted);
+}
+
+void MainWindow::applyChanges() {
+    // 1. gather model data from UI and put in a big object
+    // 2. generate backup script file based on the model
+    // 3. store model to disk
+
+    PersistenceModel persisted;
+    collectAppData(persisted);
+
+    QString dataFilePath = Lb::backupDataFilePath(activeBackup->backupName);
+    qInfo() << "data file path: " << dataFilePath;
+    QFile file(dataFilePath);
+    file.open(QIODevice::WriteOnly);
+    QDataStream stream(&file);
+    stream << persisted;
+    file.close();
+
+    QString scriptName = Lb::backupScriptFilePath(activeBackup->backupName);
+    qInfo() << "script name: " << scriptName;
+    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", scriptName, persisted);
+
+}
+// this saves backup configuration and generates scripts
+void MainWindow::on_ButtonApply_clicked()
+{
+    applyChanges();
+}
 

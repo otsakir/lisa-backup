@@ -44,8 +44,6 @@ private slots:
 
     void on_removeSourceButton_clicked();
 
-    void on_pushButton_3_clicked();
-
     void on_pushButtonSelectDevice_clicked();
 
     void on_pushButton_4_clicked();
@@ -80,15 +78,21 @@ private slots:
 
     void on_activeBackupMethodChanged(int backupType);
 
+    void on_action_New_triggered();
+
+    void on_ButtonApply_clicked();
+
+    void applyChanges();
+
 private:
     Ui::MainWindow *ui;
 
     QStandardItemModel* sourcesModel;
     QDataWidgetMapper* sourcesDataMapper;
-    BackupDetails* backupDetails; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
+    BackupDetails* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
     Session session;
 
-    bool loadPersisted(PersistenceModel& persisted);
+    bool loadPersisted(QString backupName, PersistenceModel& persisted);
     void appendSource(SourceDetails* sourceDetails);
     void collectAppData(PersistenceModel& persisted);
     void initAppData(const PersistenceModel& persisted);

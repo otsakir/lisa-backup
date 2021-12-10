@@ -126,12 +126,15 @@ public:
 };
 
 
-// 'volatile' application state lost when application closes
-
 class Session {
 public:
     QString defaultBrowseBackupDirectory; // that's the starting location when browsing fs for the directory to backup
+    QVector<QString> recentBackupNames;
+
+    friend QDataStream& operator << (QDataStream& s, const Session& o);
+    friend QDataStream& operator >> (QDataStream& s, Session& o);
 };
+
 
 
 
