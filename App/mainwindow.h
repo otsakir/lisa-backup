@@ -84,6 +84,8 @@ private slots:
 
     void applyChanges();
 
+    void on_action_Open_triggered();
+
 private:
     Ui::MainWindow *ui;
 

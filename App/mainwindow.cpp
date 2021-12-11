@@ -247,8 +247,8 @@ void MainWindow::on_pushButton_4_clicked()
 }
 
 
-bool MainWindow::loadPersisted(QString backupName, PersistenceModel& persisted) {
-    QFile ifile(Lb::backupDataFilePath(backupName));
+bool loadPersistedFile(const QString backupFilename, PersistenceModel& persisted) {
+    QFile ifile(backupFilename);
     if (ifile.open(QIODevice::ReadOnly)) {
         QDataStream istream(&ifile);
         istream >> persisted;
@@ -256,6 +256,10 @@ bool MainWindow::loadPersisted(QString backupName, PersistenceModel& persisted) 
         return true;
     }
     return false;
+}
+
+bool MainWindow::loadPersisted(const QString backupName, PersistenceModel& persisted) {
+    return loadPersistedFile(Lb::backupDataFilePath(backupName), persisted);
 }
 
 void MainWindow::on_pushButtonLoad_clicked()
@@ -491,5 +495,22 @@ void MainWindow::applyChanges() {
 void MainWindow::on_ButtonApply_clicked()
 {
     applyChanges();
+}
+
+
+void MainWindow::on_action_Open_triggered()
+{
+    QFileDialog dialog(this);
+    dialog.setDirectory(Lb::dataDirectory());
+
+    if (dialog.exec()) {
+        QString filename = dialog.selectedFiles().first();
+        qInfo() << "filename: " << filename;
+
+        PersistenceModel persisted;
+        if (loadPersistedFile(filename,persisted)) {
+            initAppData(persisted);
+        }
+    }
 }
 
