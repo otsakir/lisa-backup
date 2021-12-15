@@ -5,10 +5,11 @@
 
 namespace Lb {
 
-QString dataDirectory();
+QString dataDirectory();    // contains application data in raw form (stored there when pressing Apply)
 QString configDirectory();
 QString scriptsDirectory();
 QString homeDirectory();
+
 
 QString backupDataFilePath(const QString& backupName);
 QString backupScriptFilePath(const QString& backupName);
@@ -30,6 +31,10 @@ QString userGroup();
 QString runShellCommand(QString commandString);
 
 QString randomString(unsigned int size);
+
+bool systemdUnitForMountPath(QString path, QString& systemdUnit);
+
+
 }
 
 #endif // UTILS_H

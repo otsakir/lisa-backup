@@ -15,6 +15,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QStorageInfo>
 
 Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
@@ -209,13 +210,14 @@ void MainWindow::initAppData(const PersistenceModel& persisted) {
     *activeBackup = persisted.backupDetails;
     ui->lineEditBackupName->setText(activeBackup->backupName);
     ui->lineEditSystemdUnit->setText(activeBackup->systemdMountUnit);
-    ui->lineEditDestinationBasePath->setText(activeBackup->destinationBasePath + "/");
     ui->lineEditDestinationSuffixPath->setText(activeBackup->destinationBaseSuffixPath);
 
     sourcesModel->clear();
     for (int i=0; i<persisted.allSourceDetails.size(); i++) {
         appendSource(new SourceDetails(persisted.allSourceDetails.at(i)));
     }
+
+    refreshBasePaths(activeBackup->destinationBasePath);
 
     emit ui->lineEditBackupName->editingFinished(); // simulate having finished editing the control to trigger handlers
 }
@@ -230,9 +232,10 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
     if ( dialog.exec() == QDialog::Accepted) {
         qInfo() << "result: " << dialogResult.mountId << " - " << dialogResult.mountPath;
         ui->lineEditSystemdUnit->setText(dialogResult.mountId);
-        activeBackup->destinationBasePath = dialogResult.mountPath;
-        ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
-        ui->lineEditDestinationSuffixPath->setText(dialogResult.backupSubdir);
+        activeBackup->systemdMountUnit = dialogResult.mountPath;
+        //activeBackup->destinationBasePath = dialogResult.mountPath;
+        //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
+        //ui->lineEditDestinationSuffixPath->setText(dialogResult.backupSubdir);
         //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
     }
 }
@@ -260,13 +263,6 @@ bool loadPersistedFile(const QString backupFilename, PersistenceModel& persisted
 
 bool MainWindow::loadPersisted(const QString backupName, PersistenceModel& persisted) {
     return loadPersistedFile(Lb::backupDataFilePath(backupName), persisted);
-}
-
-void MainWindow::on_pushButtonLoad_clicked()
-{
-    PersistenceModel persisted;
-    loadPersisted("personal-stuff",persisted);
-    initAppData(persisted);
 }
 
 SourceDetails* MainWindow::getSelectedSourceDetails() {
@@ -512,5 +508,65 @@ void MainWindow::on_action_Open_triggered()
             initAppData(persisted);
         }
     }
+}
+
+// reloads paths for system mounted devices. Adds 'current' if not already in the list
+void MainWindow::refreshBasePaths(QString current) {
+    ui->comboBoxBasePath->clear();
+    int indexFound = -1; // assume not found
+    int i = 0; // counter
+    QString rootPath;
+    foreach( const QStorageInfo& storage, QStorageInfo::mountedVolumes()) {
+        rootPath = storage.rootPath();
+        if (!current.isEmpty() && rootPath == current) {
+            indexFound = i;
+        }
+        ui->comboBoxBasePath->addItem(storage.rootPath());
+        i++;
+    }
+    if (!current.isEmpty()) {
+        if (indexFound != -1) {
+            ui->comboBoxBasePath->setCurrentIndex(indexFound);
+        } else {
+            ui->comboBoxBasePath->addItem(current);
+            ui->comboBoxBasePath->setCurrentIndex(i);
+            // todo - set current index point to this item
+        }
+    }
+}
+
+void MainWindow::on_pushButtonRefreshBasePaths_clicked()
+{
+    refreshBasePaths(activeBackup->destinationBasePath);
+}
+
+
+void MainWindow::on_comboBoxBasePath_currentIndexChanged(const QString &newPath)
+{
+    qInfo() << "selected base path changed: " << newPath;
+    activeBackup->destinationBasePath = newPath;
+
+    QString systemdUnit;
+    if ( Lb::systemdUnitForMountPath(newPath, systemdUnit) ) {
+        qInfo() << "systemd unit: " << systemdUnit;
+        activeBackup->systemdMountUnit = systemdUnit;
+        ui->lineEditSystemdUnit->setText(systemdUnit);
+    } else {
+        qWarning() << "no systemd unit for path " << newPath;
+        ui->lineEditSystemdUnit->clear();
+        activeBackup->systemdMountUnit.clear();
+    }
+}
+
+
+void MainWindow::on_comboBoxBasePath_currentIndexChanged(int index)
+{
+
+}
+
+
+void MainWindow::on_action_Save_triggered()
+{
+    applyChanges();
 }
 

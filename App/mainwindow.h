@@ -48,8 +48,6 @@ private slots:
 
     void on_pushButton_4_clicked();
 
-    void on_pushButtonLoad_clicked();
-
     void on_comboBoxDepth_currentIndexChanged(int index);
 
     void on_radioButtonAll_toggled(bool checked);
@@ -59,8 +57,6 @@ private slots:
     void on_lineEditContainsFilename_editingFinished();
 
     void on_lineEditNameMatches_editingFinished();
-
-    //void on_comboBoxPredicate_currentIndexChanged(int index);
 
     void updatePredicateTypeIndex(int index);
 
@@ -82,9 +78,15 @@ private slots:
 
     void on_ButtonApply_clicked();
 
-    void applyChanges();
-
     void on_action_Open_triggered();
+
+    void on_pushButtonRefreshBasePaths_clicked();
+
+    void on_comboBoxBasePath_currentIndexChanged(const QString &arg1);
+
+    void on_comboBoxBasePath_currentIndexChanged(int index);
+
+    void on_action_Save_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -99,5 +101,7 @@ private:
     void collectAppData(PersistenceModel& persisted);
     void initAppData(const PersistenceModel& persisted);
 
+    void applyChanges();
+    void refreshBasePaths(QString current);
 };
 #endif // MAINWINDOW_H

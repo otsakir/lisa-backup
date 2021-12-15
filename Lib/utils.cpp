@@ -4,6 +4,7 @@
 #include <QProcessEnvironment>
 #include <QDir>
 #include <QRandomGenerator>
+#include <QStandardItem>
 
 
 #include <QDebug>
@@ -132,6 +133,31 @@ QString randomString(unsigned int size) {
     return QString(buffer);
 }
 
+// give it a path where a device is mounted and it will try to return the respective systemd unit it
+bool systemdUnitForMountPath(QString path, QString& systemdUnit) {
+    QString mountUnitsString = Lb::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
+    if (!mountUnitsString.isEmpty()) {
+        QStringList lines = mountUnitsString.split("\n", QString::SkipEmptyParts);
+        //qInfo() << "lines: " << lines << "\n";
 
+        for (int i = 0; i<lines.size(); i++) {
+            QString line = lines.at(i);
+            QStringList unitinfo = line.split("||", QString::SkipEmptyParts);
+            qInfo() << unitinfo;
 
+            if ( unitinfo.size() == 2) {
+                if (unitinfo[1] == path) {
+                    qInfo() << "found match: " << unitinfo[1] << unitinfo[0];
+                    //result = unitinfo[0];
+                    systemdUnit = unitinfo[0];
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
+
+
+
+} // Lb namespace

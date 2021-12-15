@@ -13,5 +13,5 @@ if [ $? -eq 1 ]; then
         # find /home/nando/Projects -name 'dobackup' -exec /home/nando/scripts/bundle-git-repo.sh {} /media/nando/backup1/nando/REPO \;
         logger "'$BACKUP_NAME' process completed"
 else
-        logger "'backup1 '$BACKUP_NAME' process cancelled"
+        logger "'$BACKUP_NAME' process cancelled"
 fi
