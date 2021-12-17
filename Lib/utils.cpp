@@ -159,5 +159,45 @@ bool systemdUnitForMountPath(QString path, QString& systemdUnit) {
 }
 
 
+/**
+ * Path validator
+ *
+ * validates a path one piece at a time. Updates validPath with
+ * the largest valid path found.
+ *
+ * Example
+ *
+ *     bestValidDirectoryMatch("/home/valid/path/with some trailing/crap /in/it",validPath)
+ *
+ * Here, validPath will be filled with "/home/valid/path/".
+ *
+ * The trailing slash in the returned value is important. It's present for directories
+ * and missing for (valid) files.
+ */
+void bestValidDirectoryMatch(const QString& rawpath, QString& validPath) {
+    QDir startDir(rawpath);
+    QString path = startDir.absolutePath(); // remove costructs like "..", "." etc.
+
+    QStringList pathParts = path.split("/");
+    validPath.clear();
+    //QString validPath = "";
+    validPath.reserve(256);
+    foreach (const QString& part, pathParts) {
+        qInfo() << "part: " << part;
+        if (!part.isEmpty()) {
+            QString testpath = validPath + part;
+            QFileInfo checkDir(testpath);
+            if (checkDir.exists()) {
+                    validPath.append(part);
+                    if (checkDir.isDir())
+                        validPath.append("/");
+            }
+
+        } else
+            validPath.append("/");
+    }
+}
+
+
 
 } // Lb namespace

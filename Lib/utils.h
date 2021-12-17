@@ -33,7 +33,7 @@ QString runShellCommand(QString commandString);
 QString randomString(unsigned int size);
 
 bool systemdUnitForMountPath(QString path, QString& systemdUnit);
-
+void bestValidDirectoryMatch(const QString& rawpath, QString& validPath);
 
 }
 

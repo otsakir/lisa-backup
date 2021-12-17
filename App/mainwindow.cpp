@@ -217,7 +217,7 @@ void MainWindow::initAppData(const PersistenceModel& persisted) {
         appendSource(new SourceDetails(persisted.allSourceDetails.at(i)));
     }
 
-    refreshBasePaths(activeBackup->destinationBasePath);
+    refreshBasePaths(activeBackup->destinationBasePath.isEmpty() ? "/" : activeBackup->destinationBasePath);
 
     emit ui->lineEditBackupName->editingFinished(); // simulate having finished editing the control to trigger handlers
 }
@@ -391,7 +391,7 @@ void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
         else if (!dirInfo.isDir())
             message = "This is not a directory";
         else if (!dirInfo.isWritable())
-            message = "Directory is not writable. Make sure you can write to it";
+            message = "Directory is not writable";
         ok = false;
     }
 
@@ -402,14 +402,18 @@ void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
     }
 }
 
-
 void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOptions(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(activeBackup->destinationBasePath);
 
+    // try to find optimal starting directory for the dialog. Put it in validPath.
+
+    QString validPath;
+    Lb::bestValidDirectoryMatch(ui->comboBoxBasePath->currentText() + ui->lineEditDestinationSuffixPath->text(), validPath);
+
+    dialog.setDirectory(validPath);
     QStringList selectedItems;
     if (dialog.exec()) {
         selectedItems = dialog.selectedFiles();
@@ -556,6 +560,8 @@ void MainWindow::on_comboBoxBasePath_currentIndexChanged(const QString &newPath)
         ui->lineEditSystemdUnit->clear();
         activeBackup->systemdMountUnit.clear();
     }
+
+    emit ui->lineEditDestinationSuffixPath->editingFinished();
 }
 
 
