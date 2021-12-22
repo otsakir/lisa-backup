@@ -114,15 +114,15 @@ private:
 
 // Data model used for readind/writing to disk. It doesn't allocate memory.
 
-class PersistenceModel {
+class BackupModel {
 public:
     BackupDetails backupDetails;
     QVector<SourceDetails> allSourceDetails;
 
-    PersistenceModel() {};
+    BackupModel() {};
 
-    friend QDataStream& operator << (QDataStream& s, const PersistenceModel& pmodel);
-    friend QDataStream& operator >> (QDataStream& s, PersistenceModel& pmodel);
+    friend QDataStream& operator << (QDataStream& s, const BackupModel& pmodel);
+    friend QDataStream& operator >> (QDataStream& s, BackupModel& pmodel);
 };
 
 

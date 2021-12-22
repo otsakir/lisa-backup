@@ -49,13 +49,13 @@ QDataStream& operator >> (QDataStream& s, BackupDetails& backupDetails) {
     return s;
 }
 
-QDataStream& operator << (QDataStream& s, const PersistenceModel& pmodel) {
+QDataStream& operator << (QDataStream& s, const BackupModel& pmodel) {
     s << pmodel.backupDetails;
     s << pmodel.allSourceDetails;
     return s;
 }
 
-QDataStream& operator >> (QDataStream& s, PersistenceModel& pmodel) {
+QDataStream& operator >> (QDataStream& s, BackupModel& pmodel) {
     s >> pmodel.backupDetails;
     s >> pmodel.allSourceDetails;
     return s;

@@ -6,7 +6,7 @@
 
 namespace Lb {
 
-void buildBackupCommands(const PersistenceModel& appstate, QVector<QString>& commands) {
+void buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands) {
     for (int i=0; i < appstate.allSourceDetails.size(); i++) {
 
         const SourceDetails& source = appstate.allSourceDetails.at(i);
@@ -24,7 +24,7 @@ void buildBackupCommands(const PersistenceModel& appstate, QVector<QString>& com
     return;
 }
 
-bool generateBackupScript(QString scriptTemplate, QString outfilename, const PersistenceModel& appstate) {
+bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate) {
 
     // open script template file
     QFile f(scriptTemplate);

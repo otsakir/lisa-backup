@@ -15,7 +15,7 @@ QT_END_NAMESPACE
 
 // Forward (abstract) type declarations
 struct BackupDetails;
-class PersistenceModel;
+class BackupModel;
 class SourceDetails;
 class Session;
 
@@ -107,14 +107,14 @@ private:
 
     QStandardItemModel* sourcesModel;
     QDataWidgetMapper* sourcesDataMapper;
-    BackupDetails* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
+    BackupModel* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
     Session session;
     State state; // generic application state. Not part of a backup.
 
-    bool loadPersisted(QString backupName, PersistenceModel& persisted);
+    bool loadPersisted(QString backupName, BackupModel& persisted);
     void appendSource(SourceDetails* sourceDetails);
-    void collectUIControls(PersistenceModel& persisted);
-    void initUIControls(const PersistenceModel& persisted);
+    void collectUIControls(BackupModel& persisted);
+    void initUIControls(const BackupModel& persisted);
 
     void applyChanges();
     void refreshBasePaths(QString current);
