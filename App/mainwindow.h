@@ -29,8 +29,12 @@ public:
 
 signals:
     void methodChanged(int methodIndex); // signal raised when the backup method is altered between all/selective cases
+    //void backupNameChanged(QString backupName); // signal raised when the backup name is changed. Be it set to another value or cleared altogether.
+    void newBackupName(QString backupName); // there is a new backup name established!
+
 
 private slots:
+    void onNewBackupName(QString backupName);
     void on_pushButton_clicked();
 
     void on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected);
@@ -66,7 +70,7 @@ private slots:
 
     void on_toolButton_toggled(bool checked);
 
-    void on_lineEditBackupName_editingFinished();
+    //void on_lineEditBackupName_editingFinished();
 
     void on_lineEditDestinationSuffixPath_editingFinished();
 
@@ -88,6 +92,16 @@ private slots:
 
     void on_action_Save_triggered();
 
+    void on_lineEditBackupName_editingFinished();
+
+    void on_lineEditBackupName_returnPressed();
+
+    void on_pushButtonInstallTrigger_clicked();
+
+    void on_pushButton_TestEdit_clicked();
+
+    void on_pushButtonOk_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -95,13 +109,16 @@ private:
     QDataWidgetMapper* sourcesDataMapper;
     BackupDetails* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
     Session session;
+    State state; // generic application state. Not part of a backup.
 
     bool loadPersisted(QString backupName, PersistenceModel& persisted);
     void appendSource(SourceDetails* sourceDetails);
-    void collectAppData(PersistenceModel& persisted);
-    void initAppData(const PersistenceModel& persisted);
+    void collectUIControls(PersistenceModel& persisted);
+    void initUIControls(const PersistenceModel& persisted);
 
     void applyChanges();
     void refreshBasePaths(QString current);
+    void enableMostUI(bool enable);
+    void setupTriggerButtons(const QString& backupName);
 };
 #endif // MAINWINDOW_H

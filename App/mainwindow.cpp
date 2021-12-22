@@ -47,6 +47,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
 
+    //QObject::connect(this, &MainWindow::backupNameChanged, this, &MainWindow::setTriggerButtons);
+    QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
+
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
@@ -66,7 +69,13 @@ MainWindow::MainWindow(QWidget *parent)
         persisted.backupDetails.systemdId = Lb::randomString(16);
         //persisted.backupDetails.backupName = "";
     }
-    initAppData(persisted);
+
+    initUIControls(persisted);
+}
+
+
+void MainWindow::onNewBackupName(QString backupName) {
+    qInfo() << "new backup name!";
 }
 
 void MainWindow::on_activeBackupMethodChanged(int backupType) {
@@ -171,14 +180,7 @@ void MainWindow::on_updateSelection(const QItemSelection &selected, const QItemS
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    QProcess process;
-    //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
-
-    QString backupName = "backup1.sh";
-    QString backupScriptPath = Lb::backupScriptFilePath(activeBackup->backupName);
-
-    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", activeBackup->backupName, "-u", activeBackup->systemdMountUnit, backupScriptPath});
-    process.waitForFinished(-1);
+    Lb::Triggers::installSystemdHook(*activeBackup);
 }
 
 
@@ -197,7 +199,7 @@ void MainWindow::on_removeSourceButton_clicked()
 }
 
 // gathers application data and populates a PersistenceModel. Used right before storage.
-void MainWindow::   collectAppData(PersistenceModel& persisted) {
+void MainWindow::collectUIControls(PersistenceModel& persisted) {
     persisted.backupDetails = *activeBackup;
     for (int i=0; i<sourcesModel->rowCount(); i++) {
         SourceDetails* sourcep = sourcesModel->index(i, 1).data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
@@ -206,7 +208,7 @@ void MainWindow::   collectAppData(PersistenceModel& persisted) {
     }
 }
 
-void MainWindow::initAppData(const PersistenceModel& persisted) {
+void MainWindow::initUIControls(const PersistenceModel& persisted) {
     *activeBackup = persisted.backupDetails;
     ui->lineEditBackupName->setText(activeBackup->backupName);
     ui->lineEditSystemdUnit->setText(activeBackup->systemdMountUnit);
@@ -219,7 +221,52 @@ void MainWindow::initAppData(const PersistenceModel& persisted) {
 
     refreshBasePaths(activeBackup->destinationBasePath.isEmpty() ? "/" : activeBackup->destinationBasePath);
 
-    emit ui->lineEditBackupName->editingFinished(); // simulate having finished editing the control to trigger handlers
+    bool newBackup = ui->lineEditBackupName->text().isEmpty();
+
+    ui->lineEditBackupName->setEnabled(newBackup);
+    enableMostUI(!newBackup);
+    ui->pushButtonOk->setVisible(newBackup);
+    ui->toolButton->setVisible(!newBackup);
+
+    // enable/disable trigger buttons
+    if (!newBackup) {
+        setupTriggerButtons(ui->lineEditBackupName->text());
+    }
+}
+
+void MainWindow::setupTriggerButtons(const QString& backupName) {
+    bool triggerExists = Lb::Triggers::systemdHookPresent(backupName);
+    qInfo() << "systemd service present: " << triggerExists;
+    ui->pushButtonInstallTrigger->setEnabled(!triggerExists); // already installed
+    ui->pushButtonRemoveTrigger->setEnabled(triggerExists);
+}
+
+void MainWindow::enableMostUI(bool enable) {
+
+    ui->groupBoxSourceList->setEnabled(enable);
+    ui->groupBoxSourceDetails->setEnabled(enable);
+    ui->groupBoxDestination->setEnabled(enable);
+
+    // disable signals because setDisabled() will trigger another round of editingFinished() event
+    //ui->lineEditBackupName->blockSignals(true);
+    //ui->lineEditBackupName->setEnabled(!disableMostUi);
+    //ui->lineEditBackupName->blockSignals(false);
+
+    //ui->toolButton->blockSignals(true);
+    //ui->toolButton->setChecked(disableMostUi);
+    //ui->toolButton->blockSignals(false);
+
+    /*
+    activeBackup->backupName = ui->lineEditBackupName->text();
+    if (!disableMostUi) {
+        bool present = Lb::Triggers::systemdHookPresent(activeBackup->backupName);
+        qInfo() << "systemd service present: " << present;
+        //TODO: enable or disable pushButtonInstallTrigger and pushButtonRemoveTrigger
+    }
+
+    emit backupNameChanged(activeBackup->backupName);
+    */
+
 }
 
 
@@ -243,10 +290,7 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
 
 void MainWindow::on_pushButton_4_clicked()
 {
-    QProcess process;
-
-    process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", activeBackup->backupName});
-    process.waitForFinished(-1);
+    Lb::Triggers::removeSystemdHook(*activeBackup);
 }
 
 
@@ -353,23 +397,11 @@ void MainWindow::on_toolButton_toggled(bool checked)
         // looks like we're done editing
         if ( ui->lineEditBackupName->text() != activeBackup->backupName) {
             //qInfo() << "backupName updated";
-            // at this point we can display a confirmation for the passing on the udpate or prevent the update
+            // at this point we can display a confirmation for passing on the update or prevent it
             activeBackup->backupName = ui->lineEditBackupName->text();
         }
     }
     ui->lineEditBackupName->setEnabled(checked);
-}
-
-
-void MainWindow::on_lineEditBackupName_editingFinished()
-{
-    bool disableMostUi = (ui->lineEditBackupName->text() == "");
-    ui->groupBoxSourceList->setDisabled(disableMostUi);
-    ui->groupBoxSourceDetails->setDisabled(disableMostUi);
-    ui->groupBoxDestination->setDisabled(disableMostUi);
-    ui->lineEditBackupName->setDisabled(!disableMostUi);
-
-    activeBackup->backupName = ui->lineEditBackupName->text();
 }
 
 void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
@@ -467,7 +499,7 @@ void MainWindow::on_action_New_triggered()
     // all clear or (ret == QMessageBox::Discard)
 
     PersistenceModel persisted;
-    initAppData(persisted);
+    initUIControls(persisted);
 }
 
 void MainWindow::applyChanges() {
@@ -476,7 +508,7 @@ void MainWindow::applyChanges() {
     // 3. store model to disk
 
     PersistenceModel persisted;
-    collectAppData(persisted);
+    collectUIControls(persisted);
 
     QString dataFilePath = Lb::backupDataFilePath(activeBackup->backupName);
     qInfo() << "data file path: " << dataFilePath;
@@ -509,7 +541,7 @@ void MainWindow::on_action_Open_triggered()
 
         PersistenceModel persisted;
         if (loadPersistedFile(filename,persisted)) {
-            initAppData(persisted);
+            initUIControls(persisted);
         }
     }
 }
@@ -574,5 +606,73 @@ void MainWindow::on_comboBoxBasePath_currentIndexChanged(int index)
 void MainWindow::on_action_Save_triggered()
 {
     applyChanges();
+}
+
+
+void MainWindow::on_lineEditBackupName_editingFinished()
+{
+/*    qInfo() << "backupName: " << "editing finished";
+
+    bool disableMostUi = (ui->lineEditBackupName->text() == "");
+    ui->groupBoxSourceList->setDisabled(disableMostUi);
+    ui->groupBoxSourceDetails->setDisabled(disableMostUi);
+    ui->groupBoxDestination->setDisabled(disableMostUi);
+
+    // disable signals because setDisabled() will trigger another round of editingFinished() event
+    ui->lineEditBackupName->blockSignals(true);
+    ui->lineEditBackupName->setDisabled(!disableMostUi);
+    ui->lineEditBackupName->blockSignals(false);
+
+    ui->toolButton->blockSignals(true);
+    ui->toolButton->setChecked(disableMostUi);
+    ui->toolButton->blockSignals(false);
+
+    activeBackup->backupName = ui->lineEditBackupName->text();
+    if (!disableMostUi) {
+        bool present = Lb::Triggers::systemdHookPresent(activeBackup->backupName);
+        qInfo() << "systemd service present: " << present;
+        //TODO: enable or disable pushButtonInstallTrigger and pushButtonRemoveTrigger
+    }
+
+    emit backupNameChanged(activeBackup->backupName);
+*/
+}
+
+
+void MainWindow::on_lineEditBackupName_returnPressed()
+{
+    qInfo () << "return pressed";
+    emit ui->pushButtonOk->clicked();
+}
+
+
+void MainWindow::on_pushButton_TestEdit_clicked()
+{
+    qInfo() << "test  edit clicked";
+    //ui->toolButton->setCheckable(true);
+    ui->toolButton->setChecked(true);
+
+}
+
+
+void MainWindow::on_pushButtonInstallTrigger_clicked()
+{
+    Lb::Triggers::installSystemdHook(*activeBackup);
+}
+
+
+void MainWindow::on_pushButtonOk_clicked()
+{
+    // validate current backupName. For now we just check if non-empty
+    if (!ui->lineEditBackupName->text().isEmpty()) {
+        // ok, "valid"
+        ui->lineEditBackupName->setEnabled(false);
+        enableMostUI(true);
+        setupTriggerButtons(ui->lineEditBackupName->text());
+        ui->pushButtonOk->setVisible(false);
+        ui->toolButton->setVisible(true);
+    }
+
+    qInfo() << "in buttonOk";
 }
 

@@ -1,4 +1,5 @@
-#include <utils.h>
+
+#include "utils.h"
 
 #include <QStandardPaths>
 #include <QProcessEnvironment>
@@ -17,6 +18,7 @@
 // stands for Lisa-Backup
 namespace Lb {
 
+// CONVENTION: directory paths don't include trailing slash
 
 // narrow down options
 QString dataDirectory() {
@@ -32,6 +34,10 @@ QString configDirectory() {
 QString homeDirectory() {
     QStringList pathlist = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     return pathlist.first();
+}
+
+QString systemdDirectory() {
+    return "/etc/systemd/system"; // TODO make this parametric from installation
 }
 
 // TODO - fix fallback logic (?)
@@ -196,6 +202,42 @@ void bestValidDirectoryMatch(const QString& rawpath, QString& validPath) {
         } else
             validPath.append("/");
     }
+}
+
+namespace Triggers {
+
+    void installSystemdHook(const BackupDetails& backup) {
+        QProcess process;
+        //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
+
+        QString backupName = "backup1.sh";
+        QString backupScriptPath = Lb::backupScriptFilePath(backup.backupName);
+
+        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backup.backupName, "-u", backup.systemdMountUnit, backupScriptPath});
+        process.waitForFinished(-1);
+    }
+
+    void removeSystemdHook(const BackupDetails &backup) {
+        QProcess process;
+
+        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backup.backupName});
+        process.waitForFinished(-1);
+    }
+
+    /**
+     * @brief Checks if systemd service is inplace
+     * @param backupName The name of the backup as entered by the user
+     * @return true if systemd service if present, false otherwise
+     */
+    bool systemdHookPresent(const QString& backupName) {
+        QString path = systemdDirectory();
+        path.reserve(128);
+        path.append("/").append("lbackup-").append(backupName).append(".service");
+
+        QFile serviceFile(path);
+        return serviceFile.exists();
+    }
+
 }
 
 

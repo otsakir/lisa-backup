@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <QString>
+#include "core.h"
 
 namespace Lb {
 
@@ -9,6 +10,7 @@ QString dataDirectory();    // contains application data in raw form (stored the
 QString configDirectory();
 QString scriptsDirectory();
 QString homeDirectory();
+QString systemdDirectory(); // systemd service file directory (typically /etc/systemd/system/)
 
 
 QString backupDataFilePath(const QString& backupName);
@@ -34,6 +36,12 @@ QString randomString(unsigned int size);
 
 bool systemdUnitForMountPath(QString path, QString& systemdUnit);
 void bestValidDirectoryMatch(const QString& rawpath, QString& validPath);
+
+namespace Triggers {
+    void installSystemdHook(const BackupDetails& backup);
+    void removeSystemdHook(const BackupDetails &backup);
+    bool systemdHookPresent(const QString& backupName);
+};
 
 }
 
