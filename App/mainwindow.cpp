@@ -199,6 +199,7 @@ void MainWindow::on_removeSourceButton_clicked()
 // gathers application data and populates a PersistenceModel. Used right before storage.
 void MainWindow::collectUIControls(BackupModel& persisted) {
     persisted = *activeBackup;
+    persisted.allSourceDetails.clear();
     for (int i=0; i<sourcesModel->rowCount(); i++) {
         SourceDetails* sourcep = sourcesModel->index(i, 1).data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
         persisted.allSourceDetails.append(*sourcep);
@@ -206,18 +207,18 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
     }
 }
 
-void MainWindow::initUIControls(const BackupModel& persisted) {
+void MainWindow::initUIControls(const BackupModel& backupModel) {
     //*activeBackup = persisted.backupDetails;
-    ui->lineEditBackupName->setText(activeBackup->backupDetails.backupName);
-    ui->lineEditSystemdUnit->setText(activeBackup->backupDetails.systemdMountUnit);
-    ui->lineEditDestinationSuffixPath->setText(activeBackup->backupDetails.destinationBaseSuffixPath);
+    ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
+    ui->lineEditSystemdUnit->setText(backupModel.backupDetails.systemdMountUnit);
+    ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationBaseSuffixPath);
 
     sourcesModel->clear();
-    for (int i=0; i<persisted.allSourceDetails.size(); i++) {
-        appendSource(new SourceDetails(persisted.allSourceDetails.at(i)));
+    for (int i=0; i<backupModel.allSourceDetails.size(); i++) {
+        appendSource(new SourceDetails(backupModel.allSourceDetails.at(i)));
     }
 
-    refreshBasePaths(activeBackup->backupDetails.destinationBasePath.isEmpty() ? "/" : activeBackup->backupDetails.destinationBasePath);
+    refreshBasePaths(backupModel.backupDetails.destinationBasePath.isEmpty() ? "/" : backupModel.backupDetails.destinationBasePath);
 
     bool newBackup = ui->lineEditBackupName->text().isEmpty();
 
@@ -288,7 +289,7 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
 
 void MainWindow::on_pushButton_4_clicked()
 {
-    Lb::Triggers::removeSystemdHook(activeBackup->backupDetails);
+
 }
 
 
@@ -539,7 +540,8 @@ void MainWindow::on_action_Open_triggered()
 
         BackupModel persisted;
         if (loadPersistedFile(filename,persisted)) {
-            initUIControls(persisted);
+            *activeBackup = persisted;
+            initUIControls(*activeBackup);
         }
     }
 }
@@ -609,31 +611,7 @@ void MainWindow::on_action_Save_triggered()
 
 void MainWindow::on_lineEditBackupName_editingFinished()
 {
-/*    qInfo() << "backupName: " << "editing finished";
-
-    bool disableMostUi = (ui->lineEditBackupName->text() == "");
-    ui->groupBoxSourceList->setDisabled(disableMostUi);
-    ui->groupBoxSourceDetails->setDisabled(disableMostUi);
-    ui->groupBoxDestination->setDisabled(disableMostUi);
-
-    // disable signals because setDisabled() will trigger another round of editingFinished() event
-    ui->lineEditBackupName->blockSignals(true);
-    ui->lineEditBackupName->setDisabled(!disableMostUi);
-    ui->lineEditBackupName->blockSignals(false);
-
-    ui->toolButton->blockSignals(true);
-    ui->toolButton->setChecked(disableMostUi);
-    ui->toolButton->blockSignals(false);
-
-    activeBackup->backupName = ui->lineEditBackupName->text();
-    if (!disableMostUi) {
-        bool present = Lb::Triggers::systemdHookPresent(activeBackup->backupName);
-        qInfo() << "systemd service present: " << present;
-        //TODO: enable or disable pushButtonInstallTrigger and pushButtonRemoveTrigger
-    }
-
-    emit backupNameChanged(activeBackup->backupName);
-*/
+    activeBackup->backupDetails.backupName = ui->lineEditBackupName->text();
 }
 
 
@@ -656,6 +634,7 @@ void MainWindow::on_pushButton_TestEdit_clicked()
 void MainWindow::on_pushButtonInstallTrigger_clicked()
 {
     Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
+    setupTriggerButtons(activeBackup->backupDetails.backupName); // re-evaluate button state
 }
 
 
@@ -672,5 +651,12 @@ void MainWindow::on_pushButtonOk_clicked()
     }
 
     qInfo() << "in buttonOk";
+}
+
+
+void MainWindow::on_pushButtonRemoveTrigger_clicked()
+{
+    Lb::Triggers::removeSystemdHook(activeBackup->backupDetails);
+    setupTriggerButtons(activeBackup->backupDetails.backupName); // re-evaluate button state
 }
 

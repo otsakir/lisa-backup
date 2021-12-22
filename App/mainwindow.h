@@ -102,6 +102,8 @@ private slots:
 
     void on_pushButtonOk_clicked();
 
+    void on_pushButtonRemoveTrigger_clicked();
+
 private:
     Ui::MainWindow *ui;
 
