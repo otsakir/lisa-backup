@@ -680,31 +680,6 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="ButtonApply">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>135</width>
-          <height>33</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>128</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="pushButton_5">
         <property name="minimumSize">
          <size>
@@ -737,6 +712,10 @@
     <addaction name="action_New"/>
     <addaction name="action_Open"/>
     <addaction name="action_Save"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionE_xit"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -787,6 +766,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>&amp;Delete</string>
+   </property>
+  </action>
+  <action name="actionE_xit">
+   <property name="text">
+    <string>E&amp;xit</string>
    </property>
   </action>
  </widget>

@@ -50,6 +50,14 @@ MainWindow::MainWindow(QWidget *parent)
     //QObject::connect(this, &MainWindow::backupNameChanged, this, &MainWindow::setTriggerButtons);
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
 
+   // QObject::connect(ui->actionE_xit, &QAction::triggered,  )
+     //       connect(quitButton, &QPushButton::clicked, &app, &QCoreApplication::quit, Qt::QueuedConnection);
+
+    // 'PleaseQuit' signal bound to application quit
+    QObject::connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
+    // 'Exit' action bount to 'PleaseQuit' signal
+    QObject::connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
+
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
@@ -479,8 +487,6 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 
 void MainWindow::on_action_New_triggered()
 {
-    qInfo() << "in action New";
-
     // if the active backup or sources have been touched, show a confirmation dialog
     // ...
     int ret = QMessageBox::warning(this, tr("My Application"),
@@ -658,5 +664,24 @@ void MainWindow::on_pushButtonRemoveTrigger_clicked()
 {
     Lb::Triggers::removeSystemdHook(activeBackup->backupDetails);
     setupTriggerButtons(activeBackup->backupDetails.backupName); // re-evaluate button state
+}
+
+
+void MainWindow::on_actionDelete_triggered()
+{
+    int ret = QMessageBox::warning(this, tr("Lisa Backup"),
+                                   tr("You are about to delete your backup task!"),
+                                   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if (ret == QMessageBox::Cancel)
+        return;
+
+    if (ret == QMessageBox::Ok) {
+        // Lb::removeBackupFiles() // removes systemd .service file, backup data file and backup scropt
+        // clear backup task state - activeBackup
+        // inform UI
+
+
+    }
 }
 

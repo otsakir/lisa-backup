@@ -31,7 +31,7 @@ signals:
     void methodChanged(int methodIndex); // signal raised when the backup method is altered between all/selective cases
     //void backupNameChanged(QString backupName); // signal raised when the backup name is changed. Be it set to another value or cleared altogether.
     void newBackupName(QString backupName); // there is a new backup name established!
-
+    void PleaseQuit();
 
 private slots:
     void onNewBackupName(QString backupName);
@@ -103,6 +103,8 @@ private slots:
     void on_pushButtonOk_clicked();
 
     void on_pushButtonRemoveTrigger_clicked();
+
+    void on_actionDelete_triggered();
 
 private:
     Ui::MainWindow *ui;
