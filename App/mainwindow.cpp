@@ -16,6 +16,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 #include <QStorageInfo>
+#include <QFontDatabase>
 
 Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
@@ -26,16 +27,23 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //if (QFontDatabase::addApplicationFont(":/FontAwesome.otf") < 0)
+    //    qWarning() << "FontAwesome cannot be loaded !";
+
+    /*QFont font;
+    font.setFamily("FontAwwwesome");
+    font.setPixelSize(16);
+
+    ui->pushButton_5->setFont(font);
+    ui->pushButton_5->setText("Run \uf04b");
+*/
+    ui->pushButton_5->setText("Run  \uf04b");
+
+
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
 
-    /*QStandardItem* modelItem = new QStandardItem("test");
-    QList<QStandardItem*> itemList;
-    itemList << modelItem;
-    sourcesModel->appendRow(itemList);
-*/
     sourcesDataMapper->setModel(sourcesModel);
-    //sourcesDataMapper->addMapping(ui->lineEdit_2, 0);
 
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
     QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &MainWindow::on_updateSelection );
@@ -47,11 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
 
-    //QObject::connect(this, &MainWindow::backupNameChanged, this, &MainWindow::setTriggerButtons);
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
-
-   // QObject::connect(ui->actionE_xit, &QAction::triggered,  )
-     //       connect(quitButton, &QPushButton::clicked, &app, &QCoreApplication::quit, Qt::QueuedConnection);
 
     // 'PleaseQuit' signal bound to application quit
     QObject::connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
@@ -72,8 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Try to load existing configuration. If not available, defaults from PersistenceModel constructor will be used.
     if (! loadPersisted(latestBackupName, *activeBackup)) {
         // init with defaults
-        //persisted.backupDetails.systemdId = Lb::randomString(16);
-        //persisted.backupDetails.backupName = "";
+        // TODO ?
     }
 
     initUIControls(*activeBackup);
@@ -183,11 +186,12 @@ void MainWindow::on_updateSelection(const QItemSelection &selected, const QItemS
 }
 
 
-
+/*
 void MainWindow::on_pushButton_2_clicked()
 {
     Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
 }
+*/
 
 
 
@@ -293,13 +297,6 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
         //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
     }
 }
-
-
-void MainWindow::on_pushButton_4_clicked()
-{
-
-}
-
 
 bool loadPersistedFile(const QString backupFilename, BackupModel& persisted) {
     QFile ifile(backupFilename);
@@ -416,9 +413,9 @@ void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
     QString path = activeBackup->backupDetails.destinationBasePath + "/" + activeBackup->backupDetails.destinationBaseSuffixPath;
 
     QFileInfo dirInfo(path);
-    qInfo() << "exists: " << dirInfo.exists();
-    qInfo() << "isDir: " << dirInfo.isDir();
-    qInfo() << "is writable: " << dirInfo.isWritable();
+    //qInfo() << "exists: " << dirInfo.exists();
+    //qInfo() << "isDir: " << dirInfo.isDir();
+    //qInfo() << "is writable: " << dirInfo.isWritable();
 
     QString message;
     bool ok;
@@ -627,16 +624,6 @@ void MainWindow::on_lineEditBackupName_returnPressed()
     emit ui->pushButtonOk->clicked();
 }
 
-
-void MainWindow::on_pushButton_TestEdit_clicked()
-{
-    qInfo() << "test  edit clicked";
-    //ui->toolButton->setCheckable(true);
-    ui->toolButton->setChecked(true);
-
-}
-
-
 void MainWindow::on_pushButtonInstallTrigger_clicked()
 {
     Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
@@ -683,5 +670,13 @@ void MainWindow::on_actionDelete_triggered()
 
 
     }
+}
+
+
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    QString backupName = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
+    Lb::runScriptInWindow(backupName);
 }
 

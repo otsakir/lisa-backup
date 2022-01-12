@@ -124,6 +124,17 @@ QString runShellCommand(QString commandString) {
     return out;
 }
 
+void runScriptInWindow(QString scriptPath) {
+    QProcess process;
+    //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
+
+    //QString backupName = "backup1.sh";
+    //QString backupScriptPath = Lb::backupScriptFilePath(backup.backupName);
+
+    process.startDetached("xterm", {"-e", scriptPath});
+    process.waitForFinished(-1);
+}
+
 QString randomString(unsigned int size) {
 #define MAX_RANDOM_STRING 64
     assert (size <= MAX_RANDOM_STRING);
@@ -149,11 +160,11 @@ bool systemdUnitForMountPath(QString path, QString& systemdUnit) {
         for (int i = 0; i<lines.size(); i++) {
             QString line = lines.at(i);
             QStringList unitinfo = line.split("||", QString::SkipEmptyParts);
-            qInfo() << unitinfo;
+            //qInfo() << unitinfo;
 
             if ( unitinfo.size() == 2) {
                 if (unitinfo[1] == path) {
-                    qInfo() << "found match: " << unitinfo[1] << unitinfo[0];
+                    //qInfo() << "found match: " << unitinfo[1] << unitinfo[0];
                     //result = unitinfo[0];
                     systemdUnit = unitinfo[0];
                     return true;

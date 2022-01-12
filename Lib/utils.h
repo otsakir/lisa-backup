@@ -31,6 +31,7 @@ QString username();
 QString userGroup();
 
 QString runShellCommand(QString commandString);
+void runScriptInWindow(QString scriptPath);
 
 QString randomString(unsigned int size);
 

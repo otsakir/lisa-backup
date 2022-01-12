@@ -40,7 +40,7 @@ private slots:
     void on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected);
 
     void on_currentChanged(const QModelIndex &current, const QModelIndex &previous);
-    void on_pushButton_2_clicked();
+    //void on_pushButton_2_clicked();
 
     void updateSourceDetailControls(const QModelIndex& current);
 
@@ -49,8 +49,6 @@ private slots:
     void on_removeSourceButton_clicked();
 
     void on_pushButtonSelectDevice_clicked();
-
-    void on_pushButton_4_clicked();
 
     void on_comboBoxDepth_currentIndexChanged(int index);
 
@@ -98,13 +96,13 @@ private slots:
 
     void on_pushButtonInstallTrigger_clicked();
 
-    void on_pushButton_TestEdit_clicked();
-
     void on_pushButtonOk_clicked();
 
     void on_pushButtonRemoveTrigger_clicked();
 
     void on_actionDelete_triggered();
+
+    void on_pushButton_5_clicked();
 
 private:
     Ui::MainWindow *ui;
