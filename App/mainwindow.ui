@@ -160,282 +160,258 @@
             </layout>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBoxSourceDetails">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>451</width>
-           <height>300</height>
-          </size>
-         </property>
-         <property name="title">
-          <string>Details</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QGroupBox" name="groupBox_4">
+           <widget class="QGroupBox" name="groupBoxSourceDetails">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>10</horstretch>
+              <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="maximumSize">
+            <property name="minimumSize">
              <size>
-              <width>16777215</width>
-              <height>66</height>
+              <width>451</width>
+              <height>300</height>
              </size>
             </property>
             <property name="title">
-             <string>Method</string>
+             <string>Details</string>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
+            <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <widget class="QRadioButton" name="radioButtonAll">
-               <property name="text">
-                <string>All</string>
+              <widget class="QGroupBox" name="groupBox_4">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>10</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radioButtonSelective">
-               <property name="text">
-                <string>Selective</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+               <property name="maximumSize">
                 <size>
-                 <width>40</width>
-                 <height>20</height>
+                 <width>16777215</width>
+                 <height>66</height>
                 </size>
                </property>
-              </spacer>
+               <property name="title">
+                <string>Method</string>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QRadioButton" name="radioButtonAll">
+                  <property name="text">
+                   <string>All</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="radioButtonSelective">
+                  <property name="text">
+                   <string>Selective</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBoxCriteria">
+               <property name="minimumSize">
+                <size>
+                 <width>409</width>
+                 <height>187</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Criteria</string>
+               </property>
+               <property name="flat">
+                <bool>false</bool>
+               </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+               <widget class="QComboBox" name="comboBoxDepth">
+                <property name="geometry">
+                 <rect>
+                  <x>11</x>
+                  <y>50</y>
+                  <width>117</width>
+                  <height>23</height>
+                 </rect>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Only root</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Direct children</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Recursive</string>
+                 </property>
+                </item>
+               </widget>
+               <widget class="QLabel" name="label_3">
+                <property name="geometry">
+                 <rect>
+                  <x>11</x>
+                  <y>30</y>
+                  <width>37</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Depth</string>
+                </property>
+                <property name="buddy">
+                 <cstring>comboBoxDepth</cstring>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_4">
+                <property name="geometry">
+                 <rect>
+                  <x>12</x>
+                  <y>100</y>
+                  <width>56</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Predicate</string>
+                </property>
+                <property name="buddy">
+                 <cstring>comboBoxPredicate</cstring>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="comboBoxPredicate">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>120</y>
+                  <width>158</width>
+                  <height>23</height>
+                 </rect>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Contains file</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Name matches regex</string>
+                 </property>
+                </item>
+               </widget>
+               <widget class="QStackedWidget" name="stackedWidgetPredicate">
+                <property name="geometry">
+                 <rect>
+                  <x>180</x>
+                  <y>80</y>
+                  <width>241</width>
+                  <height>71</height>
+                 </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>1</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <widget class="QWidget" name="page">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <widget class="QLineEdit" name="lineEditContainsFilename">
+                  <property name="geometry">
+                   <rect>
+                    <x>10</x>
+                    <y>40</y>
+                    <width>161</width>
+                    <height>23</height>
+                   </rect>
+                  </property>
+                 </widget>
+                 <widget class="QLabel" name="label_6">
+                  <property name="geometry">
+                   <rect>
+                    <x>10</x>
+                    <y>20</y>
+                    <width>57</width>
+                    <height>15</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string>Filename</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>lineEditContainsFilename</cstring>
+                  </property>
+                 </widget>
+                </widget>
+                <widget class="QWidget" name="page_2">
+                 <widget class="QLineEdit" name="lineEditNameMatches">
+                  <property name="geometry">
+                   <rect>
+                    <x>10</x>
+                    <y>40</y>
+                    <width>221</width>
+                    <height>23</height>
+                   </rect>
+                  </property>
+                 </widget>
+                 <widget class="QLabel" name="label_5">
+                  <property name="geometry">
+                   <rect>
+                    <x>10</x>
+                    <y>20</y>
+                    <width>57</width>
+                    <height>15</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string>Regex</string>
+                  </property>
+                 </widget>
+                </widget>
+               </widget>
+              </widget>
              </item>
             </layout>
            </widget>
           </item>
-          <item>
-           <widget class="QGroupBox" name="groupBoxCriteria">
-            <property name="minimumSize">
-             <size>
-              <width>409</width>
-              <height>187</height>
-             </size>
-            </property>
-            <property name="title">
-             <string>Criteria</string>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-            <property name="checkable">
-             <bool>false</bool>
-            </property>
-            <widget class="QComboBox" name="comboBoxDepth">
-             <property name="geometry">
-              <rect>
-               <x>11</x>
-               <y>50</y>
-               <width>117</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <item>
-              <property name="text">
-               <string>Only root</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Direct children</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Recursive</string>
-              </property>
-             </item>
-            </widget>
-            <widget class="QLabel" name="label_3">
-             <property name="geometry">
-              <rect>
-               <x>11</x>
-               <y>30</y>
-               <width>37</width>
-               <height>16</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Depth</string>
-             </property>
-             <property name="buddy">
-              <cstring>comboBoxDepth</cstring>
-             </property>
-            </widget>
-            <widget class="QLabel" name="label_4">
-             <property name="geometry">
-              <rect>
-               <x>12</x>
-               <y>100</y>
-               <width>56</width>
-               <height>16</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Predicate</string>
-             </property>
-             <property name="buddy">
-              <cstring>comboBoxPredicate</cstring>
-             </property>
-            </widget>
-            <widget class="QComboBox" name="comboBoxPredicate">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>120</y>
-               <width>158</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <item>
-              <property name="text">
-               <string>Contains file</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Name matches regex</string>
-              </property>
-             </item>
-            </widget>
-            <widget class="QStackedWidget" name="stackedWidgetPredicate">
-             <property name="geometry">
-              <rect>
-               <x>180</x>
-               <y>80</y>
-               <width>241</width>
-               <height>71</height>
-              </rect>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>1</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <widget class="QWidget" name="page">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <widget class="QLineEdit" name="lineEditContainsFilename">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>40</y>
-                 <width>161</width>
-                 <height>23</height>
-                </rect>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_6">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>20</y>
-                 <width>57</width>
-                 <height>15</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Filename</string>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditContainsFilename</cstring>
-               </property>
-              </widget>
-             </widget>
-             <widget class="QWidget" name="page_2">
-              <widget class="QLineEdit" name="lineEditNameMatches">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>40</y>
-                 <width>221</width>
-                 <height>23</height>
-                </rect>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_5">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>20</y>
-                 <width>57</width>
-                 <height>15</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Regex</string>
-               </property>
-              </widget>
-             </widget>
-            </widget>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_3" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>160</height>
-       </size>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
        <item>
         <widget class="QGroupBox" name="groupBoxDestination">
          <property name="sizePolicy">
@@ -602,7 +578,11 @@
               </property>
              </spacer>
             </item>
-            <item alignment="Qt::AlignBottom">
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
              <widget class="QPushButton" name="pushButtonInstallTrigger">
               <property name="minimumSize">
                <size>
@@ -621,7 +601,7 @@
               </property>
              </widget>
             </item>
-            <item alignment="Qt::AlignBottom">
+            <item>
              <widget class="QPushButton" name="pushButtonRemoveTrigger">
               <property name="minimumSize">
                <size>
@@ -640,6 +620,19 @@
               </property>
              </widget>
             </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </item>
           <item>
@@ -648,7 +641,7 @@
              <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
+             <enum>QSizePolicy::Expanding</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -659,6 +652,37 @@
            </spacer>
           </item>
          </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_3" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>160</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPlainTextEdit" name="plainTextConsole">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>

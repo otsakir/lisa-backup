@@ -80,6 +80,8 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     initUIControls(*activeBackup);
+
+    ui->statusbar->showMessage("Ready");
 }
 
 
@@ -676,7 +678,8 @@ void MainWindow::on_actionDelete_triggered()
 
 void MainWindow::on_pushButton_5_clicked()
 {
-    QString backupName = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
-    Lb::runScriptInWindow(backupName);
+    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
+    QString out = Lb::runShellCommand(backupScriptFile);
+    ui->plainTextConsole->setPlainText(out);
 }
 
