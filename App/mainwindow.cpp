@@ -17,6 +17,7 @@
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QFontDatabase>
+#include <QDateTime>
 
 Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
@@ -61,6 +62,10 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
     // 'Exit' action bount to 'PleaseQuit' signal
     QObject::connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
+    // consoleProcess events
+    //QObject::connect(&consoleProcess, &QProcess::started, this, &MainWindow::consoleProcessStarted );
+    QObject::connect(&consoleProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::consoleProcessDataAvail);
+    QObject::connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
 
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
@@ -80,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     initUIControls(*activeBackup);
+
 
     ui->statusbar->showMessage("Ready");
 }
@@ -674,12 +680,25 @@ void MainWindow::on_actionDelete_triggered()
     }
 }
 
-
-
 void MainWindow::on_pushButton_5_clicked()
 {
     QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
-    QString out = Lb::runShellCommand(backupScriptFile);
-    ui->plainTextConsole->setPlainText(out);
+    consoleProcess.start("bash", {"-c", backupScriptFile});
+    if (!consoleProcess.waitForStarted(5000)) {
+        ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
+        return;
+    }
+
+    ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
+}
+
+void MainWindow::consoleProcessDataAvail() {
+    qInfo() << "console process data available!";
+    QString out = consoleProcess.readAllStandardOutput();
+    ui->plainTextConsole->appendPlainText(out);
+}
+
+void MainWindow::consoleProcessFinished(int exitCode) {
+    ui->plainTextConsole->appendHtml(QString("<strong>----- Backup script finished. Exit code: %1 -----</strong>").arg(exitCode));
 }
 

@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include <systemdunitdialog.h>
 
+#include <QProcess>
 #include <core.h>
 
 QT_BEGIN_NAMESPACE
@@ -112,6 +113,7 @@ private:
     BackupModel* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
     Session session;
     State state; // generic application state. Not part of a backup.
+    QProcess consoleProcess;
 
     bool loadPersisted(QString backupName, BackupModel& persisted);
     void appendSource(SourceDetails* sourceDetails);
@@ -122,5 +124,9 @@ private:
     void refreshBasePaths(QString current);
     void enableMostUI(bool enable);
     void setupTriggerButtons(const QString& backupName);
+
+    void consoleProcessStarted();
+    void consoleProcessDataAvail();
+    void consoleProcessFinished(int exitCode);
 };
 #endif // MAINWINDOW_H
