@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "systemdunitdialog.h"
+#include "newbackuptaskdialog.h"
 #include "utils.h"
 #include "scripting.h"
 
@@ -74,20 +75,27 @@ MainWindow::MainWindow(QWidget *parent)
     Lb::setupDirs();
     activeBackup = new BackupModel();
 
-    session.recentBackupNames.append("personal-stuff"); // manually initialize it for now. Later it will be loaded from file upon startup.
+    session.recentBackupNames.append("music2"); // manually initialize it for now. Later it will be loaded from file upon startup.
 
-    // load latest backup name from configuration
-    QString latestBackupName = session.recentBackupNames.first();
-    // Try to load existing configuration. If not available, defaults from PersistenceModel constructor will be used.
-    if (! loadPersisted(latestBackupName, *activeBackup)) {
-        // init with defaults
-        // TODO ?
+    // determine backup task to load
+    QString latestBackupName;
+    if ( !session.recentBackupNames.isEmpty() )
+        latestBackupName = session.recentBackupNames.first();
+
+    if (latestBackupName.isEmpty()) {
+        // show newtask dialog, retrieve name, create task file and show
+        newBackupTaskFromDialog();
+    } else {
+        BackupModel persisted;
+        if (loadPersisted(latestBackupName,persisted)) {
+            *activeBackup = persisted;
+            initUIControls(*activeBackup);
+        } else {
+            ui->statusbar->showMessage(QString("Error opening '%1' task").arg(latestBackupName));
+        }
     }
 
-    initUIControls(*activeBackup);
-
-
-    ui->statusbar->showMessage("Ready");
+    //ui->statusbar->showMessage("Ready");
 }
 
 
@@ -229,6 +237,7 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
 
 void MainWindow::initUIControls(const BackupModel& backupModel) {
     //*activeBackup = persisted.backupDetails;
+    this->setWindowTitle( Lb::windowTitle(backupModel.backupDetails.friendlyName) );
     ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
     ui->lineEditSystemdUnit->setText(backupModel.backupDetails.systemdMountUnit);
     ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationBaseSuffixPath);
@@ -319,6 +328,37 @@ bool loadPersistedFile(const QString backupFilename, BackupModel& persisted) {
 
 bool MainWindow::loadPersisted(const QString backupName, BackupModel& persisted) {
     return loadPersistedFile(Lb::backupDataFilePath(backupName), persisted);
+}
+
+void persistTaskModel(const BackupModel& persisted, const QString& taskFilename) {
+    qInfo() << "data file path: " << taskFilename;
+    QFile file(taskFilename);
+    file.open(QIODevice::WriteOnly);
+    QDataStream stream(&file);
+    stream << persisted;
+    file.close();
+}
+
+void MainWindow::applyChanges() {
+    // 1. gather model data from UI and put in a big object
+    // 2. generate backup script file based on the model
+    // 3. store model to disk
+
+    BackupModel persisted;
+    collectUIControls(persisted);
+
+    QString dataFilePath = Lb::backupDataFilePath(activeBackup->backupDetails.backupName);
+    qInfo() << "data file path: " << dataFilePath;
+    QFile file(dataFilePath);
+    file.open(QIODevice::WriteOnly);
+    QDataStream stream(&file);
+    stream << persisted;
+    file.close();
+
+    QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
+    qInfo() << "script name: " << scriptName;
+    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", scriptName, persisted);
+
 }
 
 SourceDetails* MainWindow::getSelectedSourceDetails() {
@@ -512,27 +552,6 @@ void MainWindow::on_action_New_triggered()
     initUIControls(persisted);
 }
 
-void MainWindow::applyChanges() {
-    // 1. gather model data from UI and put in a big object
-    // 2. generate backup script file based on the model
-    // 3. store model to disk
-
-    BackupModel persisted;
-    collectUIControls(persisted);
-
-    QString dataFilePath = Lb::backupDataFilePath(activeBackup->backupDetails.backupName);
-    qInfo() << "data file path: " << dataFilePath;
-    QFile file(dataFilePath);
-    file.open(QIODevice::WriteOnly);
-    QDataStream stream(&file);
-    stream << persisted;
-    file.close();
-
-    QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
-    qInfo() << "script name: " << scriptName;
-    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", scriptName, persisted);
-
-}
 // this saves backup configuration and generates scripts
 void MainWindow::on_ButtonApply_clicked()
 {
@@ -700,5 +719,28 @@ void MainWindow::consoleProcessDataAvail() {
 
 void MainWindow::consoleProcessFinished(int exitCode) {
     ui->plainTextConsole->appendHtml(QString("<strong>----- Backup script finished. Exit code: %1 -----</strong>").arg(exitCode));
+}
+
+// show newtask dialog, get name and id, persist to .task file, reload and populate UI
+void MainWindow::newBackupTaskFromDialog()
+{
+    QString stringResult;
+    NewBackupTaskDialog dialog(this);
+    if ( dialog.exec() == QDialog::Accepted) {
+        qInfo() << "dialog returned: " << dialog.result.name << " - " << dialog.result.id;
+        // store to task file
+        BackupModel model;
+        model.backupDetails.friendlyName = dialog.result.name;
+        QString taskFilename = Lb::backupDataFilePath(dialog.result.id);
+        persistTaskModel(model, taskFilename);
+        // TODO error handling
+
+        // reload task file and init UI
+        BackupModel persisted;
+        if (loadPersistedFile(taskFilename,persisted)) {
+            *activeBackup = persisted;
+            initUIControls(*activeBackup);
+        }
+    }
 }
 

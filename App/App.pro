@@ -12,15 +12,18 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     mylistview.cpp \
+    newbackuptaskdialog.cpp \
     systemdunitdialog.cpp
 
 HEADERS += \
     mainwindow.h \
     mylistview.h \
+    newbackuptaskdialog.h \
     systemdunitdialog.h
 
 FORMS += \
     mainwindow.ui \
+    newbackuptaskdialog.ui \
     systemdunitdialog.ui
 
 

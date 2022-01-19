@@ -105,6 +105,8 @@ private slots:
 
     void on_pushButton_5_clicked();
 
+    void newBackupTaskFromDialog();
+
 private:
     Ui::MainWindow *ui;
 

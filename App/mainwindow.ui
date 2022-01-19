@@ -39,7 +39,7 @@
           <string notr="true">font-weight: bold</string>
          </property>
          <property name="text">
-          <string>Backup name</string>
+          <string>Backup task</string>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -667,6 +667,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="pushButton_5">
         <property name="minimumSize">
          <size>
@@ -694,7 +701,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;File</string>
+     <string>&amp;Task</string>
     </property>
     <addaction name="action_New"/>
     <addaction name="action_Open"/>

@@ -80,16 +80,18 @@ public:
 struct BackupDetails {
 
     QString systemdId; // identifier part for the systemd service name
-    QString backupName;
+    QString backupName; // identifier for task resources. systemd service, backup bash script etc.
+    QString friendlyName; // user friendly name of the task
     QString systemdMountUnit; // e.g.  media-username-label
     QString destinationBasePath; // root directory of the inserted medium when mounted
-    QString destinationBaseSuffixPath; // together with 'destinationBasePath' it form the destination directory for the backup
+    QString destinationBaseSuffixPath; // together with 'destinationBasePath' forms the destination directory for the backup
 
     BackupDetails() {}
 
     BackupDetails& operator=(const BackupDetails& from) {
         systemdId = from.systemdId;
         backupName = from.backupName;
+        friendlyName = from.friendlyName;
         systemdMountUnit = from.systemdMountUnit;
         destinationBasePath = from.destinationBasePath;
         destinationBaseSuffixPath = from.destinationBaseSuffixPath;
@@ -100,6 +102,7 @@ struct BackupDetails {
     BackupDetails(const BackupDetails& from) {
         systemdId = from.systemdId;
         backupName = from.backupName;
+        friendlyName = from.friendlyName;
         systemdMountUnit = from.systemdMountUnit;
         destinationBasePath = from.destinationBasePath;
         destinationBaseSuffixPath = from.destinationBaseSuffixPath;

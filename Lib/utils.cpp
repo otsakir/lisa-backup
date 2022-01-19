@@ -52,11 +52,15 @@ QString scriptsDirectory() {
 
 // generates the full path to the backup data file based on the 'backup name'
 QString backupDataFilePath(const QString& backupName) {
-    return dataDirectory() + "/" + backupName + ".data";
+    return dataDirectory() + "/" + backupName + ".task";
 }
 
 QString backupScriptFilePath(const QString& backupName) {
     return scriptsDirectory() + "/backup-" + backupName + ".sh";
+}
+
+QString windowTitle(const QString& taskFriendlyName) {
+    return QString("Lisa Backup - %1").arg(taskFriendlyName);
 }
 
 void setupDirs() {

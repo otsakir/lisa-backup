@@ -32,7 +32,8 @@ QDataStream& operator>>(QDataStream& s, SourceDetails& item) {
 }
 
 QDataStream& operator << (QDataStream& s, const BackupDetails& backupDetails) {
-    s << backupDetails.backupName;
+    //s << backupDetails.backupName;  // skip this. We treat it separately
+    s << backupDetails.friendlyName;
     s << backupDetails.systemdId;
     s << backupDetails.systemdMountUnit;
     s << backupDetails.destinationBasePath;
@@ -41,7 +42,8 @@ QDataStream& operator << (QDataStream& s, const BackupDetails& backupDetails) {
 }
 
 QDataStream& operator >> (QDataStream& s, BackupDetails& backupDetails) {
-    s >> backupDetails.backupName;
+    //s >> backupDetails.backupName; // skip this. We treat it separately
+    s >> backupDetails.friendlyName;
     s >> backupDetails.systemdId;
     s >> backupDetails.systemdMountUnit;
     s >> backupDetails.destinationBasePath;

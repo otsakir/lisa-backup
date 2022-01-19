@@ -12,9 +12,10 @@ QString scriptsDirectory();
 QString homeDirectory();
 QString systemdDirectory(); // systemd service file directory (typically /etc/systemd/system/)
 
-
 QString backupDataFilePath(const QString& backupName);
 QString backupScriptFilePath(const QString& backupName);
+
+QString windowTitle(const QString& taskFriendlyName);
 
 /*!
  * \brief setupDirs conditionally creates application directory structure
