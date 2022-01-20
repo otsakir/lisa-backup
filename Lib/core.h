@@ -79,8 +79,13 @@ public:
 // Model struct to keep everything related to a backup in a single data structure.
 struct BackupDetails {
 
+    struct Tmp { // temprary stuff not stored to disk but required as long as the applications runs. Per-task.
+        QString name;
+        QString taskFilepath;
+    } tmp;
+
     QString systemdId; // identifier part for the systemd service name
-    QString backupName; // identifier for task resources. systemd service, backup bash script etc.
+    //QString backupName; // identifier for task resources. systemd service, backup bash script etc.
     QString friendlyName; // user friendly name of the task
     QString systemdMountUnit; // e.g.  media-username-label
     QString destinationBasePath; // root directory of the inserted medium when mounted
@@ -90,7 +95,8 @@ struct BackupDetails {
 
     BackupDetails& operator=(const BackupDetails& from) {
         systemdId = from.systemdId;
-        backupName = from.backupName;
+        //backupName = from.backupName;
+        tmp = from.tmp;
         friendlyName = from.friendlyName;
         systemdMountUnit = from.systemdMountUnit;
         destinationBasePath = from.destinationBasePath;
@@ -101,7 +107,8 @@ struct BackupDetails {
 
     BackupDetails(const BackupDetails& from) {
         systemdId = from.systemdId;
-        backupName = from.backupName;
+        //backupName = from.backupName;
+        tmp = from.tmp;
         friendlyName = from.friendlyName;
         systemdMountUnit = from.systemdMountUnit;
         destinationBasePath = from.destinationBasePath;
@@ -119,6 +126,7 @@ private:
 
 class BackupModel {
 public:
+
     BackupDetails backupDetails;
     QVector<SourceDetails> allSourceDetails;
 
@@ -149,8 +157,11 @@ public:
     {}
 };
 
+namespace Lb {
 
+bool loadPersistedFile(const QString backupFilename, BackupModel& persisted);
 
+}
 
 
 #endif // CORE_H

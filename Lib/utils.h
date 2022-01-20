@@ -12,7 +12,8 @@ QString scriptsDirectory();
 QString homeDirectory();
 QString systemdDirectory(); // systemd service file directory (typically /etc/systemd/system/)
 
-QString backupDataFilePath(const QString& backupName);
+QString taskFilePathFromName(const QString& backupName);
+QString taskNameFromPath(const QString& taskFilePath);
 QString backupScriptFilePath(const QString& backupName);
 
 QString windowTitle(const QString& taskFriendlyName);

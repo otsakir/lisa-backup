@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QRandomGenerator>
 #include <QStandardItem>
+#include <QRegularExpression>
 
 
 #include <QDebug>
@@ -51,8 +52,19 @@ QString scriptsDirectory() {
 }
 
 // generates the full path to the backup data file based on the 'backup name'
-QString backupDataFilePath(const QString& backupName) {
+QString taskFilePathFromName(const QString& backupName) {
     return dataDirectory() + "/" + backupName + ".task";
+}
+
+QString taskNameFromPath(const QString& taskFilePath) {
+    QRegularExpression re(".*/([^/]+)\\.task$");
+    QRegularExpressionMatch match = re.match(taskFilePath);
+    if (match.hasMatch()) {
+        //qInfo() << "matched" << match.captured(1);
+        return match.captured(1);
+    }
+
+    return QString(); // nothing matched
 }
 
 QString backupScriptFilePath(const QString& backupName) {
@@ -226,16 +238,16 @@ namespace Triggers {
         //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
 
         QString backupName = "backup1.sh";
-        QString backupScriptPath = Lb::backupScriptFilePath(backup.backupName);
+        QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.name);
 
-        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backup.backupName, "-u", backup.systemdMountUnit, backupScriptPath});
+        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
         process.waitForFinished(-1);
     }
 
     void removeSystemdHook(const BackupDetails &backup) {
         QProcess process;
 
-        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backup.backupName});
+        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backup.tmp.name});
         process.waitForFinished(-1);
     }
 

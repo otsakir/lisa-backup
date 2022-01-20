@@ -1,6 +1,7 @@
 #include "core.h"
 
 #include <QDebug>
+#include <QFile>
 
 SourceDetails::SourceDetails() :
     backupType(all),
@@ -73,4 +74,20 @@ QDataStream& operator >> (QDataStream& s, Session& o) {
     s >> o.defaultBrowseBackupDirectory;
     s >> o.recentBackupNames;
     return s;
+}
+
+namespace Lb {
+
+bool loadPersistedFile(const QString backupFilename, BackupModel& persisted) {
+    qDebug() << "loading task file: " << backupFilename;
+    QFile ifile(backupFilename);
+    if (ifile.open(QIODevice::ReadOnly)) {
+        QDataStream istream(&ifile);
+        istream >> persisted;
+        ifile.close();
+        return true;
+    }
+    return false;
+}
+
 }

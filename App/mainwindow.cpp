@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_5->setText("Run \uf04b");
 */
     ui->pushButton_5->setText("Run  \uf04b");
+    ui->pushButtonEditFriendlyName->setText("\uf044");
 
 
     sourcesModel = new QStandardItemModel(0,2, this);
@@ -58,6 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
 
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
+
+    QObject::connect(this, &MainWindow::friendlyNameEdited, this, &MainWindow::onFriendlyNameEdited);
 
     // 'PleaseQuit' signal bound to application quit
     QObject::connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
@@ -89,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent)
         BackupModel persisted;
         if (loadPersisted(latestBackupName,persisted)) {
             *activeBackup = persisted;
+            activeBackup->backupDetails.tmp.name = latestBackupName;
             initUIControls(*activeBackup);
         } else {
             ui->statusbar->showMessage(QString("Error opening '%1' task").arg(latestBackupName));
@@ -238,7 +242,9 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
 void MainWindow::initUIControls(const BackupModel& backupModel) {
     //*activeBackup = persisted.backupDetails;
     this->setWindowTitle( Lb::windowTitle(backupModel.backupDetails.friendlyName) );
-    ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
+    //ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
+    ui->lineEditFriendlyName->setText(backupModel.backupDetails.friendlyName);
+    ui->labelFriendlyName->setText(backupModel.backupDetails.friendlyName);
     ui->lineEditSystemdUnit->setText(backupModel.backupDetails.systemdMountUnit);
     ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationBaseSuffixPath);
 
@@ -249,17 +255,17 @@ void MainWindow::initUIControls(const BackupModel& backupModel) {
 
     refreshBasePaths(backupModel.backupDetails.destinationBasePath.isEmpty() ? "/" : backupModel.backupDetails.destinationBasePath);
 
-    bool newBackup = ui->lineEditBackupName->text().isEmpty();
+    //bool newBackup = ui->lineEditBackupName->text().isEmpty();
 
-    ui->lineEditBackupName->setEnabled(newBackup);
-    enableMostUI(!newBackup);
-    ui->pushButtonOk->setVisible(newBackup);
-    ui->toolButton->setVisible(!newBackup);
+    //ui->lineEditBackupName->setEnabled(newBackup);
+    //enableMostUI(!newBackup);
+    //ui->pushButtonOk->setVisible(newBackup);
+    //ui->toolButton->setVisible(!newBackup);
 
     // enable/disable trigger buttons
-    if (!newBackup) {
-        setupTriggerButtons(ui->lineEditBackupName->text());
-    }
+    //if (!newBackup) {
+        setupTriggerButtons(activeBackup->backupDetails.tmp.name);
+    //}
 }
 
 void MainWindow::setupTriggerButtons(const QString& backupName) {
@@ -315,19 +321,9 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
     }
 }
 
-bool loadPersistedFile(const QString backupFilename, BackupModel& persisted) {
-    QFile ifile(backupFilename);
-    if (ifile.open(QIODevice::ReadOnly)) {
-        QDataStream istream(&ifile);
-        istream >> persisted;
-        ifile.close();
-        return true;
-    }
-    return false;
-}
 
 bool MainWindow::loadPersisted(const QString backupName, BackupModel& persisted) {
-    return loadPersistedFile(Lb::backupDataFilePath(backupName), persisted);
+    return Lb::loadPersistedFile(Lb::taskFilePathFromName(backupName), persisted);
 }
 
 void persistTaskModel(const BackupModel& persisted, const QString& taskFilename) {
@@ -347,7 +343,7 @@ void MainWindow::applyChanges() {
     BackupModel persisted;
     collectUIControls(persisted);
 
-    QString dataFilePath = Lb::backupDataFilePath(activeBackup->backupDetails.backupName);
+    QString dataFilePath = Lb::taskFilePathFromName(activeBackup->backupDetails.tmp.name);
     qInfo() << "data file path: " << dataFilePath;
     QFile file(dataFilePath);
     file.open(QIODevice::WriteOnly);
@@ -355,7 +351,7 @@ void MainWindow::applyChanges() {
     stream << persisted;
     file.close();
 
-    QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
+    QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
     qInfo() << "script name: " << scriptName;
     Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", scriptName, persisted);
 
@@ -445,6 +441,7 @@ void MainWindow::on_lineEditDestinationSuffixPath_textChanged(const QString &arg
 
 void MainWindow::on_toolButton_toggled(bool checked)
 {
+    /*
     if (! checked) {
         // looks like we're done editing
         if ( ui->lineEditBackupName->text() != activeBackup->backupDetails.backupName) {
@@ -454,6 +451,7 @@ void MainWindow::on_toolButton_toggled(bool checked)
         }
     }
     ui->lineEditBackupName->setEnabled(checked);
+    */
 }
 
 void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
@@ -547,9 +545,7 @@ void MainWindow::on_action_New_triggered()
     }
 
     // all clear or (ret == QMessageBox::Discard)
-
-    BackupModel persisted;
-    initUIControls(persisted);
+    newBackupTaskFromDialog();
 }
 
 // this saves backup configuration and generates scripts
@@ -569,8 +565,10 @@ void MainWindow::on_action_Open_triggered()
         qInfo() << "filename: " << filename;
 
         BackupModel persisted;
-        if (loadPersistedFile(filename,persisted)) {
+        if (Lb::loadPersistedFile(filename,persisted)) {
+            QString taskName = Lb::taskNameFromPath(filename);
             *activeBackup = persisted;
+            activeBackup->backupDetails.tmp.name = taskName;
             initUIControls(*activeBackup);
         }
     }
@@ -641,27 +639,27 @@ void MainWindow::on_action_Save_triggered()
 
 void MainWindow::on_lineEditBackupName_editingFinished()
 {
-    activeBackup->backupDetails.backupName = ui->lineEditBackupName->text();
+    //activeBackup->backupDetails.backupName = ui->lineEditBackupName->text();
 }
 
 
 void MainWindow::on_lineEditBackupName_returnPressed()
 {
     qInfo () << "return pressed";
-    emit ui->pushButtonOk->clicked();
+    //emit ui->pushButtonOk->clicked();
 }
 
 void MainWindow::on_pushButtonInstallTrigger_clicked()
 {
     Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
-    setupTriggerButtons(activeBackup->backupDetails.backupName); // re-evaluate button state
+    setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
 }
 
 
 void MainWindow::on_pushButtonOk_clicked()
 {
     // validate current backupName. For now we just check if non-empty
-    if (!ui->lineEditBackupName->text().isEmpty()) {
+/*    if (!ui->lineEditBackupName->text().isEmpty()) {
         // ok, "valid"
         ui->lineEditBackupName->setEnabled(false);
         enableMostUI(true);
@@ -669,7 +667,7 @@ void MainWindow::on_pushButtonOk_clicked()
         ui->pushButtonOk->setVisible(false);
         ui->toolButton->setVisible(true);
     }
-
+*/
     qInfo() << "in buttonOk";
 }
 
@@ -677,7 +675,7 @@ void MainWindow::on_pushButtonOk_clicked()
 void MainWindow::on_pushButtonRemoveTrigger_clicked()
 {
     Lb::Triggers::removeSystemdHook(activeBackup->backupDetails);
-    setupTriggerButtons(activeBackup->backupDetails.backupName); // re-evaluate button state
+    setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
 }
 
 
@@ -701,7 +699,7 @@ void MainWindow::on_actionDelete_triggered()
 
 void MainWindow::on_pushButton_5_clicked()
 {
-    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.backupName);
+    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
     consoleProcess.start("bash", {"-c", backupScriptFile});
     if (!consoleProcess.waitForStarted(5000)) {
         ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
@@ -731,16 +729,41 @@ void MainWindow::newBackupTaskFromDialog()
         // store to task file
         BackupModel model;
         model.backupDetails.friendlyName = dialog.result.name;
-        QString taskFilename = Lb::backupDataFilePath(dialog.result.id);
+        QString taskFilename = Lb::taskFilePathFromName(dialog.result.id);
         persistTaskModel(model, taskFilename);
         // TODO error handling
 
         // reload task file and init UI
         BackupModel persisted;
-        if (loadPersistedFile(taskFilename,persisted)) {
+        if (Lb::loadPersistedFile(taskFilename,persisted)) {
             *activeBackup = persisted;
+            activeBackup->backupDetails.tmp.name = dialog.result.id;
             initUIControls(*activeBackup);
         }
     }
+}
+
+
+void MainWindow::on_pushButtonEditFriendlyName_toggled(bool checked)
+{
+    ui->stackedWidgetFriendlyName->setCurrentIndex(checked);
+    if(!checked) {
+        if ( activeBackup->backupDetails.friendlyName != ui->lineEditFriendlyName->text() ) {
+            activeBackup->backupDetails.friendlyName = ui->lineEditFriendlyName->text();
+            emit friendlyNameEdited();
+        }
+    }
+}
+
+void MainWindow::onFriendlyNameEdited() {
+    qInfo() << "friendlyNameEdited: " << activeBackup->backupDetails.friendlyName;
+    ui->labelFriendlyName->setText(activeBackup->backupDetails.friendlyName);
+    setWindowTitle(Lb::windowTitle(activeBackup->backupDetails.friendlyName));
+}
+
+void MainWindow::on_lineEditFriendlyName_returnPressed()
+{
+    qInfo() << "return pressed";
+    ui->pushButtonEditFriendlyName->setChecked(false);
 }
 

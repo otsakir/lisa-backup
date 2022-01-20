@@ -33,6 +33,7 @@ signals:
     //void backupNameChanged(QString backupName); // signal raised when the backup name is changed. Be it set to another value or cleared altogether.
     void newBackupName(QString backupName); // there is a new backup name established!
     void PleaseQuit();
+    void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
 
 private slots:
     void onNewBackupName(QString backupName);
@@ -106,6 +107,12 @@ private slots:
     void on_pushButton_5_clicked();
 
     void newBackupTaskFromDialog();
+
+    void on_pushButtonEditFriendlyName_toggled(bool checked);
+
+    void on_lineEditFriendlyName_returnPressed();
+
+    void onFriendlyNameEdited(); // handler for custom signal 'friendlyNameEdited
 
 private:
     Ui::MainWindow *ui;
