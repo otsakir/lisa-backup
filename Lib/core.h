@@ -41,7 +41,8 @@ public:
 
     enum BackupDepth {
         rootOnly = 0,
-        directChildren = 1
+        directChildren = 1,
+        recursive = 2
     } backupDepth;
 
     enum PredicateType {

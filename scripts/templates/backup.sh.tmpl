@@ -6,7 +6,6 @@ if [ $? -eq 1 ]; then
         logger "'$BACKUP_NAME' process initiated on `date`"
 
         # Backup commands
-        # rsync -avzh /home/nando/jason /home/nando/Pictures /home/nando/Documents /home/nando/Πληρωμές /home/nando/Education /home/nando/ΟΕ /home/nando/Ατομική\ επιχείρηση /home/nando/scripts /home/nando/keys /home/nando/καλλιέργεια /home/nando/orestis /home/nando/πελάτες /home/nando/μουσική /media/nando/backup1/nando
         $BACKUP_COMMANDS
 
         # now backup git repositories using 'git bundle' method
