@@ -139,6 +139,10 @@ void MainWindow::appendSource(SourceDetails* sourceDetails) {
     itemList << modelItem << item;
 
     sourcesModel->appendRow(itemList);
+    // select new item in the list view
+    QItemSelectionModel* selModel = ui->sourcesListView->selectionModel();
+
+    selModel->select(sourcesModel->indexFromItem(modelItem), QItemSelectionModel::ClearAndSelect);
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -191,9 +195,7 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
 
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
         ui->lineEditNameMatches->setText(pDetails->nameMatches);
-        //ui->comboBoxPredicate->currentIndexChanged(pDetails->predicateType);
         ui->comboBoxPredicate->setCurrentIndex(pDetails->predicateType);
-        //qInfo() << "In updateSourceDetailControls: " << pDetails->predicate;
         ui->groupBoxSourceDetails->setTitle( QString("Source %1").arg(sourcePath) );
         ui->groupBoxSourceDetails->setHidden(false);
     } else {
