@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex);
 
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
+    QObject::connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
 
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
 
@@ -110,6 +111,7 @@ void MainWindow::onNewBackupName(QString backupName) {
 void MainWindow::on_activeBackupMethodChanged(int backupType) {
     qInfo() << "backup method changed: " << backupType;
     ui->groupBoxCriteria->setEnabled(backupType != SourceDetails::all);
+    ui->groupBoxAction->setEnabled(backupType != SourceDetails::all);
 }
 
 MainWindow::~MainWindow()
@@ -183,6 +185,10 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
             ui->radioButtonSelective->setChecked(true);
             emit methodChanged(SourceDetails::selective);
         }
+        ui->radioButtonRsync->setChecked(pDetails->actionType == SourceDetails::rsync);
+        ui->radioButtonGitBundle->setChecked(pDetails->actionType == SourceDetails::gitBundle);
+        emit actionChanged(pDetails->actionType);
+
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
         ui->lineEditNameMatches->setText(pDetails->nameMatches);
         //ui->comboBoxPredicate->currentIndexChanged(pDetails->predicateType);
@@ -765,5 +771,35 @@ void MainWindow::on_lineEditFriendlyName_returnPressed()
 {
     qInfo() << "return pressed";
     ui->pushButtonEditFriendlyName->setChecked(false);
+}
+
+
+void MainWindow::on_radioButtonRsync_toggled(bool checked)
+{
+    if (checked) {
+        SourceDetails* sourcep = getSelectedSourceDetails();
+        if (sourcep)
+            sourcep->actionType = SourceDetails::rsync;
+
+        emit actionChanged(SourceDetails::rsync);
+    }
+}
+
+
+void MainWindow::on_radioButtonGitBundle_toggled(bool checked)
+{
+    if (checked) {
+        SourceDetails* sourcep = getSelectedSourceDetails();
+        if (sourcep)
+            sourcep->actionType = SourceDetails::gitBundle;
+
+        emit actionChanged(SourceDetails::gitBundle);
+    }
+}
+
+// higher-level handler. Model (getSelectedSourceDetails()) is assumed to contain the updated value
+void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
+    qInfo() << "action changed: " << action;
+    // doing nothing for now
 }
 

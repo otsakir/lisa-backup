@@ -30,6 +30,7 @@ public:
 
 signals:
     void methodChanged(int methodIndex); // signal raised when the backup method is altered between all/selective cases
+    void actionChanged(SourceDetails::ActionType action);
     //void backupNameChanged(QString backupName); // signal raised when the backup name is changed. Be it set to another value or cleared altogether.
     void newBackupName(QString backupName); // there is a new backup name established!
     void PleaseQuit();
@@ -113,6 +114,13 @@ private slots:
     void on_lineEditFriendlyName_returnPressed();
 
     void onFriendlyNameEdited(); // handler for custom signal 'friendlyNameEdited
+
+    void on_radioButtonRsync_toggled(bool checked);
+
+    void on_radioButtonGitBundle_toggled(bool checked);
+
+    // custom slots
+    void on_actionChanged(SourceDetails::ActionType action);
 
 private:
     Ui::MainWindow *ui;

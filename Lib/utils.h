@@ -11,6 +11,7 @@ QString configDirectory();
 QString scriptsDirectory();
 QString homeDirectory();
 QString systemdDirectory(); // systemd service file directory (typically /etc/systemd/system/)
+QString systemScriptDirectory(); // for scripts like install-systemd-hook.sh or bundle-git-repo.sh
 
 QString taskFilePathFromName(const QString& backupName);
 QString taskNameFromPath(const QString& taskFilePath);

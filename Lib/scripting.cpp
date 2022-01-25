@@ -5,6 +5,8 @@
 #include <QTextStream>
 #include <QDebug>
 
+#include <utils.h>
+
 namespace Lb {
 
 bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands) {
@@ -85,12 +87,16 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             else
                 find_command.append("-print0 ");
 
-            // execution (rsync)
-            find_command.append(" | xargs -0 -I files rsync -avzh files ").append(destinationRoot);
-            // execution (git)
-            // TODO
+            // action
+            if (source.actionType == SourceDetails::rsync) {
+                //rsync copy
+                find_command.append(" | xargs -0 -I files rsync -avzh files ").append(destinationRoot);
+            } else if ( source.actionType == SourceDetails::gitBundle) {
+                // git bundle
+                find_command.append(QString(" | xargs -0 -I files %1/bundle-git-repo.sh files %2").arg(systemScriptDirectory()).arg(destinationRoot));
+                // find Projects/ -maxdepth 2 -name .git -printf "%h\0" | xargs -0 -I files /opt/lbackup/bundle-git-repo.sh files /home/nando/tmp
+            }
 
-            //qInfo() << ""
             commands.append(find_command);
         }
 

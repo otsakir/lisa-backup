@@ -13,7 +13,7 @@
   <property name="minimumSize">
    <size>
     <width>0</width>
-    <height>606</height>
+    <height>640</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -139,7 +139,7 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>300</height>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -157,6 +157,12 @@
         </property>
         <item>
          <widget class="QGroupBox" name="groupBoxSourceList">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>Sources</string>
           </property>
@@ -206,7 +212,7 @@
               <bool>true</bool>
              </property>
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -214,7 +220,7 @@
              <property name="minimumSize">
               <size>
                <width>438</width>
-               <height>274</height>
+               <height>387</height>
               </size>
              </property>
              <property name="title">
@@ -275,7 +281,7 @@
               <item>
                <widget class="QGroupBox" name="groupBoxCriteria">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -283,7 +289,7 @@
                 <property name="minimumSize">
                  <size>
                   <width>409</width>
-                  <height>0</height>
+                  <height>167</height>
                  </size>
                 </property>
                 <property name="title">
@@ -427,6 +433,60 @@
                   </widget>
                  </widget>
                 </widget>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="groupBoxAction">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="title">
+                 <string>Action</string>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_13">
+                 <item>
+                  <widget class="QRadioButton" name="radioButtonRsync">
+                   <property name="text">
+                    <string>rsync</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioButtonGitBundle">
+                   <property name="text">
+                    <string>git-bundle</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_6">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>222</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
                </widget>
               </item>
              </layout>

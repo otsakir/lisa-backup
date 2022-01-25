@@ -13,7 +13,14 @@ SourceDetails::~SourceDetails() {
 }
 
 QDataStream& operator<<(QDataStream& s, const SourceDetails& item) {
-    s << (qint32)item.backupType << (qint32)item.backupDepth << item.predicate << item.sourcePath << item.containsFilename << item.nameMatches << (qint32) item.predicateType;
+    s << (qint32)item.backupType
+      << (qint32)item.backupDepth
+      << item.predicate
+      << item.sourcePath
+      << item.containsFilename
+      << item.nameMatches
+      << (qint32) item.predicateType
+      << (qint32) item.actionType;
     return s;
 }
 
@@ -29,6 +36,8 @@ QDataStream& operator>>(QDataStream& s, SourceDetails& item) {
     s >> item.nameMatches;
     s >> temp;
     item.predicateType = (SourceDetails::PredicateType) temp;
+    s >> temp;
+    item.actionType = (SourceDetails::ActionType) temp;
     return s;
 }
 
@@ -38,7 +47,7 @@ QDataStream& operator << (QDataStream& s, const BackupDetails& backupDetails) {
     s << backupDetails.systemdId;
     s << backupDetails.systemdMountUnit;
     s << backupDetails.destinationBasePath;
-     s << backupDetails.destinationBaseSuffixPath;
+    s << backupDetails.destinationBaseSuffixPath;
     return s;
 }
 

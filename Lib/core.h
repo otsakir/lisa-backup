@@ -50,6 +50,11 @@ public:
         nameMatchesId = 1
     } predicateType;
 
+    enum ActionType {
+        rsync = 0,
+        gitBundle = 1
+    } actionType;
+
     /*!
      * \variable SourceDetails::precicate
      * \brief Applies filtering criteria for subdir selection.

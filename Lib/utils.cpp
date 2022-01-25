@@ -51,6 +51,10 @@ QString scriptsDirectory() {
         return QString("%1/.lbackup").arg(homepath);
 }
 
+QString systemScriptDirectory() {
+    return "/opt/lbackup"; // TODO - replace this with script installation directory
+}
+
 // generates the full path to the backup data file based on the 'backup name'
 QString taskFilePathFromName(const QString& backupName) {
     return dataDirectory() + "/" + backupName + ".task";
