@@ -26,7 +26,7 @@
     <string>Create</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -86,7 +86,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Id</string>
+       <string>Id*</string>
       </property>
      </widget>
     </item>
@@ -103,6 +103,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text">
+         <string/>
+        </property>
        </widget>
       </item>
       <item>
@@ -113,7 +116,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Name for related internal resources like backup script or systemd service. Can only change it manually.</string>
+         <string>Identifier for backup script and systemd service. You can only alter it manually later.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

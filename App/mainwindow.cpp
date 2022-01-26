@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
     session.recentBackupNames.append("music2"); // manually initialize it for now. Later it will be loaded from file upon startup.
 
     // determine backup task to load
-    QString latestBackupName;
+        QString latestBackupName;
     if ( !session.recentBackupNames.isEmpty() )
         latestBackupName = session.recentBackupNames.first();
 

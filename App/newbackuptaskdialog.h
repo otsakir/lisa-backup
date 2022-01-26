@@ -23,6 +23,8 @@ public:
 private slots:
     void on_pushButtonCreate_clicked();
 
+    void on_lineEditId_textChanged(const QString &arg1);
+
 private:
     Ui::NewBackupTaskDialog *ui;
 };
