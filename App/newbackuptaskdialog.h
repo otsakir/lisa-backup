@@ -25,6 +25,8 @@ private slots:
 
     void on_lineEditId_textChanged(const QString &arg1);
 
+    void on_pushButton_clicked();
+
 private:
     Ui::NewBackupTaskDialog *ui;
 };

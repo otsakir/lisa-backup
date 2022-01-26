@@ -38,3 +38,9 @@ void NewBackupTaskDialog::on_lineEditId_textChanged(const QString &arg1)
 {
     ui->pushButtonCreate->setEnabled(arg1.length() >= 2); // have at least two chars
 }
+
+void NewBackupTaskDialog::on_pushButton_clicked()
+{
+    this->reject();
+}
+

@@ -538,21 +538,6 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 
 void MainWindow::on_action_New_triggered()
 {
-    // if the active backup or sources have been touched, show a confirmation dialog
-    // ...
-    int ret = QMessageBox::warning(this, tr("My Application"),
-                                   tr("The backup task has been modified.\nDo you want to save your changes?"),
-                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
-
-    if (ret == QMessageBox::Cancel) // or user pressed 'X' window key
-        return;
-
-    if (ret == QMessageBox::Save) {
-        on_ButtonApply_clicked();
-        // TODO possible errors when saving. Ask for confirmation and abort 'new' operation accordingly
-    }
-
-    // all clear or (ret == QMessageBox::Discard)
     newBackupTaskFromDialog();
 }
 
@@ -734,6 +719,23 @@ void MainWindow::newBackupTaskFromDialog()
     NewBackupTaskDialog dialog(this);
     if ( dialog.exec() == QDialog::Accepted) {
         qInfo() << "dialog returned: " << dialog.result.name << " - " << dialog.result.id;
+
+        // if the active backup or sources have been touched, show a confirmation dialog
+        // ...
+        int ret = QMessageBox::warning(this, tr("My Application"),
+                                       tr("The backup task has been modified.\nDo you want to save your changes?"),
+                                       QMessageBox::Save | QMessageBox::Discard, QMessageBox::Save);
+
+        //if (ret == QMessageBox::Cancel) // or user pressed 'X' window key
+        //    return;
+
+        if (ret == QMessageBox::Save) {
+            on_ButtonApply_clicked();
+            // TODO possible errors when saving. Ask for confirmation and abort 'new' operation accordingly
+        }
+
+
+
         // store to task file
         BackupModel model;
         model.backupDetails.friendlyName = dialog.result.name;
