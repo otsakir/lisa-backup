@@ -21,10 +21,30 @@ namespace Lb {
 
 // CONVENTION: directory paths don't include trailing slash
 
-// narrow down options
+// /usr/share/lbackup - not needed currently
+/*
+QString appDir() {
+    return "/usr/share/lbackup";
+}
+*/
+
+// usr/share/lbackup/
+QString appScriptsDir() {
+#ifdef QT_DEBUG
+    return "/opt/lbackup";
+#else
+    return "/usr/share/lbackup";
+#endif
+}
+
+// /home/{username}/.lbackup
 QString dataDirectory() {
-    QStringList pathlist = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    return pathlist.first();
+    return QString("%1/.lbackup").arg(homeDirectory());
+}
+
+// holds backup task scripts - /home/{username}/.lbackup/scripts
+QString scriptsDirectory() {
+    return QString("%1/scripts").arg(dataDirectory());
 }
 
 QString configDirectory() {
@@ -39,20 +59,6 @@ QString homeDirectory() {
 
 QString systemdDirectory() {
     return "/etc/systemd/system"; // TODO make this parametric from installation
-}
-
-// TODO - fix fallback logic (?)
-QString scriptsDirectory() {
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    QString homepath = env.value("HOME");
-    if (homepath.isEmpty())
-        return QString("/tmp/lisa-backup-scripts"); // fallback to temp-directory
-    else
-        return QString("%1/.lbackup").arg(homepath);
-}
-
-QString systemScriptDirectory() {
-    return "/opt/lbackup"; // TODO - replace this with script installation directory
 }
 
 // generates the full path to the backup data file based on the 'backup name'
@@ -80,16 +86,10 @@ QString windowTitle(const QString& taskFriendlyName) {
 }
 
 void setupDirs() {
-    QString datadir = dataDirectory();
-
-    QDir dataDir(datadir);
+    QDir dataDir(scriptsDirectory());
     if (!dataDir.exists())
-        dataDir.mkpath(datadir);
-
+        dataDir.mkpath(scriptsDirectory());
     assert( dataDir.exists() );
-
-    if (!dataDir.exists("templates"))
-        assert(dataDir.mkdir("templates"));
 }
 
 

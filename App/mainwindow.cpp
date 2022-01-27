@@ -807,3 +807,4 @@ void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
     // doing nothing for now
 }
 
+

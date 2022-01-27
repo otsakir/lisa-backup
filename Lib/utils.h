@@ -6,12 +6,12 @@
 
 namespace Lb {
 
-QString dataDirectory();    // contains application data in raw form (stored there when pressing Apply)
+QString appScriptsDir();    // application installation directory (typically /usr/share/lbackup). Contains install-systemd-hook.sh or bundle-git-repo.sh
+QString dataDirectory();    // for .task  files and respective backup scripts (.sh)
 QString configDirectory();
 QString scriptsDirectory();
 QString homeDirectory();
 QString systemdDirectory(); // systemd service file directory (typically /etc/systemd/system/)
-QString systemScriptDirectory(); // for scripts like install-systemd-hook.sh or bundle-git-repo.sh
 
 QString taskFilePathFromName(const QString& backupName);
 QString taskNameFromPath(const QString& taskFilePath);
