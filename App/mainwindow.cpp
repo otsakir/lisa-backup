@@ -77,30 +77,41 @@ MainWindow::MainWindow(QWidget *parent)
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
     Lb::setupDirs();
-    activeBackup = new BackupModel();
+    activeBackup = new BackupModel();    
 
     session.recentBackupNames.append("music2"); // manually initialize it for now. Later it will be loaded from file upon startup.
 
     // determine backup task to load
-        QString latestBackupName;
-    if ( !session.recentBackupNames.isEmpty() )
-        latestBackupName = session.recentBackupNames.first();
-
-    if (latestBackupName.isEmpty()) {
-        // show newtask dialog, retrieve name, create task file and show
-        newBackupTaskFromDialog();
+    QString taskId;
+    // Try to load from command parameters
+    // TODO
+    // otherwise...
+    // show newtask dialog, retrieve name, create task file and show
+    NewBackupTaskDialog dialog(this, NewBackupTaskDialog::Wizard);
+    if ( dialog.exec() == QDialog::Accepted) {
+        qInfo() << "dialog returned: " << dialog.result.id;
+        taskId = dialog.result.id;
     } else {
-        BackupModel persisted;
-        if (loadPersisted(latestBackupName,persisted)) {
-            *activeBackup = persisted;
-            activeBackup->backupDetails.tmp.name = latestBackupName;
-            initUIControls(*activeBackup);
-        } else {
-            ui->statusbar->showMessage(QString("Error opening '%1' task").arg(latestBackupName));
-        }
+        // TODO - exit program
     }
 
+    // ok, we have a valid task id. Let's load it...
+    loadTask(taskId);
+
     //ui->statusbar->showMessage("Ready");
+}
+
+void MainWindow::loadTask(QString taskId) {
+    // ok, we have a valid task id. Let's load it...
+    BackupModel persisted;
+    if (loadPersisted(taskId,persisted)) {
+        *activeBackup = persisted;
+        activeBackup->backupDetails.tmp.name = taskId;
+        initUIControls(*activeBackup);
+    } else {
+        ui->statusbar->showMessage(QString("Error opening '%1' task").arg(taskId));
+        // TODO show wizard again or exit program?
+    }
 }
 
 
@@ -334,15 +345,6 @@ bool MainWindow::loadPersisted(const QString backupName, BackupModel& persisted)
     return Lb::loadPersistedFile(Lb::taskFilePathFromName(backupName), persisted);
 }
 
-void persistTaskModel(const BackupModel& persisted, const QString& taskFilename) {
-    qInfo() << "data file path: " << taskFilename;
-    QFile file(taskFilename);
-    file.open(QIODevice::WriteOnly);
-    QDataStream stream(&file);
-    stream << persisted;
-    file.close();
-}
-
 void MainWindow::applyChanges() {
     // 1. gather model data from UI and put in a big object
     // 2. generate backup script file based on the model
@@ -538,7 +540,10 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 
 void MainWindow::on_action_New_triggered()
 {
-    newBackupTaskFromDialog();
+    NewBackupTaskDialog dialog(this, NewBackupTaskDialog::CreateOnly);
+    if ( dialog.exec() == QDialog::Accepted) {
+        loadTask(dialog.result.id);
+    }
 }
 
 // this saves backup configuration and generates scripts
@@ -550,7 +555,11 @@ void MainWindow::on_ButtonApply_clicked()
 
 void MainWindow::on_action_Open_triggered()
 {
-    QFileDialog dialog(this);
+    NewBackupTaskDialog dialog(this, NewBackupTaskDialog::OpenOnly);
+    if (dialog.exec() == QDialog::Accepted) {
+        loadTask(dialog.result.id);
+    }
+    /*QFileDialog dialog(this);
     dialog.setDirectory(Lb::dataDirectory());
 
     if (dialog.exec()) {
@@ -564,7 +573,8 @@ void MainWindow::on_action_Open_triggered()
             activeBackup->backupDetails.tmp.name = taskName;
             initUIControls(*activeBackup);
         }
-    }
+    }*/
+
 }
 
 // reloads paths for system mounted devices. Adds 'current' if not already in the list
@@ -713,10 +723,10 @@ void MainWindow::consoleProcessFinished(int exitCode) {
 }
 
 // show newtask dialog, get name and id, persist to .task file, reload and populate UI
-void MainWindow::newBackupTaskFromDialog()
+void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
 {
     QString stringResult;
-    NewBackupTaskDialog dialog(this);
+    NewBackupTaskDialog dialog(this, (NewBackupTaskDialog::Mode) dialogMode);
     if ( dialog.exec() == QDialog::Accepted) {
         qInfo() << "dialog returned: " << dialog.result.name << " - " << dialog.result.id;
 
@@ -740,7 +750,7 @@ void MainWindow::newBackupTaskFromDialog()
         BackupModel model;
         model.backupDetails.friendlyName = dialog.result.name;
         QString taskFilename = Lb::taskFilePathFromName(dialog.result.id);
-        persistTaskModel(model, taskFilename);
+        Lb::persistTaskModel(model, taskFilename);
         // TODO error handling
 
         // reload task file and init UI

@@ -235,6 +235,15 @@ void bestValidDirectoryMatch(const QString& rawpath, QString& validPath) {
     }
 }
 
+void persistTaskModel(const BackupModel& persisted, const QString& taskFilename) {
+    qInfo() << "data file path: " << taskFilename;
+    QFile file(taskFilename);
+    file.open(QIODevice::WriteOnly);
+    QDataStream stream(&file);
+    stream << persisted;
+    file.close();
+}
+
 namespace Triggers {
 
     void installSystemdHook(const BackupDetails& backup) {

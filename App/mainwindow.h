@@ -107,7 +107,7 @@ private slots:
 
     void on_pushButton_5_clicked();
 
-    void newBackupTaskFromDialog();
+    void newBackupTaskFromDialog(qint32 dialogMode);
 
     void on_pushButtonEditFriendlyName_toggled(bool checked);
 
@@ -132,6 +132,7 @@ private:
     State state; // generic application state. Not part of a backup.
     QProcess consoleProcess;
 
+    void loadTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);
     void appendSource(SourceDetails* sourceDetails);
     void collectUIControls(BackupModel& persisted);
