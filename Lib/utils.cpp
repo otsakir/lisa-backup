@@ -244,6 +244,10 @@ void persistTaskModel(const BackupModel& persisted, const QString& taskFilename)
     file.close();
 }
 
+bool loadPersisted(const QString backupName, BackupModel& persisted) {
+    return loadPersistedFile(Lb::taskFilePathFromName(backupName), persisted);
+}
+
 namespace Triggers {
 
     void installSystemdHook(const BackupDetails& backup) {

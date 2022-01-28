@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
+    ui->sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     sourcesDataMapper->setModel(sourcesModel);
 
@@ -92,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent)
         qInfo() << "dialog returned: " << dialog.result.id;
         taskId = dialog.result.id;
     } else {
-        // TODO - exit program
+        emit PleaseQuit();
     }
 
     // ok, we have a valid task id. Let's load it...
@@ -104,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::loadTask(QString taskId) {
     // ok, we have a valid task id. Let's load it...
     BackupModel persisted;
-    if (loadPersisted(taskId,persisted)) {
+    if (Lb::loadPersisted(taskId,persisted)) {
         *activeBackup = persisted;
         activeBackup->backupDetails.tmp.name = taskId;
         initUIControls(*activeBackup);
@@ -338,11 +339,6 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
         //ui->lineEditDestinationSuffixPath->setText(dialogResult.backupSubdir);
         //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
     }
-}
-
-
-bool MainWindow::loadPersisted(const QString backupName, BackupModel& persisted) {
-    return Lb::loadPersistedFile(Lb::taskFilePathFromName(backupName), persisted);
 }
 
 void MainWindow::applyChanges() {

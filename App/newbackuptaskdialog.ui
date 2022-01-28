@@ -29,7 +29,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidgetWizard">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page1wizardStart">
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -231,6 +231,9 @@
      </widget>
      <widget class="QWidget" name="page3Open">
       <layout class="QVBoxLayout" name="verticalLayout_5">
+       <property name="spacing">
+        <number>11</number>
+       </property>
        <item>
         <widget class="QLabel" name="label_5">
          <property name="text">
@@ -239,12 +242,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetTasks"/>
+        <widget class="QTreeView" name="treeViewTasks">
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustIgnored</enum>
+         </property>
+         <property name="indentation">
+          <number>0</number>
+         </property>
+         <property name="itemsExpandable">
+          <bool>true</bool>
+         </property>
+         <property name="expandsOnDoubleClick">
+          <bool>true</bool>
+         </property>
+         <attribute name="headerVisible">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="headerDefaultSectionSize">
+          <number>200</number>
+         </attribute>
+         <attribute name="headerShowSortIndicator" stdset="0">
+          <bool>true</bool>
+         </attribute>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="topMargin">
-          <number>12</number>
+          <number>6</number>
          </property>
          <item>
           <spacer name="horizontalSpacer_2">
