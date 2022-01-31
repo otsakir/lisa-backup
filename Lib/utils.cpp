@@ -252,19 +252,18 @@ namespace Triggers {
 
     void installSystemdHook(const BackupDetails& backup) {
         QProcess process;
-        //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
 
         QString backupName = "backup1.sh";
         QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.name);
 
-        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
+        process.start("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
         process.waitForFinished(-1);
     }
 
     void removeSystemdHook(const BackupDetails &backup) {
         QProcess process;
 
-        process.startDetached("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backup.tmp.name});
+        process.start("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backup.tmp.name});
         process.waitForFinished(-1);
     }
 

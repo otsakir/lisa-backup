@@ -168,10 +168,23 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QListView" name="sourcesListView"/>
+            <widget class="QListView" name="sourcesListView">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QWidget" name="widget" native="true">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <property name="leftMargin">
                <number>0</number>
@@ -222,6 +235,12 @@
                <width>438</width>
                <height>387</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
              </property>
              <property name="title">
               <string>Details</string>
@@ -507,6 +526,12 @@
            <string>Destination</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>13</number>
+           </property>
            <property name="bottomMargin">
             <number>15</number>
            </property>
@@ -516,7 +541,7 @@
               <string>Systemd identifier of the backup storage medium</string>
              </property>
              <property name="text">
-              <string>Backup device</string>
+              <string>Device</string>
              </property>
             </widget>
            </item>
@@ -603,107 +628,145 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Trigger</string>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <property name="spacing">
+              <number>10</number>
              </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="topMargin">
+              <number>10</number>
+             </property>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
+              <widget class="QLabel" name="label_7">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>On-Mount Trigger</string>
+               </property>
+               <property name="margin">
+                <number>-1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <property name="topMargin">
+                <number>0</number>
+               </property>
                <item>
-                <widget class="QLineEdit" name="lineEditSystemdUnit">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
+                <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <item>
+                  <widget class="QLineEdit" name="lineEditSystemdUnit">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="readOnly">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item alignment="Qt::AlignBottom">
+                <widget class="QPushButton" name="pushButtonSelectDevice">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="readOnly">
-                  <bool>false</bool>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Select</string>
                  </property>
                 </widget>
                </item>
               </layout>
              </item>
-             <item alignment="Qt::AlignBottom">
-              <widget class="QPushButton" name="pushButtonSelectDevice">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Select</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
              <item>
-              <widget class="QPushButton" name="pushButtonInstallTrigger">
-               <property name="minimumSize">
-                <size>
-                 <width>122</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>125</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Install trigger</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButtonRemoveTrigger">
-               <property name="minimumSize">
-                <size>
-                 <width>122</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>125</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Remove trigger</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <widget class="QPushButton" name="pushButtonInstallTrigger">
+                 <property name="minimumSize">
+                  <size>
+                   <width>122</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>125</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Install</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButtonUpdateTrigger">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>122</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Update</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButtonRemoveTrigger">
+                 <property name="minimumSize">
+                  <size>
+                   <width>122</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>125</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Remove</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
@@ -737,6 +800,9 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <property name="topMargin">
+       <number>9</number>
+      </property>
       <item>
        <spacer name="horizontalSpacer_4">
         <property name="orientation">

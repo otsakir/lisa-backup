@@ -63,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
 
     QObject::connect(this, &MainWindow::friendlyNameEdited, this, &MainWindow::onFriendlyNameEdited);
+    //QObject::connect(this, &MainWindow::systemdUnitChanged, this, &MainWindow::onSystemdUnitChanged);
+    QObject::connect(ui->lineEditSystemdUnit, &QLineEdit::textChanged, this, &MainWindow::onSystemdUnitChanged);
 
     // 'PleaseQuit' signal bound to application quit
     QObject::connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
@@ -72,6 +74,8 @@ MainWindow::MainWindow(QWidget *parent)
     //QObject::connect(&consoleProcess, &QProcess::started, this, &MainWindow::consoleProcessStarted );
     QObject::connect(&consoleProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::consoleProcessDataAvail);
     QObject::connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
+
+    QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
 
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
@@ -291,7 +295,8 @@ void MainWindow::initUIControls(const BackupModel& backupModel) {
 void MainWindow::setupTriggerButtons(const QString& backupName) {
     bool triggerExists = Lb::Triggers::systemdHookPresent(backupName);
     qInfo() << "systemd service present: " << triggerExists;
-    ui->pushButtonInstallTrigger->setEnabled(!triggerExists); // already installed
+    ui->pushButtonInstallTrigger->setVisible(!triggerExists);
+    ui->pushButtonUpdateTrigger->setVisible(triggerExists);
     ui->pushButtonRemoveTrigger->setEnabled(triggerExists);
 }
 
@@ -333,11 +338,7 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
     if ( dialog.exec() == QDialog::Accepted) {
         qInfo() << "result: " << dialogResult.mountId << " - " << dialogResult.mountPath;
         ui->lineEditSystemdUnit->setText(dialogResult.mountId);
-        activeBackup->backupDetails.systemdMountUnit = dialogResult.mountPath;
-        //activeBackup->destinationBasePath = dialogResult.mountPath;
-        //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
-        //ui->lineEditDestinationSuffixPath->setText(dialogResult.backupSubdir);
-        //ui->lineEditDestinationBasePath->setText(dialogResult.mountPath);
+        //activeBackup->backupDetails.systemdMountUnit = dialogResult.mountPath;
     }
 }
 
@@ -608,25 +609,13 @@ void MainWindow::on_comboBoxBasePath_currentIndexChanged(const QString &newPath)
 {
     qInfo() << "selected base path changed: " << newPath;
     activeBackup->backupDetails.destinationBasePath = newPath;
-
+    // select respective systemd unit
     QString systemdUnit;
-    if ( Lb::systemdUnitForMountPath(newPath, systemdUnit) ) {
-        qInfo() << "systemd unit: " << systemdUnit;
-        activeBackup->backupDetails.systemdMountUnit = systemdUnit;
-        ui->lineEditSystemdUnit->setText(systemdUnit);
-    } else {
+    if ( ! Lb::systemdUnitForMountPath(newPath, systemdUnit) ) {
         qWarning() << "no systemd unit for path " << newPath;
-        ui->lineEditSystemdUnit->clear();
-        activeBackup->backupDetails.systemdMountUnit.clear();
     }
-
+    ui->lineEditSystemdUnit->setText(systemdUnit);
     emit ui->lineEditDestinationSuffixPath->editingFinished();
-}
-
-
-void MainWindow::on_comboBoxBasePath_currentIndexChanged(int index)
-{
-
 }
 
 
@@ -813,4 +802,16 @@ void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
     // doing nothing for now
 }
 
+void MainWindow::onSystemdUnitChanged(QString newUnitName) {
+    qInfo() << "onSystemdUnitChanged(): systemd unit changed: " << newUnitName;
+    // update model
+    activeBackup->backupDetails.systemdMountUnit = newUnitName;
+
+
+    //if (newUnitName.isEmpty())
+    //    ui->lineEditSystemdUnit->clear();
+    //else
+    //    ui->lineEditSystemdUnit->setText(newUnitName);
+
+}
 

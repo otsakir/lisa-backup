@@ -35,9 +35,16 @@ signals:
     void newBackupName(QString backupName); // there is a new backup name established!
     void PleaseQuit();
     void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
+    void systemdUnitChanged(QString unitName);
 
 private slots:
+
+    // custom slots
+    void on_actionChanged(SourceDetails::ActionType action);
     void onNewBackupName(QString backupName);
+    void onSystemdUnitChanged(QString newUnitName);
+
+
     void on_pushButton_clicked();
 
     void on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected);
@@ -89,8 +96,6 @@ private slots:
 
     void on_comboBoxBasePath_currentIndexChanged(const QString &arg1);
 
-    void on_comboBoxBasePath_currentIndexChanged(int index);
-
     void on_action_Save_triggered();
 
     void on_lineEditBackupName_editingFinished();
@@ -118,9 +123,6 @@ private slots:
     void on_radioButtonRsync_toggled(bool checked);
 
     void on_radioButtonGitBundle_toggled(bool checked);
-
-    // custom slots
-    void on_actionChanged(SourceDetails::ActionType action);
 
 private:
     Ui::MainWindow *ui;

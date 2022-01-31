@@ -29,21 +29,21 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidgetWizard">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page1wizardStart">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QPushButton" name="pushButtonCreateStep">
          <property name="text">
-          <string>Create new task</string>
+          <string>New backup task</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pushButtonOpenStep">
          <property name="text">
-          <string>Open existing task</string>
+          <string>Existing tasks</string>
          </property>
         </widget>
        </item>
@@ -256,7 +256,7 @@
           <bool>true</bool>
          </property>
          <attribute name="headerVisible">
-          <bool>true</bool>
+          <bool>false</bool>
          </attribute>
          <attribute name="headerDefaultSectionSize">
           <number>200</number>
