@@ -19,6 +19,7 @@
 #include <QStorageInfo>
 #include <QFontDatabase>
 #include <QDateTime>
+#include <QAbstractItemView>
 
 Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
@@ -50,7 +51,6 @@ MainWindow::MainWindow(QWidget *parent)
     sourcesDataMapper->setModel(sourcesModel);
 
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
-    QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &MainWindow::on_updateSelection );
 
     QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::on_currentChanged);
 
@@ -63,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
 
     QObject::connect(this, &MainWindow::friendlyNameEdited, this, &MainWindow::onFriendlyNameEdited);
-    //QObject::connect(this, &MainWindow::systemdUnitChanged, this, &MainWindow::onSystemdUnitChanged);
     QObject::connect(ui->lineEditSystemdUnit, &QLineEdit::textChanged, this, &MainWindow::onSystemdUnitChanged);
 
     // 'PleaseQuit' signal bound to application quit
@@ -76,6 +75,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
 
     QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
+
+    QObject::connect(ui->sourcesListView->selectionModel(), &QItemSelectionModel::currentChanged, this, &MainWindow::onListViewCurrentChanged);
 
     ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
 
@@ -121,11 +122,9 @@ void MainWindow::loadTask(QString taskId) {
 
 
 void MainWindow::onNewBackupName(QString backupName) {
-    qInfo() << "new backup name!";
 }
 
 void MainWindow::on_activeBackupMethodChanged(int backupType) {
-    qInfo() << "backup method changed: " << backupType;
     ui->groupBoxCriteria->setEnabled(backupType != SourceDetails::all);
     ui->groupBoxAction->setEnabled(backupType != SourceDetails::all);
 }
@@ -139,13 +138,10 @@ MainWindow::~MainWindow()
 
 // appends a 'backup source' to the list on the left
 // Note, sourceDetails memory will be automatically released
-void MainWindow::appendSource(SourceDetails* sourceDetails) {
-    //QString sourcePath = selected.at(i);
+QStandardItem* MainWindow::appendSource(SourceDetails* sourceDetails) {
     QStandardItem* modelItem = new QStandardItem(sourceDetails->sourcePath);
     QList<QStandardItem*> itemList;
 
-    //SourceDetails* sourceDetails = new SourceDetails(SourceDetails::selective, "[[ -f dobackup ]]");
-    //sourceDetails->sourcePath = sourcePath;
     QVariant var;
     var.setValue( std::shared_ptr<SourceDetails>(sourceDetails) );
 
@@ -158,8 +154,10 @@ void MainWindow::appendSource(SourceDetails* sourceDetails) {
     // select new item in the list view
     QItemSelectionModel* selModel = ui->sourcesListView->selectionModel();
 
-    selModel->select(sourcesModel->indexFromItem(modelItem), QItemSelectionModel::ClearAndSelect);
+
+    return modelItem;
 }
+
 
 void MainWindow::on_pushButton_clicked()
 {    
@@ -177,12 +175,13 @@ void MainWindow::on_pushButton_clicked()
     for (int i=0; i<selected.size(); i++) {
         SourceDetails* sourceDetails = new SourceDetails();
         sourceDetails->sourcePath = selected.at(i);
-        appendSource(sourceDetails); // sourceDetails memory willbe automatically released
+        // sourceDetails memory willbe automatically released
+        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetails)), QItemSelectionModel::ClearAndSelect);
     }
 }
 
 void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex &previous) {
-    //updateSourceDetailControls(current);
+    updateSourceDetailControls(current);
 }
 
 /**
@@ -219,10 +218,13 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
     }
 }
 
+void MainWindow::onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous) {
+    qInfo() << "sourcesListView:: currentChanged!";
+}
+
 void MainWindow::on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected)
 {
     if ( !selected.empty()) {
-        qInfo() << "selected: " << selected.indexes().first().data();
         updateSourceDetailControls(selected.indexes().first());
     } else {
         updateSourceDetailControls(QModelIndex()); // empty stuff
@@ -259,7 +261,6 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
     for (int i=0; i<sourcesModel->rowCount(); i++) {
         SourceDetails* sourcep = sourcesModel->index(i, 1).data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
         persisted.allSourceDetails.append(*sourcep);
-        qInfo() << "source type: " << sourcep->backupType << sourcep->sourcePath;
     }
 }
 
@@ -273,9 +274,12 @@ void MainWindow::initUIControls(const BackupModel& backupModel) {
     ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationBaseSuffixPath);
 
     sourcesModel->clear();
+
+    QStandardItem* lastSourceAdded = 0;
     for (int i=0; i<backupModel.allSourceDetails.size(); i++) {
-        appendSource(new SourceDetails(backupModel.allSourceDetails.at(i)));
+        lastSourceAdded = appendSource(new SourceDetails(backupModel.allSourceDetails.at(i)));
     }
+    ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(lastSourceAdded), QItemSelectionModel::ClearAndSelect);
 
     refreshBasePaths(backupModel.backupDetails.destinationBasePath.isEmpty() ? "/" : backupModel.backupDetails.destinationBasePath);
 
@@ -445,22 +449,6 @@ void MainWindow::on_lineEditDestinationSuffixPath_textChanged(const QString &arg
     activeBackup->backupDetails.destinationBaseSuffixPath = ui->lineEditDestinationSuffixPath->text();
 }
 
-
-void MainWindow::on_toolButton_toggled(bool checked)
-{
-    /*
-    if (! checked) {
-        // looks like we're done editing
-        if ( ui->lineEditBackupName->text() != activeBackup->backupDetails.backupName) {
-            //qInfo() << "backupName updated";
-            // at this point we can display a confirmation for passing on the update or prevent it
-            activeBackup->backupDetails.backupName = ui->lineEditBackupName->text();
-        }
-    }
-    ui->lineEditBackupName->setEnabled(checked);
-    */
-}
-
 void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
 {
     QString path = activeBackup->backupDetails.destinationBasePath + "/" + activeBackup->backupDetails.destinationBaseSuffixPath;
@@ -520,15 +508,7 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
                 qInfo() << "suffix after: " << suffix;
                 ui->lineEditDestinationSuffixPath->setText(suffix);
                 ui->lineEditDestinationSuffixPath->editingFinished();
-
-
-
             }
-
-
-            //SourceDetails* sourceDetails = new SourceDetails();
-            //sourceDetails->sourcePath = selected.at(i);
-            //appendSource(sourceDetails); // sourceDetails memory willbe automatically released
         }
     }
 }
@@ -607,7 +587,6 @@ void MainWindow::on_pushButtonRefreshBasePaths_clicked()
 
 void MainWindow::on_comboBoxBasePath_currentIndexChanged(const QString &newPath)
 {
-    qInfo() << "selected base path changed: " << newPath;
     activeBackup->backupDetails.destinationBasePath = newPath;
     // select respective systemd unit
     QString systemdUnit;
@@ -624,41 +603,11 @@ void MainWindow::on_action_Save_triggered()
     applyChanges();
 }
 
-
-void MainWindow::on_lineEditBackupName_editingFinished()
-{
-    //activeBackup->backupDetails.backupName = ui->lineEditBackupName->text();
-}
-
-
-void MainWindow::on_lineEditBackupName_returnPressed()
-{
-    qInfo () << "return pressed";
-    //emit ui->pushButtonOk->clicked();
-}
-
 void MainWindow::on_pushButtonInstallTrigger_clicked()
 {
     Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
     setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
 }
-
-
-void MainWindow::on_pushButtonOk_clicked()
-{
-    // validate current backupName. For now we just check if non-empty
-/*    if (!ui->lineEditBackupName->text().isEmpty()) {
-        // ok, "valid"
-        ui->lineEditBackupName->setEnabled(false);
-        enableMostUI(true);
-        setupTriggerButtons(ui->lineEditBackupName->text());
-        ui->pushButtonOk->setVisible(false);
-        ui->toolButton->setVisible(true);
-    }
-*/
-    qInfo() << "in buttonOk";
-}
-
 
 void MainWindow::on_pushButtonRemoveTrigger_clicked()
 {
@@ -798,8 +747,7 @@ void MainWindow::on_radioButtonGitBundle_toggled(bool checked)
 
 // higher-level handler. Model (getSelectedSourceDetails()) is assumed to contain the updated value
 void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
-    qInfo() << "action changed: " << action;
-    // doing nothing for now
+    // TODO
 }
 
 void MainWindow::onSystemdUnitChanged(QString newUnitName) {

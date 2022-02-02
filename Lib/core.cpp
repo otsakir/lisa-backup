@@ -9,7 +9,6 @@ SourceDetails::SourceDetails() :
     predicateType(containsFilenameId) {}
 
 SourceDetails::~SourceDetails() {
-    qInfo() << "destroying MyData - ";
 }
 
 QDataStream& operator<<(QDataStream& s, const SourceDetails& item) {

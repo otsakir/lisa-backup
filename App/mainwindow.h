@@ -76,10 +76,6 @@ private slots:
 
     void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
 
-    void on_toolButton_toggled(bool checked);
-
-    //void on_lineEditBackupName_editingFinished();
-
     void on_lineEditDestinationSuffixPath_editingFinished();
 
     void on_pushButtonChooseDestinationSubdir_clicked();
@@ -98,13 +94,7 @@ private slots:
 
     void on_action_Save_triggered();
 
-    void on_lineEditBackupName_editingFinished();
-
-    void on_lineEditBackupName_returnPressed();
-
     void on_pushButtonInstallTrigger_clicked();
-
-    void on_pushButtonOk_clicked();
 
     void on_pushButtonRemoveTrigger_clicked();
 
@@ -124,6 +114,8 @@ private slots:
 
     void on_radioButtonGitBundle_toggled(bool checked);
 
+    void onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
+
 private:
     Ui::MainWindow *ui;
 
@@ -136,7 +128,7 @@ private:
 
     void loadTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);
-    void appendSource(SourceDetails* sourceDetails);
+    QStandardItem* appendSource(SourceDetails* sourceDetails);
     void collectUIControls(BackupModel& persisted);
     void initUIControls(const BackupModel& persisted);
 

@@ -29,7 +29,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidgetWizard">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page1wizardStart">
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -136,7 +136,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Identifier for backup script and systemd service. You can only alter it manually later.</string>
+              <string>Identifier for backup script and systemd service. Can only be altered manually.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>

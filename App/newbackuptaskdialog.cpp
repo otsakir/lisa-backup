@@ -48,7 +48,6 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
 
     emit ui->lineEditId->textChanged(ui->lineEditId->text()); // initialize state
     emit ui->stackedWidgetWizard->currentChanged(mode);
-    //emit wizardStepActivated(mode, -1); // -1 because there is no previous step index
 }
 
 NewBackupTaskDialog::~NewBackupTaskDialog()
@@ -57,7 +56,6 @@ NewBackupTaskDialog::~NewBackupTaskDialog()
 }
 
 void NewBackupTaskDialog::on_wizardStepActivated(int index, int prevIndex) {
-    qInfo() << "wizardStepActivated:: " << index << " from " << prevIndex;
 }
 
 void NewBackupTaskDialog::on_pushButtonCreate_clicked()
