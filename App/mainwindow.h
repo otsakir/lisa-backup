@@ -134,7 +134,7 @@ private:
 
     void applyChanges();
     void refreshBasePaths(QString current);
-    void enableMostUI(bool enable);
+    //void enableMostUI(bool enable);
     void setupTriggerButtons(const QString& backupName);
 
     void consoleProcessStarted();

@@ -143,6 +143,16 @@ void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
                 // TODO - log error
             }
         }
+
+        ui->pushButtonCreate->setDefault(false);
+        ui->pushButtonCreate->setAutoDefault(false);
+        ui->pushButtonOpen->setDefault(true);
+        ui->pushButtonOpen->setAutoDefault(true);
+    } else if (stepIndex == Mode::CreateOnly) {
+        ui->pushButtonOpen->setDefault(false);
+        ui->pushButtonOpen->setAutoDefault(false);
+        ui->pushButtonCreate->setDefault(true);
+        ui->pushButtonCreate->setAutoDefault(true);
     }
 }
 

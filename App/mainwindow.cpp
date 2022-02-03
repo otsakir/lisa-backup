@@ -78,8 +78,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->sourcesListView->selectionModel(), &QItemSelectionModel::currentChanged, this, &MainWindow::onListViewCurrentChanged);
 
-    ui->groupBoxSourceDetails->setHidden( ui->sourcesListView->selectionModel()->selection().empty() );
-
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
     Lb::setupDirs();
@@ -181,6 +179,7 @@ void MainWindow::on_pushButton_clicked()
 }
 
 void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex &previous) {
+    ui->widgetSourceDetails->setDisabled(!current.isValid());
     updateSourceDetailControls(current);
 }
 
@@ -211,10 +210,10 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
         ui->lineEditNameMatches->setText(pDetails->nameMatches);
         ui->comboBoxPredicate->setCurrentIndex(pDetails->predicateType);
-        ui->groupBoxSourceDetails->setTitle( QString("Source %1").arg(sourcePath) );
-        ui->groupBoxSourceDetails->setHidden(false);
+        //ui->groupBoxSourceDetails->setTitle( QString("Source %1").arg(sourcePath) );
+        ui->widgetSourceDetails->setHidden(false);
     } else {
-        ui->groupBoxSourceDetails->setHidden(true);
+        ui->widgetSourceDetails->setHidden(true);
     }
 }
 
@@ -230,17 +229,6 @@ void MainWindow::on_updateSelection(const QItemSelection &selected, const QItemS
         updateSourceDetailControls(QModelIndex()); // empty stuff
     }
 }
-
-
-/*
-void MainWindow::on_pushButton_2_clicked()
-{
-    Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
-}
-*/
-
-
-
 
 void MainWindow::on_removeSourceButton_clicked()
 {
@@ -279,21 +267,16 @@ void MainWindow::initUIControls(const BackupModel& backupModel) {
     for (int i=0; i<backupModel.allSourceDetails.size(); i++) {
         lastSourceAdded = appendSource(new SourceDetails(backupModel.allSourceDetails.at(i)));
     }
-    ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(lastSourceAdded), QItemSelectionModel::ClearAndSelect);
+    if (lastSourceAdded)
+        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(lastSourceAdded), QItemSelectionModel::ClearAndSelect);
 
     refreshBasePaths(backupModel.backupDetails.destinationBasePath.isEmpty() ? "/" : backupModel.backupDetails.destinationBasePath);
 
-    //bool newBackup = ui->lineEditBackupName->text().isEmpty();
+    setupTriggerButtons(activeBackup->backupDetails.tmp.name);
 
-    //ui->lineEditBackupName->setEnabled(newBackup);
-    //enableMostUI(!newBackup);
-    //ui->pushButtonOk->setVisible(newBackup);
-    //ui->toolButton->setVisible(!newBackup);
+    emit ui->sourcesListView->selectionModel()->currentChanged(QModelIndex(), ui->sourcesListView->selectionModel()->currentIndex());
+    //ui->widgetSourceDetails->setDisabled(!ui->sourcesListView->currentIndex().isValid());
 
-    // enable/disable trigger buttons
-    //if (!newBackup) {
-        setupTriggerButtons(activeBackup->backupDetails.tmp.name);
-    //}
 }
 
 void MainWindow::setupTriggerButtons(const QString& backupName) {
@@ -304,33 +287,14 @@ void MainWindow::setupTriggerButtons(const QString& backupName) {
     ui->pushButtonRemoveTrigger->setEnabled(triggerExists);
 }
 
+/*
 void MainWindow::enableMostUI(bool enable) {
 
     ui->groupBoxSourceList->setEnabled(enable);
-    ui->groupBoxSourceDetails->setEnabled(enable);
+    ui->widgetSourceDetails->setEnabled(enable);
     ui->groupBoxDestination->setEnabled(enable);
-
-    // disable signals because setDisabled() will trigger another round of editingFinished() event
-    //ui->lineEditBackupName->blockSignals(true);
-    //ui->lineEditBackupName->setEnabled(!disableMostUi);
-    //ui->lineEditBackupName->blockSignals(false);
-
-    //ui->toolButton->blockSignals(true);
-    //ui->toolButton->setChecked(disableMostUi);
-    //ui->toolButton->blockSignals(false);
-
-    /*
-    activeBackup->backupName = ui->lineEditBackupName->text();
-    if (!disableMostUi) {
-        bool present = Lb::Triggers::systemdHookPresent(activeBackup->backupName);
-        qInfo() << "systemd service present: " << present;
-        //TODO: enable or disable pushButtonInstallTrigger and pushButtonRemoveTrigger
-    }
-
-    emit backupNameChanged(activeBackup->backupName);
-    */
-
 }
+*/
 
 
 
@@ -536,22 +500,6 @@ void MainWindow::on_action_Open_triggered()
     if (dialog.exec() == QDialog::Accepted) {
         loadTask(dialog.result.id);
     }
-    /*QFileDialog dialog(this);
-    dialog.setDirectory(Lb::dataDirectory());
-
-    if (dialog.exec()) {
-        QString filename = dialog.selectedFiles().first();
-        qInfo() << "filename: " << filename;
-
-        BackupModel persisted;
-        if (Lb::loadPersistedFile(filename,persisted)) {
-            QString taskName = Lb::taskNameFromPath(filename);
-            *activeBackup = persisted;
-            activeBackup->backupDetails.tmp.name = taskName;
-            initUIControls(*activeBackup);
-        }
-    }*/
-
 }
 
 // reloads paths for system mounted devices. Adds 'current' if not already in the list

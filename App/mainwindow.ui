@@ -224,7 +224,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBoxSourceDetails">
+            <widget class="QWidget" name="widgetSourceDetails" native="true">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -237,7 +237,7 @@
              <property name="minimumSize">
               <size>
                <width>438</width>
-               <height>387</height>
+               <height>0</height>
               </size>
              </property>
              <property name="font">
@@ -246,10 +246,13 @@
                <bold>false</bold>
               </font>
              </property>
-             <property name="title">
-              <string>Details</string>
-             </property>
              <layout class="QVBoxLayout" name="verticalLayout">
+              <property name="spacing">
+               <number>10</number>
+              </property>
+              <property name="topMargin">
+               <number>5</number>
+              </property>
               <item>
                <widget class="QGroupBox" name="groupBox_4">
                 <property name="sizePolicy">
@@ -361,9 +364,6 @@
                  <property name="text">
                   <string>Depth</string>
                  </property>
-                 <property name="buddy">
-                  <cstring>comboBoxDepth</cstring>
-                 </property>
                 </widget>
                 <widget class="QLabel" name="label_4">
                  <property name="geometry">
@@ -382,9 +382,6 @@
                  </property>
                  <property name="text">
                   <string>Predicate</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>comboBoxPredicate</cstring>
                  </property>
                 </widget>
                 <widget class="QComboBox" name="comboBoxPredicate">
@@ -854,7 +851,6 @@
     <addaction name="action_Open"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
-    <addaction name="actionDelete"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
