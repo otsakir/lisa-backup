@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     Lib \    
-    TestSuite \
+    # TestSuite \
     App
 
 
