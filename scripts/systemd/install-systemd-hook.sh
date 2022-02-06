@@ -25,9 +25,9 @@ EOF
 
 doinstall()
 {
-	# SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-	SCRIPT_DIR=/opt/lbackup  #TODO: calculate this when configuring app
-	SERVICE_TEMPLATE="${SCRIPT_DIR}/templates/lisa-backup.service"
+	SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+	# SCRIPT_DIR=/opt/lbackup  #TODO: calculate this when configuring app
+	SERVICE_TEMPLATE="${SCRIPT_DIR}/template/lisa-backup.service"
 	CURRENT_USER=`whoami`
 	CURRENT_GROUP=`id -gn`
 	SYSTEMD_SERVICE="lbackup-$SERVICE_NAME"

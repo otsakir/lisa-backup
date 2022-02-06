@@ -328,7 +328,7 @@ void MainWindow::applyChanges() {
 
     QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
     qInfo() << "script name: " << scriptName;
-    Lb::generateBackupScript("/home/nando/src/qt/LisaBackup/scripts/templates/backup.sh.tmpl", scriptName, persisted);
+    Lb::generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted);
 
 }
 

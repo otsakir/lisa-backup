@@ -256,14 +256,14 @@ namespace Triggers {
         QString backupName = "backup1.sh";
         QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.name);
 
-        process.start("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
+        process.start("xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
         process.waitForFinished(-1);
     }
 
     void removeSystemdHook(const BackupDetails &backup) {
         QProcess process;
 
-        process.start("xterm", {"-e", "/opt/lbackup/install-systemd-hook.sh","remove","-s", backup.tmp.name});
+        process.start("xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"remove","-s", backup.tmp.name});
         process.waitForFinished(-1);
     }
 

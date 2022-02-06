@@ -105,6 +105,8 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
 
 bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate) {
 
+    qDebug() << "Generating " << outfilename << " backup script from " << scriptTemplate;
+
     // open script template file
     QFile f(scriptTemplate);
     if ( ! f.open(QIODevice::ReadOnly | QIODevice::Text) ) {
