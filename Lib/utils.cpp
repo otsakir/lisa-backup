@@ -137,7 +137,10 @@ QString userGroup() {
 QString runShellCommand(QString commandString) {
     QProcess process;
     //process.start("bash", {"-c", "systemctl list-units --type=mount | grep mounted > a"});
-    process.start("bash", {"-c", commandString});
+
+    //process.start("bash", {"-c", commandString});
+    startProcess(process, "bash", {"-c", commandString});
+
     process.waitForFinished(-1);
 
     QString out = process.readAllStandardOutput();
@@ -151,7 +154,8 @@ void runScriptInWindow(QString scriptPath) {
     //QString backupName = "backup1.sh";
     //QString backupScriptPath = Lb::backupScriptFilePath(backup.backupName);
 
-    process.startDetached("xterm", {"-e", scriptPath});
+    //process.startDetached("xterm", {"-e", scriptPath});
+    startProcess(process, "xterm", {"-e", scriptPath});
     process.waitForFinished(-1);
 }
 
@@ -248,6 +252,12 @@ bool loadPersisted(const QString backupName, BackupModel& persisted) {
     return loadPersistedFile(Lb::taskFilePathFromName(backupName), persisted);
 }
 
+// process creation with logging
+void startProcess(QProcess& process, const QString& program, const QStringList& arguments) {
+    qDebug() << "Running external process: " << program << "with arguments: " << arguments;
+    process.start(program, arguments);
+}
+
 namespace Triggers {
 
     void installSystemdHook(const BackupDetails& backup) {
@@ -256,14 +266,14 @@ namespace Triggers {
         QString backupName = "backup1.sh";
         QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.name);
 
-        process.start("xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
+        //process.start("xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
+        startProcess(process, "xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
         process.waitForFinished(-1);
     }
 
     void removeSystemdHook(const BackupDetails &backup) {
         QProcess process;
-
-        process.start("xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"remove","-s", backup.tmp.name});
+        startProcess(process, "xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"remove","-s", backup.tmp.name});
         process.waitForFinished(-1);
     }
 
