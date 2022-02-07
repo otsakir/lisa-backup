@@ -116,6 +116,8 @@ private slots:
 
     void onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
 
+    void on_actionAbout_triggered();
+
 private:
     Ui::MainWindow *ui;
 

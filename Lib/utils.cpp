@@ -179,15 +179,15 @@ bool systemdUnitForMountPath(QString path, QString& systemdUnit) {
     QString mountUnitsString = Lb::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
     if (!mountUnitsString.isEmpty()) {
         QStringList lines = mountUnitsString.split("\n", QString::SkipEmptyParts);
-        //qInfo() << "lines: " << lines << "\n";
+        qInfo() << "lines: " << lines << "\n";
 
         for (int i = 0; i<lines.size(); i++) {
             QString line = lines.at(i);
             QStringList unitinfo = line.split("||", QString::SkipEmptyParts);
-            //qInfo() << unitinfo;
+            qInfo() << unitinfo;
 
             if ( unitinfo.size() == 2) {
-                if (unitinfo[1] == path) {
+                if (unitinfo[1].trimmed() == path) {
                     //qInfo() << "found match: " << unitinfo[1] << unitinfo[0];
                     //result = unitinfo[0];
                     systemdUnit = unitinfo[0];

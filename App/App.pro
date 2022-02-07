@@ -9,6 +9,7 @@ CONFIG += c++11 debug
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aboutdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     mylistview.cpp \
@@ -16,12 +17,14 @@ SOURCES += \
     systemdunitdialog.cpp
 
 HEADERS += \
+    aboutdialog.h \
     mainwindow.h \
     mylistview.h \
     newbackuptaskdialog.h \
     systemdunitdialog.h
 
 FORMS += \
+    aboutdialog.ui \
     mainwindow.ui \
     newbackuptaskdialog.ui \
     systemdunitdialog.ui

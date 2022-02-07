@@ -70,7 +70,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             }
 
             QString find_command("        find ");
-            find_command.append(source.sourcePath).append(" ");
+            find_command.append(QString("\"%1\"").arg(source.sourcePath)).append(" ");
             if (mindepth != -1)
                 find_command.append("-mindepth ").append(QString::number(mindepth)).append(" ");
             if (maxdepth != -1)

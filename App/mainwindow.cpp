@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "systemdunitdialog.h"
 #include "newbackuptaskdialog.h"
+#include "aboutdialog.h"
 #include "utils.h"
 #include "scripting.h"
 
@@ -714,5 +715,14 @@ void MainWindow::onSystemdUnitChanged(QString newUnitName) {
     //else
     //    ui->lineEditSystemdUnit->setText(newUnitName);
 
+}
+
+
+void MainWindow::on_actionAbout_triggered()
+{
+    AboutDialog dialog(this);
+    if ( dialog.exec() == QDialog::Accepted) {
+    } else {
+    }
 }
 
