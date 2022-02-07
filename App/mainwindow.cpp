@@ -46,8 +46,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_5->setFont(font);
     ui->pushButton_5->setText("Run \uf04b");
 */
-    ui->pushButton_5->setText("Run  \uf04b");
-    ui->pushButtonEditFriendlyName->setText("\uf044");
+
+    qDebug() << "themeSearchPaths:" << QIcon::themeSearchPaths() << QIcon::themeName();
+
+    QIcon::setThemeName("Papirus");
+    ui->pushButtonEditFriendlyName->setIcon(QIcon::fromTheme("document-edit"));
+    //ui->toolButton_5->setIcon(QIcon::fromTheme("media-play"));
+
+
+
+
+
+
 
 
     sourcesModel = new QStandardItemModel(0,2, this);
