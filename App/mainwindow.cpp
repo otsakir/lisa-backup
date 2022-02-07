@@ -30,6 +30,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    qInfo() << "Starting Lisa Backup v.xyz...";
+    qInfo() << "Tasks in " << Lb::dataDirectory();
+    qInfo() << "Task scripts in " << Lb::scriptsDirectory();
+    qInfo() << "Application scripts in " << Lb::appScriptsDir();
+
     //if (QFontDatabase::addApplicationFont(":/FontAwesome.otf") < 0)
     //    qWarning() << "FontAwesome cannot be loaded !";
 
