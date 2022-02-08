@@ -11,22 +11,15 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Select triggering device</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Media devices</string>
+      <string>Devices</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2"/>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="checkBoxCreateSubdir">
-     <property name="text">
-      <string>Create backup sub-directory</string>
-     </property>
     </widget>
    </item>
    <item>
