@@ -20,7 +20,7 @@ Install QT dependencies and xterm from debian/ubuntu repository:
 
     sudo apt install libqt5core5a libqt5gui5 libqt5gui5-gles libqt5widgets5 xterm rsync
     
-Download [latest lbackup release](releases/latest) in .deb format and install with:
+Download [latest lbackup release](https://github.com/otsakir/lbackup/releases/latest) in .deb format and install with:
 
     sudo dpkg --install sudo dpkg --install lbackup_{version}_amd64.deb
 
