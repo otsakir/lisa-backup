@@ -598,18 +598,6 @@ void MainWindow::on_actionDelete_triggered()
     }
 }
 
-void MainWindow::on_pushButton_5_clicked()
-{
-    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
-    consoleProcess.start("bash", {"-c", backupScriptFile});
-    if (!consoleProcess.waitForStarted(5000)) {
-        ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
-        return;
-    }
-
-    ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
-}
-
 void MainWindow::consoleProcessDataAvail() {
     qInfo() << "console process data available!";
     QString out = consoleProcess.readAllStandardOutput();
@@ -734,5 +722,31 @@ void MainWindow::on_actionAbout_triggered()
     if ( dialog.exec() == QDialog::Accepted) {
     } else {
     }
+}
+
+void MainWindow::on_toolButtonRun_triggered(QAction *arg1)
+{
+    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
+    consoleProcess.start("bash", {"-c", backupScriptFile});
+    if (!consoleProcess.waitForStarted(5000)) {
+        ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
+        return;
+    }
+
+    ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
+}
+
+
+void MainWindow::on_toolButtonRun_clicked()
+{
+    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
+    consoleProcess.start("bash", {"-c", backupScriptFile});
+    if (!consoleProcess.waitForStarted(5000)) {
+        ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
+        return;
+    }
+
+    ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
+
 }
 

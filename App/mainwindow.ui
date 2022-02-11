@@ -913,7 +913,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_5">
+       <widget class="QToolButton" name="toolButtonRun">
         <property name="minimumSize">
          <size>
           <width>115</width>

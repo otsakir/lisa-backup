@@ -100,8 +100,6 @@ private slots:
 
     void on_actionDelete_triggered();
 
-    void on_pushButton_5_clicked();
-
     void newBackupTaskFromDialog(qint32 dialogMode);
 
     void on_pushButtonEditFriendlyName_toggled(bool checked);
@@ -117,6 +115,10 @@ private slots:
     void onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
 
     void on_actionAbout_triggered();
+
+    void on_toolButtonRun_triggered(QAction *arg1);
+
+    void on_toolButtonRun_clicked();
 
 private:
     Ui::MainWindow *ui;

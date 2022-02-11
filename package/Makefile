@@ -1,13 +1,18 @@
 
 LBACKUP_VERSION := $(shell bash -c 'grep Version  lbackup/DEBIAN/control | sed -e "s/Version:\s*//" -e "s/\s+//"')
 
-all: 	lbackup.deb doversion
+all: 	scripts lbackup.deb doversion 
 
 lbackup/usr/bin/lbackup: ../build/App/App
+	mkdir -p lbackup/usr/bin
 	cp ../build/App/App lbackup/usr/bin/lbackup
 
+scripts:
+	mkdir -p lbackup/usr/share/lbackup
+	cp -r ../scripts/* lbackup/usr/share/lbackup/
 
-lbackup.deb: lbackup/usr/bin/lbackup lbackup/DEBIAN/control
+
+lbackup.deb: lbackup/usr/bin/lbackup lbackup/DEBIAN/control 
 	dpkg-deb --build --root-owner-group lbackup
 
 
