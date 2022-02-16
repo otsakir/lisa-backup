@@ -37,6 +37,7 @@ signals:
     void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
     void systemdUnitChanged(QString unitName);
     void modelUpdated(BackupModel::ValueType valueType = BackupModel::unset);
+    void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
 
 private slots:
 
@@ -49,10 +50,7 @@ private slots:
 
     void on_pushButton_clicked();
 
-    void on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected);
-
-    void on_currentChanged(const QModelIndex &current, const QModelIndex &previous);
-    //void on_pushButton_2_clicked();
+    //void on_currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void updateSourceDetailControls(const QModelIndex& current);
 

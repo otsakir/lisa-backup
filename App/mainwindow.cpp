@@ -62,7 +62,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
-    QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::on_currentChanged);
+    QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
+    QObject::connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex);
     QObject::connect(this, &MainWindow::methodControlChanged, this, &MainWindow::on_activeBackupMethodChanged);
@@ -186,20 +187,18 @@ void MainWindow::on_pushButton_clicked()
     }
 }
 
+/*
 void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex &previous) {
-    ui->widgetSourceDetails->setDisabled(!current.isValid());
-    updateSourceDetailControls(current);
-}
 
+}
+*/
 /**
  * When a source list item is clicked, populate UI (the right hand side of it) with sources details
  * param rowIndex: Points to the first item of the selected row or is an empty (invalid) index
  *
  */
-
-typedef SourceDetails * PSourceDetails;
 void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
-
+    ui->widgetSourceDetails->setDisabled(!rowIndex.isValid());
     //QVariant
     if (rowIndex.siblingAtColumn(1).isValid()) {
         QString sourcePath = rowIndex.data().toString();
@@ -220,23 +219,14 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
         ui->lineEditNameMatches->setText(pDetails->nameMatches);
         ui->comboBoxPredicate->setCurrentIndex(pDetails->predicateType);
-        ui->widgetSourceDetails->setHidden(false);
+        //ui->widgetSourceDetails->setHidden(false);
     } else {
-        ui->widgetSourceDetails->setHidden(true);
+        //ui->widgetSourceDetails->setHidden(true);
     }
 }
 
 void MainWindow::onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous) {
     qInfo() << "sourcesListView:: currentChanged!";
-}
-
-void MainWindow::on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    if ( !selected.empty()) {
-        updateSourceDetailControls(selected.indexes().first());
-    } else {
-        updateSourceDetailControls(QModelIndex()); // empty stuff
-    }
 }
 
 void MainWindow::on_removeSourceButton_clicked()
@@ -280,14 +270,12 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
     }
     if (lastSourceAdded)
         ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(lastSourceAdded), QItemSelectionModel::ClearAndSelect);
+    else
+        emit sourceChanged(QModelIndex()); // list is empty
 
     refreshBasePaths(backupModel.backupDetails.destinationBasePath.isEmpty() ? "/" : backupModel.backupDetails.destinationBasePath);
 
     setupTriggerButtons(activeBackup->backupDetails.tmp.name);
-
-    emit ui->sourcesListView->selectionModel()->currentChanged(QModelIndex(), ui->sourcesListView->selectionModel()->currentIndex());
-    //ui->widgetSourceDetails->setDisabled(!ui->sourcesListView->currentIndex().isValid());
-
 }
 
 void MainWindow::setupTriggerButtons(const QString& backupName) {
