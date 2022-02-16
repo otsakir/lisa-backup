@@ -23,7 +23,6 @@
 #include <QAbstractItemView>
 
 //Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
-// Q_DECLARE_METATYPE(SourceDetails*)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -111,6 +110,16 @@ MainWindow::MainWindow(QWidget *parent)
     loadTask(taskId);
 
     //ui->statusbar->showMessage("Ready");
+}
+
+void MainWindow::closeEvent (QCloseEvent *event)
+{
+    qInfo() << "closeEvent()";
+    if (checkSave() == QMessageBox::Cancel) {
+        event->ignore();
+    } else {
+        event->accept();
+    }
 }
 
 void MainWindow::loadTask(QString taskId) {

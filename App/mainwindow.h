@@ -47,7 +47,6 @@ private slots:
     void onSystemdUnitChanged(QString newUnitName);
     void onModelUpdated(BackupModel::ValueType valueType);
 
-
     void on_pushButton_clicked();
 
     //void on_currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -123,6 +122,9 @@ private slots:
     void on_pushButton_2_clicked();
 
     void on_pushButton_3_clicked();
+
+protected:
+    virtual void closeEvent (QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
