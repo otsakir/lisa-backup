@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex);
-    QObject::connect(this, &MainWindow::methodControlChanged, this, &MainWindow::on_activeBackupMethodChanged);
+    QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
     QObject::connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
     QObject::connect(this, &MainWindow::friendlyNameEdited, this, &MainWindow::onFriendlyNameEdited);
@@ -215,11 +215,11 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
         ui->comboBoxDepth->setCurrentIndex(pDetails->backupDepth);
         if (pDetails->backupType == SourceDetails::all) {
             ui->radioButtonAll->setChecked(true);
-            emit methodControlChanged(SourceDetails::all);
+            emit methodChanged(SourceDetails::all);
         }
         else if (pDetails->backupType == SourceDetails::selective) {
             ui->radioButtonSelective->setChecked(true);
-            emit methodControlChanged(SourceDetails::selective);
+            emit methodChanged(SourceDetails::selective);
         }
         ui->radioButtonRsync->setChecked(pDetails->actionType == SourceDetails::rsync);
         ui->radioButtonGitBundle->setChecked(pDetails->actionType == SourceDetails::gitBundle);
@@ -269,6 +269,7 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
     ui->lineEditFriendlyName->setText(backupModel.backupDetails.friendlyName);
     ui->labelFriendlyName->setText(backupModel.backupDetails.friendlyName);
     ui->lineEditSystemdUnit->setText(backupModel.backupDetails.systemdMountUnit);
+    emit ui->lineEditSystemdUnit->textChanged(ui->lineEditSystemdUnit->text()); // updates Install/Update button state
     ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationBaseSuffixPath);
 
     sourcesModel->clear();
@@ -359,7 +360,7 @@ void MainWindow::on_radioButtonAll_toggled(bool checked)
                 emit modelUpdated(BackupModel::ValueType::backupType);
         }
 
-        emit methodControlChanged(SourceDetails::BackupType::all);
+        emit methodChanged(SourceDetails::BackupType::all);
     }
 }
 
@@ -373,7 +374,7 @@ void MainWindow::on_radioButtonSelective_toggled(bool checked)
             emit modelUpdated(BackupModel::ValueType::backupType);
         }
 
-        emit methodControlChanged(SourceDetails::BackupType::selective);
+        emit methodChanged(SourceDetails::BackupType::selective);
     }
 
 
@@ -694,14 +695,11 @@ void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
 
 void MainWindow::onSystemdUnitChanged(QString newUnitName) {
     qInfo() << "onSystemdUnitChanged(): systemd unit changed: " << newUnitName;
+    ui->pushButtonInstallTrigger->setEnabled(!newUnitName.isEmpty());
+    ui->pushButtonUpdateTrigger->setEnabled(!newUnitName.isEmpty());
     // update model
     activeBackup->backupDetails.systemdMountUnit = newUnitName;
-
-    //if (newUnitName.isEmpty())
-    //    ui->lineEditSystemdUnit->clear();
-    //else
-    //    ui->lineEditSystemdUnit->setText(newUnitName);
-
+    emit modelUpdated(BackupModel::ValueType::systemdMountUnit);
 }
 
 void MainWindow::onModelUpdated(BackupModel::ValueType valueType) {

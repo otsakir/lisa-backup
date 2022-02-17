@@ -155,7 +155,8 @@ public:
     enum ValueType {
         // TODO - populates with all different types of data the model can have like backupType, backupDepth etc.
         unset,
-        backupType
+        backupType,
+        systemdMountUnit
     };
 
 

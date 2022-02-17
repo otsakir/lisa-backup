@@ -29,14 +29,13 @@ public:
     ~MainWindow();
 
 signals:
-    void methodControlChanged(int methodIndex); // raised when the backup method UI control is updated. Helps to chain actions to update the ui state (hide/show other controls etc.)
+    void methodChanged(int methodIndex); // raised when the backup method UI control is updated. Helps to chain actions to update the ui state (hide/show other controls etc.)
     void actionChanged(SourceDetails::ActionType action);
-    //void backupNameChanged(QString backupName); // signal raised when the backup name is changed. Be it set to another value or cleared altogether.
     void newBackupName(QString backupName); // there is a new backup name established!
     void PleaseQuit();
     void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
-    void systemdUnitChanged(QString unitName);
-    void modelUpdated(BackupModel::ValueType valueType = BackupModel::unset);
+    void systemdUnitChanged(QString unitName); // raised when the contents of the systemd lineedit control have been modified
+    void modelUpdated(BackupModel::ValueType valueType = BackupModel::unset); // any change in the model triggers this
     void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
 
 private slots:
@@ -48,8 +47,6 @@ private slots:
     void onModelUpdated(BackupModel::ValueType valueType);
 
     void on_pushButton_clicked();
-
-    //void on_currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void updateSourceDetailControls(const QModelIndex& current);
 
