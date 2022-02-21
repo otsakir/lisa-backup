@@ -99,7 +99,7 @@ QDataStream& operator >> (QDataStream& s, Session& o) {
 namespace Lb {
 
 bool loadPersistedFile(const QString backupFilename, BackupModel& persisted) {
-    qDebug() << "loading task file: " << backupFilename;
+    qDebug() << "[debug] loading task file: " << backupFilename;
     QFile ifile(backupFilename);
     if (ifile.open(QIODevice::ReadOnly)) {
         QDataStream istream(&ifile);

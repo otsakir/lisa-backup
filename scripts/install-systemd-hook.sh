@@ -48,17 +48,23 @@ doinstall()
 
 	echo "moving on..."
 
-	sudo bash -c "cat $SERVICE_TEMPLATE | USER=$CURRENT_USER GROUP=$CURRENT_GROUP BACKUP_NAME=\"$BACKUP_NAME\" SYSTEMD_UNIT=\"$SYSTEMD_UNIT\" SCRIPT_PATH=\"$SCRIPT_PATH\" envsubst '\$BACKUP_NAME \$USER \$GROUP \$SYSTEMD_UNIT \$SCRIPT_PATH' > $SERVICE_FILE" 
-	if [[ ! $? ]]
+	ok=1 # assume fault
+	TEMP_SERVICE_FILE=$(mktemp)
+	cat $SERVICE_TEMPLATE | USER=$CURRENT_USER GROUP=$CURRENT_GROUP BACKUP_NAME=\"$BACKUP_NAME\" SYSTEMD_UNIT=\"$SYSTEMD_UNIT\" SCRIPT_PATH=\"$SCRIPT_PATH\" envsubst '\$BACKUP_NAME \$USER \$GROUP \$SYSTEMD_UNIT \$SCRIPT_PATH' | bash -c "cat > $TEMP_SERVICE_FILE"
+	# echo ${PIPESTATUS[0]} ${PIPESTATUS[1]} ${PIPESTATUS[2]}
+	if [[ ${PIPESTATUS[0]} -eq 0 && ${PIPESTATUS[1]} -eq 0 && ${PIPESTATUS[2]} -eq 0 ]]
+	then
+		sudo bash -c "cp $TEMP_SERVICE_FILE \"$SERVICE_FILE\""
+		if [[ $? -eq 0 ]]
+		then
+			sudo systemctl enable "$SYSTEMD_SERVICE" && ok=0
+		fi
+	fi
+	if [[ ok -ne 0 ]] 
 	then
 		echo "Installing systemd '$SERVICE_NAME' service failed."
-		return 1
 	fi
-
-	sudo systemctl enable "$SYSTEMD_SERVICE" && return 0
-
-	return 1
-
+	return $ok
 }
 
 doremove()
@@ -121,7 +127,15 @@ case $COMMAND in
 			BACKUP_NAME=$SERVICE_NAME
 		fi
 
-		doinstall && echo "Successfully installed and enabled '$SYSTEMD_SERVICE' systemd service." 
+		if doinstall
+		then
+			echo "Successfully installed and enabled '$SYSTEMD_SERVICE' systemd service." 
+			read -p "Press any key to continue" a
+			exit 0
+		else
+			read -p "Press any key to continue" a
+			exit 1
+		fi
 		;;
 	*)
 		help

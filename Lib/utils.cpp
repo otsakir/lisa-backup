@@ -7,6 +7,7 @@
 #include <QRandomGenerator>
 #include <QStandardItem>
 #include <QRegularExpression>
+#include <QTemporaryFile>
 
 
 #include <QDebug>
@@ -179,12 +180,12 @@ bool systemdUnitForMountPath(QString path, QString& systemdUnit) {
     QString mountUnitsString = Lb::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
     if (!mountUnitsString.isEmpty()) {
         QStringList lines = mountUnitsString.split("\n", QString::SkipEmptyParts);
-        qInfo() << "lines: " << lines << "\n";
+        //qInfo() << "lines: " << lines << "\n";
 
         for (int i = 0; i<lines.size(); i++) {
             QString line = lines.at(i);
             QStringList unitinfo = line.split("||", QString::SkipEmptyParts);
-            qInfo() << unitinfo;
+            //qInfo() << unitinfo;
 
             if ( unitinfo.size() == 2) {
                 if (unitinfo[1].trimmed() == path) {
@@ -254,27 +255,45 @@ bool loadPersisted(const QString backupName, BackupModel& persisted) {
 
 // process creation with logging
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments) {
-    qDebug() << "Running external process: " << program << "with arguments: " << arguments;
+    qDebug() << "[debug] running external process " << program << "with arguments: " << arguments;
     process.start(program, arguments);
+}
+
+// return command status code or -1 in case of other error. 0 for success.
+int runCommandInTerminal(QString commandLine) {
+    QProcess process;
+
+    QTemporaryFile exitStatusFile; // temporary file to keep xterm child process exit status code
+    if (exitStatusFile.open()) {
+        exitStatusFile.close();
+        qInfo() << "exitStatusFile: " << exitStatusFile.fileName();
+        startProcess(process, "xterm", {"-e", "bash", "-c", QString("%1 ; echo $? > %2").arg(commandLine,exitStatusFile.fileName())});
+        process.waitForFinished(-1);
+        // check exitStatusFile content for exit code of the process
+        if (exitStatusFile.open()) {
+            QTextStream in(&exitStatusFile);
+            int status;
+            in >> status;
+            qInfo() << "child process status: " << status;
+            return status;
+        }
+    }
+    return -1; // error (not the one returned by child process)
 }
 
 namespace Triggers {
 
-    void installSystemdHook(const BackupDetails& backup) {
-        QProcess process;
-
-        QString backupName = "backup1.sh";
+    int installSystemdHook(const BackupDetails& backup) {
         QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.name);
-
-        //process.start("xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
-        startProcess(process, "xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"install","-s", backup.tmp.name, "-u", backup.systemdMountUnit, backupScriptPath});
-        process.waitForFinished(-1);
+        QString commandLine = QString("%1/%2 install -s %3 -u \"%4\" \"%5\"").arg(appScriptsDir(),"install-systemd-hook.sh",backup.tmp.name, backup.systemdMountUnit, backupScriptPath);
+        return runCommandInTerminal(commandLine);
     }
 
-    void removeSystemdHook(const BackupDetails &backup) {
-        QProcess process;
-        startProcess(process, "xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"remove","-s", backup.tmp.name});
-        process.waitForFinished(-1);
+    int removeSystemdHook(const BackupDetails &backup) {
+        QString commandLine = QString("%1/%2 remove -s %3").arg(appScriptsDir(),"install-systemd-hook.sh",backup.tmp.name);
+        return runCommandInTerminal(commandLine);
+        //startProcess(process, "xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"remove","-s", backup.tmp.name});
+
     }
 
     /**

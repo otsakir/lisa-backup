@@ -39,3 +39,6 @@ unix:!macx: PRE_TARGETDEPS += $$OUT_PWD/../Lib/libLib.a
 
 RESOURCES += \
     fontawesome.qrc
+
+DISTFILES += \
+    qtlogging.ini

@@ -46,8 +46,6 @@ private slots:
     void onSystemdUnitChanged(QString newUnitName);
     void onModelUpdated(BackupModel::ValueType valueType);
 
-    void on_pushButton_clicked();
-
     void updateSourceDetailControls(const QModelIndex& current);
 
     SourceDetails* getSelectedSourceDetails();
@@ -80,7 +78,7 @@ private slots:
 
     void on_action_New_triggered();
 
-    void on_ButtonApply_clicked();
+//    void on_ButtonApply_clicked();
 
     void on_action_Open_triggered();
 
@@ -108,8 +106,6 @@ private slots:
 
     void on_radioButtonGitBundle_toggled(bool checked);
 
-    void onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
-
     void on_actionAbout_triggered();
 
     void on_toolButtonRun_triggered(QAction *arg1);
@@ -119,6 +115,8 @@ private slots:
     void on_pushButton_2_clicked();
 
     void on_pushButton_3_clicked();
+
+    void on_pushButtonAdd_clicked();
 
 protected:
     virtual void closeEvent (QCloseEvent *event);

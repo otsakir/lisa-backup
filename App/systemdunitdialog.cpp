@@ -51,7 +51,7 @@ void SystemdUnitDialog::reloadMountUnits() {
         for (int i = 0; i<lines.size(); i++) {
             QString line = lines.at(i);
             QStringList unitinfo = line.split("||", QString::SkipEmptyParts);
-            qInfo() << unitinfo;
+            //qInfo() << unitinfo;
 
             if ( unitinfo.size() == 2) {
                 QList<QStandardItem*> itemList;

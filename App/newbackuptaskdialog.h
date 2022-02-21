@@ -35,8 +35,6 @@ private slots:
 
     void on_lineEditId_textChanged(const QString &arg1);
 
-    void on_pushButton_clicked();
-
     void on_pushButtonBackFromOpen_clicked();
 
     void on_pushButtonBackFromCreate_clicked();

@@ -21,6 +21,7 @@
 #include <QFontDatabase>
 #include <QDateTime>
 #include <QAbstractItemView>
+#include <QLoggingCategory>
 
 //Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
@@ -36,6 +37,16 @@ MainWindow::MainWindow(QWidget *parent)
     qInfo() << "Task scripts in " << Lb::scriptsDirectory();
     qInfo() << "Application scripts in " << Lb::appScriptsDir();
 
+    //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
+    //qInfo() << "Config locations: " << configLocations;
+
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false\n*.info=false"));
+
+    qDebug() << "[debug]";
+    qInfo() << "[info]";
+    qWarning() << "[warning]";
+    qCritical() << "[critical]";
+
     //if (QFontDatabase::addApplicationFont(":/FontAwesome.otf") < 0)
     //    qWarning() << "FontAwesome cannot be loaded !";
 
@@ -47,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_5->setText("Run \uf04b");
 */
 
-    qDebug() << "themeSearchPaths:" << QIcon::themeSearchPaths() << QIcon::themeName();
+    //qDebug() << "themeSearchPaths:" << QIcon::themeSearchPaths() << QIcon::themeName();
 
     QIcon::setThemeName("Papirus");
     ui->pushButtonEditFriendlyName->setIcon(QIcon::fromTheme("document-edit"));
@@ -83,8 +94,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
 
-    QObject::connect(ui->sourcesListView->selectionModel(), &QItemSelectionModel::currentChanged, this, &MainWindow::onListViewCurrentChanged);
-
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
     Lb::setupDirs();
@@ -100,7 +109,7 @@ MainWindow::MainWindow(QWidget *parent)
     // show newtask dialog, retrieve name, create task file and show
     NewBackupTaskDialog dialog(this, NewBackupTaskDialog::Wizard);
     if ( dialog.exec() == QDialog::Accepted) {
-        qInfo() << "dialog returned: " << dialog.result.id;
+        qDebug() << "[debug] dialog returned: " << dialog.result.id;
         taskId = dialog.result.id;
     } else {
         emit PleaseQuit();
@@ -131,7 +140,7 @@ void MainWindow::loadTask(QString taskId) {
         initUIControls(*activeBackup);
         state.modelCopy = *activeBackup;
     } else {
-        ui->statusbar->showMessage(QString("Error opening '%1' task").arg(taskId));
+        //ui->statusbar->showMessage(QString("Error opening '%1' task").arg(taskId));
         // TODO show wizard again or exit program?
     }
 }
@@ -172,30 +181,6 @@ QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceD
     return modelItem;
 }
 
-
-void MainWindow::on_pushButton_clicked()
-{    
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setOptions(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(session.defaultBrowseBackupDirectory);
-
-    QStringList selected;
-    if (dialog.exec()) {
-        selected= dialog.selectedFiles();
-        session.defaultBrowseBackupDirectory = dialog.directory().path();
-    }
-
-    for (int i=0; i<selected.size(); i++) {
-        SourceDetails sourceDetails;
-        sourceDetails.sourcePath = selected.at(i);
-        activeBackup->allSourceDetails.append(sourceDetails);
-        BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
-        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
-
-    }
-}
-
 /*
 void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex &previous) {
 
@@ -232,10 +217,6 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
     } else {
         //ui->widgetSourceDetails->setHidden(true);
     }
-}
-
-void MainWindow::onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous) {
-    qInfo() << "sourcesListView:: currentChanged!";
 }
 
 void MainWindow::on_removeSourceButton_clicked()
@@ -290,7 +271,7 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
 
 void MainWindow::setupTriggerButtons(const QString& backupName) {
     bool triggerExists = Lb::Triggers::systemdHookPresent(backupName);
-    qInfo() << "systemd service present: " << triggerExists;
+    //qInfo() << "systemd service present: " << triggerExists;
     ui->pushButtonInstallTrigger->setVisible(!triggerExists);
     ui->pushButtonUpdateTrigger->setVisible(triggerExists);
     ui->pushButtonRemoveTrigger->setEnabled(triggerExists);
@@ -325,8 +306,10 @@ void MainWindow::applyChanges() {
     file.close();
 
     QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
-    qInfo() << "script name: " << scriptName;
-    Lb::generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted);
+    if (! Lb::generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted)) {
+                //append(QString("<font color=red>%1</font>").arg(chr));
+        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script '%1'</font>").arg(scriptName));
+    }
 
     state.modelCopy = *activeBackup; // freshen model state
 }
@@ -492,13 +475,6 @@ void MainWindow::on_action_New_triggered()
     }
 }
 
-// this saves backup configuration and generates scripts
-void MainWindow::on_ButtonApply_clicked()
-{
-    applyChanges();
-}
-
-
 // if there non-persisted modifications ask user what to do with them
 // returns QMessageBox::X status or -1 if no dialog presented
 int MainWindow::checkSave() {
@@ -560,7 +536,7 @@ void MainWindow::on_comboBoxBasePath_currentIndexChanged(const QString &newPath)
     // select respective systemd unit
     QString systemdUnit;
     if ( ! Lb::systemdUnitForMountPath(newPath, systemdUnit) ) {
-        qWarning() << "no systemd unit for path " << newPath;
+        qWarning() << "[warning] no systemd unit for path " << newPath;
     }
     ui->lineEditSystemdUnit->setText(systemdUnit);
     emit ui->lineEditDestinationSuffixPath->editingFinished();
@@ -574,13 +550,21 @@ void MainWindow::on_action_Save_triggered()
 
 void MainWindow::on_pushButtonInstallTrigger_clicked()
 {
-    Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
+    if (Lb::Triggers::installSystemdHook(activeBackup->backupDetails) != 0) {
+        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error installing trigger</font>"));
+    } else {
+        ui->plainTextConsole->appendHtml(QString("On-mount trigger installed"));
+    }
     setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
 }
 
 void MainWindow::on_pushButtonRemoveTrigger_clicked()
 {
-    Lb::Triggers::removeSystemdHook(activeBackup->backupDetails);
+    if (Lb::Triggers::removeSystemdHook(activeBackup->backupDetails) != 0) {
+        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error removing on-mount trigger</font>"));
+    } else {
+        ui->plainTextConsole->appendHtml(QString("On-mount trigger removed"));
+    }
     setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
 }
 
@@ -694,7 +678,7 @@ void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
 }
 
 void MainWindow::onSystemdUnitChanged(QString newUnitName) {
-    qInfo() << "onSystemdUnitChanged(): systemd unit changed: " << newUnitName;
+    //qInfo() << "onSystemdUnitChanged(): systemd unit changed: " << newUnitName;
     ui->pushButtonInstallTrigger->setEnabled(!newUnitName.isEmpty());
     ui->pushButtonUpdateTrigger->setEnabled(!newUnitName.isEmpty());
     // update model
@@ -703,7 +687,7 @@ void MainWindow::onSystemdUnitChanged(QString newUnitName) {
 }
 
 void MainWindow::onModelUpdated(BackupModel::ValueType valueType) {
-    qInfo() << "onModelUpdated";
+    qDebug() << "[debug] model updated";
 }
 
 
@@ -753,5 +737,29 @@ void MainWindow::on_pushButton_3_clicked()
 {
     state.modelCopy = *activeBackup;
     qInfo() << "kept a copy of state";
+}
+
+
+void MainWindow::on_pushButtonAdd_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOptions(QFileDialog::ShowDirsOnly);
+    dialog.setDirectory(session.defaultBrowseBackupDirectory);
+
+    QStringList selected;
+    if (dialog.exec()) {
+        selected= dialog.selectedFiles();
+        session.defaultBrowseBackupDirectory = dialog.directory().path();
+    }
+
+    for (int i=0; i<selected.size(); i++) {
+        SourceDetails sourceDetails;
+        sourceDetails.sourcePath = selected.at(i);
+        activeBackup->allSourceDetails.append(sourceDetails);
+        BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
+        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
+
+    }
 }
 

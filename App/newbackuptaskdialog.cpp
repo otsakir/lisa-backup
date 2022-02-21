@@ -81,12 +81,6 @@ void NewBackupTaskDialog::on_lineEditId_textChanged(const QString &arg1)
     ui->pushButtonCreate->setEnabled(arg1.length() >= 2); // have at least two chars
 }
 
-void NewBackupTaskDialog::on_pushButton_clicked()
-{
-    this->reject();
-}
-
-
 void NewBackupTaskDialog::on_pushButtonBackFromOpen_clicked()
 {
     ui->stackedWidgetWizard->setCurrentIndex(0);
@@ -113,7 +107,7 @@ void NewBackupTaskDialog::on_pushButtonOpenStep_clicked()
 
 void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
 {
-    qInfo() << "wizardStepActivated:: " << stepIndex;
+    //qInfo() << "wizardStepActivated:: " << stepIndex;
     if (stepIndex == Mode::OpenOnly) {
         // when we move to "open" step, scan directory for tasks
         //ui->listWidgetTasks->clear();
@@ -131,7 +125,7 @@ void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
         model->setHorizontalHeaderItem(0, new QStandardItem("Name"));
         model->setHorizontalHeaderItem(1, new QStandardItem("Id"));
         for (int i = 0; i < entries.size(); i++) {
-            qInfo() << "entry " << entries.at(i);
+            //qInfo() << "entry " << entries.at(i);
             QString taskId = entries.at(i); // returns "{id}.task"
 
             taskId = taskId.replace(QRegularExpression("\\.task$"),"");
@@ -163,7 +157,7 @@ void NewBackupTaskDialog::on_pushButtonOpen_clicked()
     QModelIndex index = ui->treeViewTasks->currentIndex().siblingAtColumn(1);
     if (index.isValid()) {
         QString taskId = model->data(index).toString();
-        qInfo() << "currentItem: " << taskId;
+        //qInfo() << "currentItem: " << taskId;
         this->result.id = taskId;
         this->accept();
     }
@@ -186,7 +180,7 @@ void NewBackupTaskDialog::on_treeViewTasks_doubleClicked(const QModelIndex &inde
 {
     if (index.isValid()) {
         QString taskId = ui->treeViewTasks->model()->data(index.siblingAtColumn(1)).toString();
-        qInfo() << "selectedItem: " << taskId;
+        //qInfo() << "selectedItem: " << taskId;
         this->result.id = taskId;
         this->accept();
     }

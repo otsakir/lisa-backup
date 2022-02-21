@@ -46,8 +46,8 @@ bool loadPersisted(const QString backupName, BackupModel& persisted);
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments);
 
 namespace Triggers {
-    void installSystemdHook(const BackupDetails& backup);
-    void removeSystemdHook(const BackupDetails &backup);
+    int installSystemdHook(const BackupDetails& backup);
+    int removeSystemdHook(const BackupDetails &backup);
     bool systemdHookPresent(const QString& backupName);
 };
 
