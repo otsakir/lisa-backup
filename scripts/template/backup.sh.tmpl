@@ -5,6 +5,10 @@ DISPLAY=:0 xmessage -buttons Ok:2,Cancel:0 -default Cancel -timeout 10 -nearmous
 if [ $? -eq 2 ]; then
         logger "'$BACKUP_NAME' process initiated on `date`"
 
+        [ ! -d "$DEST_PATH" ] && echo "Destination path $DEST_PATH does not exist " >&2 && exit 1
+        [ ! -w "$DEST_PATH" ] && echo "Destination path $DEST_PATH is not writtable " >&2 && exit 1
+
+
         # Backup commands
         $BACKUP_COMMANDS
 

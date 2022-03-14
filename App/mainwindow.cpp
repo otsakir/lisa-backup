@@ -89,7 +89,10 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     // consoleProcess events
     //QObject::connect(&consoleProcess, &QProcess::started, this, &MainWindow::consoleProcessStarted );
-    QObject::connect(&consoleProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::consoleProcessDataAvail);
+    //QObject::connect(&consoleProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::consoleProcessDataAvail);
+    QObject::connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
+
+    //QObject::connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
     QObject::connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
 
     QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
@@ -589,7 +592,7 @@ void MainWindow::on_actionDelete_triggered()
 
 void MainWindow::consoleProcessDataAvail() {
     qInfo() << "console process data available!";
-    QString out = consoleProcess.readAllStandardOutput();
+    QString out = consoleProcess.readAllStandardError();
     ui->plainTextConsole->appendPlainText(out);
 }
 

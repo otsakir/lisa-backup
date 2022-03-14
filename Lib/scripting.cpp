@@ -121,6 +121,7 @@ bool generateBackupScript(QString scriptTemplate, QString outfilename, const Bac
 
     // search and replace placeholders with actual content
     content.replace("$BACKUP_NAME", appstate.backupDetails.tmp.name);
+    content.replace("$DEST_PATH", appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath);
     QVector<QString> commands;
     buildBackupCommands(appstate, commands);
     QString commandsString;
