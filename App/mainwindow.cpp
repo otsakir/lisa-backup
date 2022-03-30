@@ -97,6 +97,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
 
+    ui->lineEditSystemdUnit->setVisible(false);
+    ui->pushButtonSelectDevice->setVisible(false);
+
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
     Lb::setupDirs();
