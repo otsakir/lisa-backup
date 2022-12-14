@@ -16,11 +16,14 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
 {
     ui->setupUi(this);
 
+    ui->pushButtonDeleteTask->setIcon(QIcon::fromTheme("trash-empty"));
+
     QStandardItemModel* model = new QStandardItemModel(0,2,this);
     ui->treeViewTasks->setModel(model);
     ui->treeViewTasks->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     QObject::connect(this, &NewBackupTaskDialog::wizardStepActivated, this, &NewBackupTaskDialog::on_wizardStepActivated);
+    QObject::connect(ui->treeViewTasks, &QTreeView::clicked, this, &NewBackupTaskDialog::taskClicked);
 
     mode = pMode;
 
@@ -49,6 +52,14 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
     emit ui->lineEditId->textChanged(ui->lineEditId->text()); // initialize state
     emit ui->stackedWidgetWizard->currentChanged(mode);
 }
+
+
+void NewBackupTaskDialog::taskClicked(const QModelIndex& index) {
+    if (index.isValid()) {
+        ui->pushButtonDeleteTask->setDisabled(false);
+    }
+}
+
 
 NewBackupTaskDialog::~NewBackupTaskDialog()
 {
@@ -142,6 +153,9 @@ void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
         ui->pushButtonCreate->setAutoDefault(false);
         ui->pushButtonOpen->setDefault(true);
         ui->pushButtonOpen->setAutoDefault(true);
+
+        ui->pushButtonDeleteTask->setDisabled(true);
+
     } else if (stepIndex == Mode::CreateOnly) {
         ui->pushButtonOpen->setDefault(false);
         ui->pushButtonOpen->setAutoDefault(false);
@@ -184,5 +198,11 @@ void NewBackupTaskDialog::on_treeViewTasks_doubleClicked(const QModelIndex &inde
         this->result.id = taskId;
         this->accept();
     }
+}
+
+
+void NewBackupTaskDialog::on_pushButtonDeleteTask_clicked()
+{
+    // TODO - create deletion operation in utils or core
 }
 

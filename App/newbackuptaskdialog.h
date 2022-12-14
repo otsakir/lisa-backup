@@ -31,6 +31,9 @@ signals:
     void wizardStepActivated(int stepIndex, int prevStepIndex); // prevStepIndex is -1 if there is no previous index (initialization)
 
 private slots:
+
+    void taskClicked(const QModelIndex& index);
+
     void on_pushButtonCreate_clicked();
 
     void on_lineEditId_textChanged(const QString &arg1);

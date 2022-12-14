@@ -47,20 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
     qWarning() << "[warning]";
     qCritical() << "[critical]";
 
-    //if (QFontDatabase::addApplicationFont(":/FontAwesome.otf") < 0)
-    //    qWarning() << "FontAwesome cannot be loaded !";
-
-    /*QFont font;
-    font.setFamily("FontAwwwesome");
-    font.setPixelSize(16);
-
-    ui->pushButton_5->setFont(font);
-    ui->pushButton_5->setText("Run \uf04b");
-*/
-
-    //qDebug() << "themeSearchPaths:" << QIcon::themeSearchPaths() << QIcon::themeName();
-
-    QIcon::setThemeName("Papirus");
     ui->pushButtonEditFriendlyName->setIcon(QIcon::fromTheme("document-edit"));
     //ui->toolButton_5->setIcon(QIcon::fromTheme("media-play"));
 
