@@ -74,8 +74,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
     QObject::connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
+
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
-    QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex);
+    QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex); // updates internal model
+
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
     QObject::connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
@@ -214,7 +216,11 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
 
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
         ui->lineEditNameMatches->setText(pDetails->nameMatches);
+
+        // update UI field contentand trigger changes to dependent fields
         ui->comboBoxPredicate->setCurrentIndex(pDetails->predicateType);
+        emit ui->comboBoxPredicate->currentIndexChanged(pDetails->predicateType);
+
         //ui->widgetSourceDetails->setHidden(false);
     } else {
         //ui->widgetSourceDetails->setHidden(true);
@@ -365,7 +371,7 @@ void MainWindow::on_radioButtonSelective_toggled(bool checked)
 
 }
 
-
+// update internal model
 void MainWindow::on_lineEditContainsFilename_editingFinished()
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
@@ -373,17 +379,15 @@ void MainWindow::on_lineEditContainsFilename_editingFinished()
         sourcep->containsFilename = ui->lineEditContainsFilename->text();
 }
 
-
+// update internal model
 void MainWindow::on_lineEditNameMatches_editingFinished()
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
     if (sourcep)
         sourcep->nameMatches = ui->lineEditNameMatches->text();
-
 }
 
-// when combo box value changes, we should update the index variable stored in
-// current SourceDetails struct
+// update internal model
 void MainWindow::updatePredicateTypeIndex(int index)
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
