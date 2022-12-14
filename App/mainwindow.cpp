@@ -310,6 +310,12 @@ void MainWindow::applyChanges() {
     QFile file(dataFilePath);
     file.open(QIODevice::WriteOnly);
     QDataStream stream(&file);
+
+    // Write a header with a "magic number" and a version
+    stream << (quint32)0x6C697361; // l-i-s-a
+    stream << (qint32)1;
+    stream.setVersion(QDataStream::Qt_5_12);
+
     stream << persisted;
     file.close();
 
