@@ -175,10 +175,8 @@ QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceD
 
     QVariant var;
     var.setValue( iSourceDetails );
-    QStandardItem* item = new QStandardItem();
-    item->setData(var, Qt::UserRole+1);
 
-    itemList << modelItem << item;
+    itemList << modelItem;
 
     sourcesModel->appendRow(itemList);
     // select new item in the list view
@@ -187,11 +185,6 @@ QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceD
     return modelItem;
 }
 
-/*
-void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex &previous) {
-
-}
-*/
 /**
  * When a source list item is clicked, populate UI (the right hand side of it) with sources details
  * param rowIndex: Points to the first item of the selected row or is an empty (invalid) index
@@ -200,9 +193,12 @@ void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex
 void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
     ui->widgetSourceDetails->setDisabled(!rowIndex.isValid());
     //QVariant
-    if (rowIndex.siblingAtColumn(1).isValid()) {
+    if (rowIndex.isValid()) {
+        int row = rowIndex.row();
         QString sourcePath = rowIndex.data().toString();
-        SourceDetails* pDetails = &activeBackup->allSourceDetails[rowIndex.siblingAtColumn(1).data(Qt::UserRole+1).value<BackupModel::SourceDetailsIndex>()];
+        SourceDetails* pDetails = &activeBackup->allSourceDetails[row];
+
+        //SourceDetails* pDetails = &activeBackup->allSourceDetails[rowIndex.siblingAtColumn(1).data(Qt::UserRole+1).value<BackupModel::SourceDetailsIndex>()];
         ui->comboBoxDepth->setCurrentIndex(pDetails->backupDepth);
         if (pDetails->backupType == SourceDetails::all) {
             ui->radioButtonAll->setChecked(true);
@@ -244,7 +240,7 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
     persisted = *activeBackup;
     persisted.allSourceDetails.clear();
     for (int i=0; i<sourcesModel->rowCount(); i++) {
-        SourceDetails* sourcep = &activeBackup->allSourceDetails[sourcesModel->index(i, 1).data(Qt::UserRole+1).value<BackupModel::SourceDetailsIndex>()];
+        SourceDetails* sourcep = &activeBackup->allSourceDetails[i];
         persisted.allSourceDetails.append(*sourcep);
     }
 }
@@ -321,9 +317,9 @@ void MainWindow::applyChanges() {
 }
 
 SourceDetails* MainWindow::getSelectedSourceDetails() {
-    QModelIndex sourcesModelIndex = ui->sourcesListView->selectionModel()->currentIndex().siblingAtColumn(1);
+    QModelIndex sourcesModelIndex = ui->sourcesListView->selectionModel()->currentIndex();
     if (sourcesModelIndex.isValid()) {
-        SourceDetails* sourcep = &activeBackup->allSourceDetails[sourcesModelIndex.data(Qt::UserRole+1).value<BackupModel::SourceDetailsIndex>()];
+        SourceDetails* sourcep = &activeBackup->allSourceDetails[sourcesModelIndex.row()];
         return sourcep;
     }
     else
