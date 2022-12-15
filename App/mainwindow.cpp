@@ -5,6 +5,7 @@
 #include "aboutdialog.h"
 #include "utils.h"
 #include "scripting.h"
+#include "task.h"
 
 #include <core.h>
 
@@ -110,7 +111,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // ok, we have a valid task id. Let's load it...
-    loadTask(taskId);
+    openTask(taskId);
 
     //ui->statusbar->showMessage("Ready");
 }
@@ -125,10 +126,10 @@ void MainWindow::closeEvent (QCloseEvent *event)
     }
 }
 
-void MainWindow::loadTask(QString taskId) {
+void MainWindow::openTask(QString taskId) {
     // ok, we have a valid task id. Let's load it...
     BackupModel persisted;
-    if (Lb::loadPersisted(taskId,persisted)) {
+    if (loadTask(taskId,persisted)) {
         *activeBackup = persisted;
         activeBackup->backupDetails.tmp.name = taskId;
         initUIControls(*activeBackup);
@@ -291,19 +292,7 @@ void MainWindow::applyChanges() {
     BackupModel persisted;
     collectUIControls(persisted);
 
-    QString dataFilePath = Lb::taskFilePathFromName(activeBackup->backupDetails.tmp.name);
-    qInfo() << "data file path: " << dataFilePath;
-    QFile file(dataFilePath);
-    file.open(QIODevice::WriteOnly);
-    QDataStream stream(&file);
-
-    // Write a header with a "magic number" and a version
-    stream << (quint32)0x6C697361; // l-i-s-a
-    stream << (qint32)1;
-    stream.setVersion(QDataStream::Qt_5_12);
-
-    stream << persisted;
-    file.close();
+    saveTask(activeBackup->backupDetails.tmp.name, persisted);
 
     QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
     if (! Lb::generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted)) {
@@ -468,7 +457,7 @@ void MainWindow::on_action_New_triggered()
     if (checkSave() != QMessageBox::Cancel) {
         NewBackupTaskDialog dialog(this, NewBackupTaskDialog::CreateOnly);
         if ( dialog.exec() == QDialog::Accepted) {
-            loadTask(dialog.result.id);
+            openTask(dialog.result.id);
         }
     }
 }
@@ -492,7 +481,7 @@ void MainWindow::on_action_Open_triggered()
     if (checkSave() != QMessageBox::Cancel) {
     NewBackupTaskDialog dialog(this, NewBackupTaskDialog::OpenOnly);
         if (dialog.exec() == QDialog::Accepted) {
-            loadTask(dialog.result.id);
+            openTask(dialog.result.id);
         }
     }
 }
@@ -613,7 +602,7 @@ void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
 
             // reload task file and init UI
             BackupModel persisted;
-            if (Lb::loadPersistedFile(taskFilename,persisted)) {
+            if (loadTask(taskFilename,persisted)) {
                 *activeBackup = persisted;
                 activeBackup->backupDetails.tmp.name = dialog.result.id;
                 initUIControls(*activeBackup);

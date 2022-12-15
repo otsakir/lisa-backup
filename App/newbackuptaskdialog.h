@@ -59,6 +59,8 @@ private slots:
 
     void on_treeViewTasks_doubleClicked(const QModelIndex &index);
 
+    void on_pushButtonDeleteTask_clicked();
+
 private:
     Ui::NewBackupTaskDialog *ui;
 };

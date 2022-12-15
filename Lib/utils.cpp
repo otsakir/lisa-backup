@@ -249,10 +249,6 @@ void persistTaskModel(const BackupModel& persisted, const QString& taskFilename)
     file.close();
 }
 
-bool loadPersisted(const QString backupName, BackupModel& persisted) {
-    return loadPersistedFile(Lb::taskFilePathFromName(backupName), persisted);
-}
-
 // process creation with logging
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments) {
     qDebug() << "[debug] running external process " << program << "with arguments: " << arguments;

@@ -42,7 +42,6 @@ QString randomString(unsigned int size);
 bool systemdUnitForMountPath(QString path, QString& systemdUnit);
 void bestValidDirectoryMatch(const QString& rawpath, QString& validPath);
 void persistTaskModel(const BackupModel& persisted, const QString& taskFilename);
-bool loadPersisted(const QString backupName, BackupModel& persisted);
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments);
 
 namespace Triggers {

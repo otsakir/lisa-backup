@@ -199,11 +199,5 @@ public:
     {}
 };
 
-namespace Lb {
-
-bool loadPersistedFile(const QString backupFilename, BackupModel& persisted);
-
-}
-
 
 #endif // CORE_H

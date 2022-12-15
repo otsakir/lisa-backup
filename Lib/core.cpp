@@ -95,29 +95,3 @@ QDataStream& operator >> (QDataStream& s, Session& o) {
     s >> o.recentBackupNames;
     return s;
 }
-
-namespace Lb {
-
-bool loadPersistedFile(const QString backupFilename, BackupModel& persisted) {
-    qDebug() << "[debug] loading task file: " << backupFilename;
-    QFile ifile(backupFilename);
-    if (ifile.open(QIODevice::ReadOnly)) {
-        QDataStream istream(&ifile);
-        // read and check header
-        quint32 magic;
-        istream >> magic;
-        if (magic != (quint32)0x6C697361)
-            return false;
-        // read version
-        qint32 version;
-        istream >> version; // we won't do something with it for now
-        istream.setVersion(QDataStream::Qt_5_12);
-        // read data
-        istream >> persisted;
-        ifile.close();
-        return true;
-    }
-    return false;
-}
-
-}

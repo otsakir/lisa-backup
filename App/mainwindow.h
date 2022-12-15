@@ -131,7 +131,7 @@ private:
     State state; // generic application state. Not part of a backup.
     QProcess consoleProcess;
 
-    void loadTask(QString taskId);
+    void openTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);
     QStandardItem* appendSource(BackupModel::SourceDetailsIndex sourceDetails);
     void collectUIControls(BackupModel& persisted);
