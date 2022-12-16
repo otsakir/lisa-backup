@@ -3,8 +3,11 @@
 
 #include "utils.h"
 
+namespace Tasks
+{
 
-bool loadTask(const QString taskId, BackupModel& persisted) {
+bool loadTask(const QString taskId, BackupModel& persisted)
+{
 
     QString backupFilename = Lb::taskFilePathFromName(taskId);
 
@@ -30,7 +33,8 @@ bool loadTask(const QString taskId, BackupModel& persisted) {
 }
 
 // TODO - handle errors
-void saveTask(const QString taskId, const BackupModel& persisted) {
+void saveTask(const QString taskId, const BackupModel& persisted)
+{
 
     QString dataFilePath = Lb::taskFilePathFromName(taskId);
     qInfo() << "data file path: " << dataFilePath;
@@ -48,3 +52,13 @@ void saveTask(const QString taskId, const BackupModel& persisted) {
 }
 
 
+
+bool deleteTask(const QString taskId)
+{
+    QString dataFilePath = Lb::taskFilePathFromName(taskId);
+    QFile file(dataFilePath);
+
+    return file.remove();
+}
+
+} // namespace Tasks

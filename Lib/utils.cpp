@@ -1,13 +1,12 @@
 
 #include "utils.h"
+#include "terminal.h"
 
 #include <QStandardPaths>
-#include <QProcessEnvironment>
 #include <QDir>
 #include <QRandomGenerator>
 #include <QStandardItem>
 #include <QRegularExpression>
-#include <QTemporaryFile>
 
 
 #include <QDebug>
@@ -134,32 +133,6 @@ QString userGroup() {
     return userInfo.group;
 }
 
-// run a bash command and return what's written to stdout
-QString runShellCommand(QString commandString) {
-    QProcess process;
-    //process.start("bash", {"-c", "systemctl list-units --type=mount | grep mounted > a"});
-
-    //process.start("bash", {"-c", commandString});
-    startProcess(process, "bash", {"-c", commandString});
-
-    process.waitForFinished(-1);
-
-    QString out = process.readAllStandardOutput();
-    return out;
-}
-
-void runScriptInWindow(QString scriptPath) {
-    QProcess process;
-    //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
-
-    //QString backupName = "backup1.sh";
-    //QString backupScriptPath = Lb::backupScriptFilePath(backup.backupName);
-
-    //process.startDetached("xterm", {"-e", scriptPath});
-    startProcess(process, "xterm", {"-e", scriptPath});
-    process.waitForFinished(-1);
-}
-
 QString randomString(unsigned int size) {
 #define MAX_RANDOM_STRING 64
     assert (size <= MAX_RANDOM_STRING);
@@ -177,7 +150,7 @@ QString randomString(unsigned int size) {
 
 // give it a path where a device is mounted and it will try to return the respective systemd unit it
 bool systemdUnitForMountPath(QString path, QString& systemdUnit) {
-    QString mountUnitsString = Lb::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
+    QString mountUnitsString = Terminal::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
     if (!mountUnitsString.isEmpty()) {
         QStringList lines = mountUnitsString.split("\n", QString::SkipEmptyParts);
         //qInfo() << "lines: " << lines << "\n";
@@ -247,65 +220,6 @@ void persistTaskModel(const BackupModel& persisted, const QString& taskFilename)
     QDataStream stream(&file);
     stream << persisted;
     file.close();
-}
-
-// process creation with logging
-void startProcess(QProcess& process, const QString& program, const QStringList& arguments) {
-    qDebug() << "[debug] running external process " << program << "with arguments: " << arguments;
-    process.start(program, arguments);
-}
-
-// return command status code or -1 in case of other error. 0 for success.
-int runCommandInTerminal(QString commandLine) {
-    QProcess process;
-
-    QTemporaryFile exitStatusFile; // temporary file to keep xterm child process exit status code
-    if (exitStatusFile.open()) {
-        exitStatusFile.close();
-        qInfo() << "exitStatusFile: " << exitStatusFile.fileName();
-        startProcess(process, "xterm", {"-e", "bash", "-c", QString("%1 ; echo $? > %2").arg(commandLine,exitStatusFile.fileName())});
-        process.waitForFinished(-1);
-        // check exitStatusFile content for exit code of the process
-        if (exitStatusFile.open()) {
-            QTextStream in(&exitStatusFile);
-            int status;
-            in >> status;
-            qInfo() << "child process status: " << status;
-            return status;
-        }
-    }
-    return -1; // error (not the one returned by child process)
-}
-
-namespace Triggers {
-
-    int installSystemdHook(const BackupDetails& backup) {
-        QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.name);
-        QString commandLine = QString("%1/%2 install -s %3 -u \"%4\" \"%5\"").arg(appScriptsDir(),"install-systemd-hook.sh",backup.tmp.name, backup.systemdMountUnit, backupScriptPath);
-        return runCommandInTerminal(commandLine);
-    }
-
-    int removeSystemdHook(const BackupDetails &backup) {
-        QString commandLine = QString("%1/%2 remove -s %3").arg(appScriptsDir(),"install-systemd-hook.sh",backup.tmp.name);
-        return runCommandInTerminal(commandLine);
-        //startProcess(process, "xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"remove","-s", backup.tmp.name});
-
-    }
-
-    /**
-     * @brief Checks if systemd service is inplace
-     * @param backupName The name of the backup as entered by the user
-     * @return true if systemd service if present, false otherwise
-     */
-    bool systemdHookPresent(const QString& backupName) {
-        QString path = systemdDirectory();
-        path.reserve(128);
-        path.append("/").append("lbackup-").append(backupName).append(".service");
-
-        QFile serviceFile(path);
-        return serviceFile.exists();
-    }
-
 }
 
 

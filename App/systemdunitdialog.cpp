@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "utils.h"
+#include "terminal.h"
 
 #include "mylistview.h"
 
@@ -43,7 +44,7 @@ SystemdUnitDialog::~SystemdUnitDialog()
 void SystemdUnitDialog::reloadMountUnits() {
     systemdUnitsModel->clear();
     systemdUnitsModel->setColumnCount(2);
-    QString mountUnitsString = Lb::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
+    QString mountUnitsString = Terminal::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
     if (!mountUnitsString.isEmpty()) {
         QStringList lines = mountUnitsString.split("\n", QString::SkipEmptyParts);
         //qInfo() << "lines: " << lines << "\n";

@@ -141,7 +141,7 @@ void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
             QString taskId = entries.at(i); // returns "{id}.task"
 
             taskId = taskId.replace(QRegularExpression("\\.task$"),"");
-            if (loadTask(taskId, backupModel)) {
+            if (Tasks::loadTask(taskId, backupModel)) {
                 QList<QStandardItem*> rowItems;
                 rowItems << new QStandardItem(backupModel.backupDetails.friendlyName) << new QStandardItem(taskId);
                 model->appendRow(rowItems);

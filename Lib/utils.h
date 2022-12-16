@@ -44,12 +44,6 @@ void bestValidDirectoryMatch(const QString& rawpath, QString& validPath);
 void persistTaskModel(const BackupModel& persisted, const QString& taskFilename);
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments);
 
-namespace Triggers {
-    int installSystemdHook(const BackupDetails& backup);
-    int removeSystemdHook(const BackupDetails &backup);
-    bool systemdHookPresent(const QString& backupName);
-};
-
 }
 
 #endif // UTILS_H

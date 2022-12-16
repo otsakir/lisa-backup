@@ -9,6 +9,8 @@
 
 #include <core.h>
 
+#include <systemd.h>
+
 #include <memory>
 
 #include <QDebug>
@@ -129,7 +131,7 @@ void MainWindow::closeEvent (QCloseEvent *event)
 void MainWindow::openTask(QString taskId) {
     // ok, we have a valid task id. Let's load it...
     BackupModel persisted;
-    if (loadTask(taskId,persisted)) {
+    if (Tasks::loadTask(taskId,persisted)) {
         *activeBackup = persisted;
         activeBackup->backupDetails.tmp.name = taskId;
         initUIControls(*activeBackup);
@@ -265,7 +267,7 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
 }
 
 void MainWindow::setupTriggerButtons(const QString& backupName) {
-    bool triggerExists = Lb::Triggers::systemdHookPresent(backupName);
+    bool triggerExists = Systemd::hookPresent(backupName);
     //qInfo() << "systemd service present: " << triggerExists;
     ui->pushButtonInstallTrigger->setVisible(!triggerExists);
     ui->pushButtonUpdateTrigger->setVisible(triggerExists);
@@ -292,7 +294,7 @@ void MainWindow::applyChanges() {
     BackupModel persisted;
     collectUIControls(persisted);
 
-    saveTask(activeBackup->backupDetails.tmp.name, persisted);
+    Tasks::saveTask(activeBackup->backupDetails.tmp.name, persisted);
 
     QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
     if (! Lb::generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted)) {
@@ -537,7 +539,7 @@ void MainWindow::on_action_Save_triggered()
 
 void MainWindow::on_pushButtonInstallTrigger_clicked()
 {
-    if (Lb::Triggers::installSystemdHook(activeBackup->backupDetails) != 0) {
+    if (Systemd::installHook(activeBackup->backupDetails) != 0) {
         ui->plainTextConsole->appendHtml(QString("<font color='red'>Error installing trigger</font>"));
     } else {
         ui->plainTextConsole->appendHtml(QString("On-mount trigger installed"));
@@ -547,7 +549,7 @@ void MainWindow::on_pushButtonInstallTrigger_clicked()
 
 void MainWindow::on_pushButtonRemoveTrigger_clicked()
 {
-    if (Lb::Triggers::removeSystemdHook(activeBackup->backupDetails) != 0) {
+    if (Systemd::removeHook(activeBackup->backupDetails) != 0) {
         ui->plainTextConsole->appendHtml(QString("<font color='red'>Error removing on-mount trigger</font>"));
     } else {
         ui->plainTextConsole->appendHtml(QString("On-mount trigger removed"));
@@ -602,7 +604,7 @@ void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
 
             // reload task file and init UI
             BackupModel persisted;
-            if (loadTask(taskFilename,persisted)) {
+            if (Tasks::loadTask(taskFilename,persisted)) {
                 *activeBackup = persisted;
                 activeBackup->backupDetails.tmp.name = dialog.result.id;
                 initUIControls(*activeBackup);

@@ -12,13 +12,17 @@ CONFIG += c++11
 SOURCES += \
     core.cpp \
     scripting.cpp \
+    systemd.cpp \
     task.cpp \
+    terminal.cpp \
     utils.cpp
 
 HEADERS += \
     core.h \
     scripting.h \
+    systemd.h \
     task.h \
+    terminal.h \
     utils.h
 
 # Default rules for deployment.
