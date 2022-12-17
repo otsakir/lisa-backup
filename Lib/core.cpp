@@ -11,6 +11,18 @@ SourceDetails::SourceDetails() :
 SourceDetails::~SourceDetails() {
 }
 
+bool BackupModel::operator==(const BackupModel& other) const {
+    return (allSourceDetails == other.allSourceDetails) &&
+            (backupDetails == other.backupDetails);
+
+}
+
+BackupModel& BackupModel::operator=(const BackupModel& other) {
+    backupDetails = other.backupDetails;
+    allSourceDetails = other.allSourceDetails;
+    allSourceDetails.detach();
+}
+
 QDataStream& operator<<(QDataStream& s, const SourceDetails& item) {
     s << (qint32)item.backupType
       << (qint32)item.backupDepth
@@ -82,20 +94,4 @@ QDataStream& operator >> (QDataStream& s, Session& o) {
     s >> o.defaultBrowseBackupDirectory;
     s >> o.recentBackupNames;
     return s;
-}
-
-namespace Lb {
-
-bool loadPersistedFile(const QString backupFilename, BackupModel& persisted) {
-    qDebug() << "loading task file: " << backupFilename;
-    QFile ifile(backupFilename);
-    if (ifile.open(QIODevice::ReadOnly)) {
-        QDataStream istream(&ifile);
-        istream >> persisted;
-        ifile.close();
-        return true;
-    }
-    return false;
-}
-
 }

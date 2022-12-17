@@ -31,11 +31,12 @@ signals:
     void wizardStepActivated(int stepIndex, int prevStepIndex); // prevStepIndex is -1 if there is no previous index (initialization)
 
 private slots:
+
+    void taskClicked(const QModelIndex& index);
+
     void on_pushButtonCreate_clicked();
 
     void on_lineEditId_textChanged(const QString &arg1);
-
-    void on_pushButton_clicked();
 
     void on_pushButtonBackFromOpen_clicked();
 
@@ -58,8 +59,11 @@ private slots:
 
     void on_treeViewTasks_doubleClicked(const QModelIndex &index);
 
+    void on_pushButtonDeleteTask_clicked();
+
 private:
     Ui::NewBackupTaskDialog *ui;
+    QString getSelectedTaskId();
 };
 
 #endif // NEWBACKUPTASKDIALOG_H

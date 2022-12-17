@@ -78,15 +78,27 @@ public:
 
     ~SourceDetails();
 
+    bool operator==(const SourceDetails& other) const {
+        return (backupType == other.backupType) &&
+                (backupDepth == other.backupDepth) &&
+                (predicateType == other.predicateType) &&
+                (actionType == other.actionType) &&
+                (predicate == other.predicate) &&
+                (sourcePath == other.sourcePath) &&
+                (containsFilename == other.containsFilename) &&
+                (nameMatches == other.nameMatches);
+    }
+
     friend QDataStream& operator<<(QDataStream& s, const SourceDetails& item);
     friend QDataStream& operator>>(QDataStream& s, SourceDetails& item);
+    //friend bool operator==(const SourceDetails& one, const SourceDetails& another);
 };
 
 // Model struct to keep everything related to a backup in a single data structure.
 struct BackupDetails {
 
     struct Tmp { // temprary stuff not stored to disk but required as long as the applications runs. Per-task.
-        QString name;
+        QString taskId;   //  taskId. It's used to load the task but we have to keep it somewhere
         QString taskFilepath;
     } tmp;
 
@@ -111,6 +123,14 @@ struct BackupDetails {
         return *this;
     }
 
+    bool operator==(const BackupDetails& other) const {
+        return (systemdId == other.systemdId) &&
+                (friendlyName == other.friendlyName) &&
+                (systemdMountUnit == other.systemdMountUnit) &&
+                (destinationBasePath == other.destinationBasePath) &&
+                (destinationBaseSuffixPath == other.destinationBaseSuffixPath);
+    }
+
     BackupDetails(const BackupDetails& from) {
         systemdId = from.systemdId;
         //backupName = from.backupName;
@@ -132,11 +152,26 @@ private:
 
 class BackupModel {
 public:
+    enum ValueType {
+        // TODO - populates with all different types of data the model can have like backupType, backupDepth etc.
+        unset,
+        backupType,
+        systemdMountUnit
+    };
+
 
     BackupDetails backupDetails;
     QVector<SourceDetails> allSourceDetails;
+    typedef int SourceDetailsIndex; // used for indexing allSourceDetails
 
-    BackupModel() {};
+    BackupModel() {
+        allSourceDetails.reserve(10);
+    };
+
+    BackupModel& operator=(const BackupModel& other);
+    bool operator==(const BackupModel& other) const;
+
+
 
     friend QDataStream& operator << (QDataStream& s, const BackupModel& pmodel);
     friend QDataStream& operator >> (QDataStream& s, BackupModel& pmodel);
@@ -158,16 +193,11 @@ class State {
 public:
     bool backupNamed = false; // is the backup named ? If true, activeBackup->backupName is full and valid
     bool triggerExists; // is a systemd mount hook service file in place ?
+    BackupModel modelCopy; // reflects the state of the application as it is persisted to storage. Helps to see if anything has changed.
 
     State() : triggerExists(false)
     {}
 };
-
-namespace Lb {
-
-bool loadPersistedFile(const QString backupFilename, BackupModel& persisted);
-
-}
 
 
 #endif // CORE_H

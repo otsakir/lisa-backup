@@ -1,4 +1,6 @@
 TestSuite
 build
 /Makefile
+**/*.pro.user
+
 

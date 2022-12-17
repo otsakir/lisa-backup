@@ -5,8 +5,11 @@
 #include "aboutdialog.h"
 #include "utils.h"
 #include "scripting.h"
+#include "task.h"
 
 #include <core.h>
+
+#include <systemd.h>
 
 #include <memory>
 
@@ -21,8 +24,9 @@
 #include <QFontDatabase>
 #include <QDateTime>
 #include <QAbstractItemView>
+#include <QLoggingCategory>
 
-Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
+//Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,29 +40,18 @@ MainWindow::MainWindow(QWidget *parent)
     qInfo() << "Task scripts in " << Lb::scriptsDirectory();
     qInfo() << "Application scripts in " << Lb::appScriptsDir();
 
-    //if (QFontDatabase::addApplicationFont(":/FontAwesome.otf") < 0)
-    //    qWarning() << "FontAwesome cannot be loaded !";
+    //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
+    //qInfo() << "Config locations: " << configLocations;
 
-    /*QFont font;
-    font.setFamily("FontAwwwesome");
-    font.setPixelSize(16);
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false\n*.info=false"));
 
-    ui->pushButton_5->setFont(font);
-    ui->pushButton_5->setText("Run \uf04b");
-*/
+    qDebug() << "[debug]";
+    qInfo() << "[info]";
+    qWarning() << "[warning]";
+    qCritical() << "[critical]";
 
-    qDebug() << "themeSearchPaths:" << QIcon::themeSearchPaths() << QIcon::themeName();
-
-    QIcon::setThemeName("Papirus");
     ui->pushButtonEditFriendlyName->setIcon(QIcon::fromTheme("document-edit"));
     //ui->toolButton_5->setIcon(QIcon::fromTheme("media-play"));
-
-
-
-
-
-
-
 
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
@@ -68,18 +61,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
-    QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::on_currentChanged);
+    QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
+    QObject::connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
 
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
-    QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex);
+    QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex); // updates internal model
 
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
     QObject::connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
-
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
-
     QObject::connect(this, &MainWindow::friendlyNameEdited, this, &MainWindow::onFriendlyNameEdited);
     QObject::connect(ui->lineEditSystemdUnit, &QLineEdit::textChanged, this, &MainWindow::onSystemdUnitChanged);
+    QObject::connect(this, &MainWindow::modelUpdated, this, &MainWindow::onModelUpdated);
 
     // 'PleaseQuit' signal bound to application quit
     QObject::connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
@@ -87,12 +80,16 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     // consoleProcess events
     //QObject::connect(&consoleProcess, &QProcess::started, this, &MainWindow::consoleProcessStarted );
-    QObject::connect(&consoleProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::consoleProcessDataAvail);
+    //QObject::connect(&consoleProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::consoleProcessDataAvail);
+    QObject::connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
+
+    //QObject::connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
     QObject::connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
 
     QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
 
-    QObject::connect(ui->sourcesListView->selectionModel(), &QItemSelectionModel::currentChanged, this, &MainWindow::onListViewCurrentChanged);
+    ui->lineEditSystemdUnit->setVisible(false);
+    ui->pushButtonSelectDevice->setVisible(false);
 
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
@@ -109,27 +106,39 @@ MainWindow::MainWindow(QWidget *parent)
     // show newtask dialog, retrieve name, create task file and show
     NewBackupTaskDialog dialog(this, NewBackupTaskDialog::Wizard);
     if ( dialog.exec() == QDialog::Accepted) {
-        qInfo() << "dialog returned: " << dialog.result.id;
+        qDebug() << "[debug] dialog returned: " << dialog.result.id;
         taskId = dialog.result.id;
     } else {
         emit PleaseQuit();
     }
 
     // ok, we have a valid task id. Let's load it...
-    loadTask(taskId);
+    openTask(taskId);
 
     //ui->statusbar->showMessage("Ready");
 }
 
-void MainWindow::loadTask(QString taskId) {
+void MainWindow::closeEvent (QCloseEvent *event)
+{
+    qInfo() << "closeEvent()";
+    if (checkSave() == QMessageBox::Cancel) {
+        event->ignore();
+    } else {
+        event->accept();
+    }
+}
+
+void MainWindow::openTask(QString taskId) {
     // ok, we have a valid task id. Let's load it...
     BackupModel persisted;
-    if (Lb::loadPersisted(taskId,persisted)) {
+    if (Tasks::loadTask(taskId,persisted)) {
         *activeBackup = persisted;
-        activeBackup->backupDetails.tmp.name = taskId;
+        activeBackup->backupDetails.tmp.taskId = taskId;
         initUIControls(*activeBackup);
+        state.modelCopy = *activeBackup;
     } else {
-        ui->statusbar->showMessage(QString("Error opening '%1' task").arg(taskId));
+        qCritical() << "[critical] error loading task " << taskId;
+        //ui->statusbar->showMessage(QString("Error opening '%1' task").arg(taskId));
         // TODO show wizard again or exit program?
     }
 }
@@ -152,51 +161,20 @@ MainWindow::~MainWindow()
 
 // appends a 'backup source' to the list on the left
 // Note, sourceDetails memory will be automatically released
-QStandardItem* MainWindow::appendSource(SourceDetails* sourceDetails) {
-    QStandardItem* modelItem = new QStandardItem(sourceDetails->sourcePath);
+QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceDetails) {
+    QStandardItem* modelItem = new QStandardItem(activeBackup->allSourceDetails[iSourceDetails].sourcePath);
     QList<QStandardItem*> itemList;
 
     QVariant var;
-    var.setValue( std::shared_ptr<SourceDetails>(sourceDetails) );
+    var.setValue( iSourceDetails );
 
-    QStandardItem* item = new QStandardItem();
-    item->setData(var, Qt::UserRole+1);
-
-    itemList << modelItem << item;
+    itemList << modelItem;
 
     sourcesModel->appendRow(itemList);
     // select new item in the list view
     QItemSelectionModel* selModel = ui->sourcesListView->selectionModel();
 
-
     return modelItem;
-}
-
-
-void MainWindow::on_pushButton_clicked()
-{    
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setOptions(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(session.defaultBrowseBackupDirectory);
-
-    QStringList selected;
-    if (dialog.exec()) {
-        selected= dialog.selectedFiles();
-        session.defaultBrowseBackupDirectory = dialog.directory().path();
-    }
-
-    for (int i=0; i<selected.size(); i++) {
-        SourceDetails* sourceDetails = new SourceDetails();
-        sourceDetails->sourcePath = selected.at(i);
-        // sourceDetails memory willbe automatically released
-        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetails)), QItemSelectionModel::ClearAndSelect);
-    }
-}
-
-void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex &previous) {
-    ui->widgetSourceDetails->setDisabled(!current.isValid());
-    updateSourceDetailControls(current);
 }
 
 /**
@@ -205,11 +183,14 @@ void MainWindow::on_currentChanged(const QModelIndex &current, const QModelIndex
  *
  */
 void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
-
+    ui->widgetSourceDetails->setDisabled(!rowIndex.isValid());
     //QVariant
-    if (rowIndex.siblingAtColumn(1).isValid()) {
+    if (rowIndex.isValid()) {
+        int row = rowIndex.row();
         QString sourcePath = rowIndex.data().toString();
-        SourceDetails* pDetails = rowIndex.siblingAtColumn(1).data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
+        SourceDetails* pDetails = &activeBackup->allSourceDetails[row];
+
+        //SourceDetails* pDetails = &activeBackup->allSourceDetails[rowIndex.siblingAtColumn(1).data(Qt::UserRole+1).value<BackupModel::SourceDetailsIndex>()];
         ui->comboBoxDepth->setCurrentIndex(pDetails->backupDepth);
         if (pDetails->backupType == SourceDetails::all) {
             ui->radioButtonAll->setChecked(true);
@@ -225,24 +206,14 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
 
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
         ui->lineEditNameMatches->setText(pDetails->nameMatches);
+
+        // update UI field contentand trigger changes to dependent fields
         ui->comboBoxPredicate->setCurrentIndex(pDetails->predicateType);
-        //ui->groupBoxSourceDetails->setTitle( QString("Source %1").arg(sourcePath) );
-        ui->widgetSourceDetails->setHidden(false);
-    } else {
-        ui->widgetSourceDetails->setHidden(true);
-    }
-}
+        emit ui->comboBoxPredicate->currentIndexChanged(pDetails->predicateType);
 
-void MainWindow::onListViewCurrentChanged(const QModelIndex& current, const QModelIndex& previous) {
-    qInfo() << "sourcesListView:: currentChanged!";
-}
-
-void MainWindow::on_updateSelection(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    if ( !selected.empty()) {
-        updateSourceDetailControls(selected.indexes().first());
+        //ui->widgetSourceDetails->setHidden(false);
     } else {
-        updateSourceDetailControls(QModelIndex()); // empty stuff
+        //ui->widgetSourceDetails->setHidden(true);
     }
 }
 
@@ -252,7 +223,9 @@ void MainWindow::on_removeSourceButton_clicked()
     if (!selection.isEmpty()) {
         QModelIndex i = selection.indexes().first();
         qInfo() << "will remove " << i.data();
+        BackupModel::SourceDetailsIndex iSourceDetails = i.row();
         sourcesModel->removeRow(i.row());
+        activeBackup->allSourceDetails.remove(iSourceDetails);
     } else {
         qInfo() << "nothing selected";
     }
@@ -263,56 +236,44 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
     persisted = *activeBackup;
     persisted.allSourceDetails.clear();
     for (int i=0; i<sourcesModel->rowCount(); i++) {
-        SourceDetails* sourcep = sourcesModel->index(i, 1).data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
+        SourceDetails* sourcep = &activeBackup->allSourceDetails[i];
         persisted.allSourceDetails.append(*sourcep);
     }
 }
 
-void MainWindow::initUIControls(const BackupModel& backupModel) {
+void MainWindow::initUIControls(BackupModel& backupModel) {
     //*activeBackup = persisted.backupDetails;
     this->setWindowTitle( Lb::windowTitle(backupModel.backupDetails.friendlyName) );
     //ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
     ui->lineEditFriendlyName->setText(backupModel.backupDetails.friendlyName);
     ui->labelFriendlyName->setText(backupModel.backupDetails.friendlyName);
     ui->lineEditSystemdUnit->setText(backupModel.backupDetails.systemdMountUnit);
+    emit ui->lineEditSystemdUnit->textChanged(ui->lineEditSystemdUnit->text()); // updates Install/Update button state
     ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationBaseSuffixPath);
 
     sourcesModel->clear();
 
     QStandardItem* lastSourceAdded = 0;
     for (int i=0; i<backupModel.allSourceDetails.size(); i++) {
-        lastSourceAdded = appendSource(new SourceDetails(backupModel.allSourceDetails.at(i)));
+        lastSourceAdded = appendSource(i);
     }
     if (lastSourceAdded)
         ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(lastSourceAdded), QItemSelectionModel::ClearAndSelect);
+    else
+        emit sourceChanged(QModelIndex()); // list is empty
 
     refreshBasePaths(backupModel.backupDetails.destinationBasePath.isEmpty() ? "/" : backupModel.backupDetails.destinationBasePath);
 
-    setupTriggerButtons(activeBackup->backupDetails.tmp.name);
-
-    emit ui->sourcesListView->selectionModel()->currentChanged(QModelIndex(), ui->sourcesListView->selectionModel()->currentIndex());
-    //ui->widgetSourceDetails->setDisabled(!ui->sourcesListView->currentIndex().isValid());
-
+    setupTriggerButtons(activeBackup->backupDetails.tmp.taskId);
 }
 
 void MainWindow::setupTriggerButtons(const QString& backupName) {
-    bool triggerExists = Lb::Triggers::systemdHookPresent(backupName);
-    qInfo() << "systemd service present: " << triggerExists;
+    bool triggerExists = Systemd::hookPresent(backupName);
+    //qInfo() << "systemd service present: " << triggerExists;
     ui->pushButtonInstallTrigger->setVisible(!triggerExists);
     ui->pushButtonUpdateTrigger->setVisible(triggerExists);
     ui->pushButtonRemoveTrigger->setEnabled(triggerExists);
 }
-
-/*
-void MainWindow::enableMostUI(bool enable) {
-
-    ui->groupBoxSourceList->setEnabled(enable);
-    ui->widgetSourceDetails->setEnabled(enable);
-    ui->groupBoxDestination->setEnabled(enable);
-}
-*/
-
-
 
 void MainWindow::on_pushButtonSelectDevice_clicked()
 {
@@ -334,24 +295,23 @@ void MainWindow::applyChanges() {
     BackupModel persisted;
     collectUIControls(persisted);
 
-    QString dataFilePath = Lb::taskFilePathFromName(activeBackup->backupDetails.tmp.name);
-    qInfo() << "data file path: " << dataFilePath;
-    QFile file(dataFilePath);
-    file.open(QIODevice::WriteOnly);
-    QDataStream stream(&file);
-    stream << persisted;
-    file.close();
+    QString taskId = activeBackup->backupDetails.tmp.taskId;
 
-    QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
-    qInfo() << "script name: " << scriptName;
-    Lb::generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted);
+    Tasks::saveTask(taskId, persisted);
 
+    if (!Scripting::buildBackupScript(taskId, persisted) )
+    {
+        //append(QString("<font color=red>%1</font>").arg(chr));
+        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script for task '%1'</font>").arg(taskId));
+    }
+
+    state.modelCopy = *activeBackup; // freshen model state
 }
 
 SourceDetails* MainWindow::getSelectedSourceDetails() {
-    QModelIndex sourcesModelIndex = ui->sourcesListView->selectionModel()->currentIndex().siblingAtColumn(1);
+    QModelIndex sourcesModelIndex = ui->sourcesListView->selectionModel()->currentIndex();
     if (sourcesModelIndex.isValid()) {
-        SourceDetails* sourcep = sourcesModelIndex.data(Qt::UserRole+1).value<std::shared_ptr<SourceDetails>>().get();
+        SourceDetails* sourcep = &activeBackup->allSourceDetails[sourcesModelIndex.row()];
         return sourcep;
     }
     else
@@ -372,8 +332,10 @@ void MainWindow::on_radioButtonAll_toggled(bool checked)
 {
     if (checked) {
         SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep)
-            sourcep->backupType = SourceDetails::all;
+        if (sourcep && sourcep->backupType != SourceDetails::all) {
+                sourcep->backupType = SourceDetails::all;
+                emit modelUpdated(BackupModel::ValueType::backupType);
+        }
 
         emit methodChanged(SourceDetails::BackupType::all);
     }
@@ -384,8 +346,10 @@ void MainWindow::on_radioButtonSelective_toggled(bool checked)
 {
     if (checked) {
         SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep)
+        if (sourcep && sourcep->backupType != SourceDetails::selective ) {
             sourcep->backupType = SourceDetails::selective;
+            emit modelUpdated(BackupModel::ValueType::backupType);
+        }
 
         emit methodChanged(SourceDetails::BackupType::selective);
     }
@@ -393,7 +357,7 @@ void MainWindow::on_radioButtonSelective_toggled(bool checked)
 
 }
 
-
+// update internal model
 void MainWindow::on_lineEditContainsFilename_editingFinished()
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
@@ -401,17 +365,15 @@ void MainWindow::on_lineEditContainsFilename_editingFinished()
         sourcep->containsFilename = ui->lineEditContainsFilename->text();
 }
 
-
+// update internal model
 void MainWindow::on_lineEditNameMatches_editingFinished()
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
     if (sourcep)
         sourcep->nameMatches = ui->lineEditNameMatches->text();
-
 }
 
-// when combo box value changes, we should update the index variable stored in
-// current SourceDetails struct
+// update internal model
 void MainWindow::updatePredicateTypeIndex(int index)
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
@@ -497,24 +459,35 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 
 void MainWindow::on_action_New_triggered()
 {
-    NewBackupTaskDialog dialog(this, NewBackupTaskDialog::CreateOnly);
-    if ( dialog.exec() == QDialog::Accepted) {
-        loadTask(dialog.result.id);
+    if (checkSave() != QMessageBox::Cancel) {
+        NewBackupTaskDialog dialog(this, NewBackupTaskDialog::CreateOnly);
+        if ( dialog.exec() == QDialog::Accepted) {
+            openTask(dialog.result.id);
+        }
     }
 }
 
-// this saves backup configuration and generates scripts
-void MainWindow::on_ButtonApply_clicked()
-{
-    applyChanges();
+// if there non-persisted modifications ask user what to do with them
+// returns QMessageBox::X status or -1 if no dialog presented
+int MainWindow::checkSave() {
+    // if ther ehave been any unsaved changed in the model, ask for saving first
+    if (! (state.modelCopy == (*activeBackup))) {
+        int ret = QMessageBox::warning(this, "Unsaved changes",tr("The backup task has been modified.\nDo you want to save your changes first?"),QMessageBox::Save | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Save);
+        if (ret == QMessageBox::Save) {
+            applyChanges();
+        }
+        return ret;
+    }
+    return -1;
 }
-
 
 void MainWindow::on_action_Open_triggered()
 {
+    if (checkSave() != QMessageBox::Cancel) {
     NewBackupTaskDialog dialog(this, NewBackupTaskDialog::OpenOnly);
-    if (dialog.exec() == QDialog::Accepted) {
-        loadTask(dialog.result.id);
+        if (dialog.exec() == QDialog::Accepted) {
+            openTask(dialog.result.id);
+        }
     }
 }
 
@@ -555,7 +528,7 @@ void MainWindow::on_comboBoxBasePath_currentIndexChanged(const QString &newPath)
     // select respective systemd unit
     QString systemdUnit;
     if ( ! Lb::systemdUnitForMountPath(newPath, systemdUnit) ) {
-        qWarning() << "no systemd unit for path " << newPath;
+        qWarning() << "[warning] no systemd unit for path " << newPath;
     }
     ui->lineEditSystemdUnit->setText(systemdUnit);
     emit ui->lineEditDestinationSuffixPath->editingFinished();
@@ -569,14 +542,22 @@ void MainWindow::on_action_Save_triggered()
 
 void MainWindow::on_pushButtonInstallTrigger_clicked()
 {
-    Lb::Triggers::installSystemdHook(activeBackup->backupDetails);
-    setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
+    if (Systemd::installHook(activeBackup->backupDetails) != 0) {
+        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error installing trigger</font>"));
+    } else {
+        ui->plainTextConsole->appendHtml(QString("On-mount trigger installed"));
+    }
+    setupTriggerButtons(activeBackup->backupDetails.tmp.taskId); // re-evaluate button state
 }
 
 void MainWindow::on_pushButtonRemoveTrigger_clicked()
 {
-    Lb::Triggers::removeSystemdHook(activeBackup->backupDetails);
-    setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
+    if (Systemd::removeHook(activeBackup->backupDetails.tmp.taskId) != 0) {
+        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error removing on-mount trigger</font>"));
+    } else {
+        ui->plainTextConsole->appendHtml(QString("On-mount trigger removed"));
+    }
+    setupTriggerButtons(activeBackup->backupDetails.tmp.taskId); // re-evaluate button state
 }
 
 
@@ -600,7 +581,7 @@ void MainWindow::on_actionDelete_triggered()
 
 void MainWindow::consoleProcessDataAvail() {
     qInfo() << "console process data available!";
-    QString out = consoleProcess.readAllStandardOutput();
+    QString out = consoleProcess.readAllStandardError();
     ui->plainTextConsole->appendPlainText(out);
 }
 
@@ -616,35 +597,19 @@ void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
     if ( dialog.exec() == QDialog::Accepted) {
         qInfo() << "dialog returned: " << dialog.result.name << " - " << dialog.result.id;
 
-        // if the active backup or sources have been touched, show a confirmation dialog
-        // ...
-        int ret = QMessageBox::warning(this, tr("My Application"),
-                                       tr("The backup task has been modified.\nDo you want to save your changes?"),
-                                       QMessageBox::Save | QMessageBox::Discard, QMessageBox::Save);
+        if (checkSave() != QMessageBox::Cancel) {
+            // store to task file
+            BackupModel model;
+            model.backupDetails.friendlyName = dialog.result.name;
+            Tasks::saveTask(dialog.result.id, model);
 
-        //if (ret == QMessageBox::Cancel) // or user pressed 'X' window key
-        //    return;
-
-        if (ret == QMessageBox::Save) {
-            on_ButtonApply_clicked();
-            // TODO possible errors when saving. Ask for confirmation and abort 'new' operation accordingly
-        }
-
-
-
-        // store to task file
-        BackupModel model;
-        model.backupDetails.friendlyName = dialog.result.name;
-        QString taskFilename = Lb::taskFilePathFromName(dialog.result.id);
-        Lb::persistTaskModel(model, taskFilename);
-        // TODO error handling
-
-        // reload task file and init UI
-        BackupModel persisted;
-        if (Lb::loadPersistedFile(taskFilename,persisted)) {
-            *activeBackup = persisted;
-            activeBackup->backupDetails.tmp.name = dialog.result.id;
-            initUIControls(*activeBackup);
+            // reload task file and init UI
+            BackupModel persisted;
+            if (Tasks::loadTask(dialog.result.id,persisted)) {
+                *activeBackup = persisted;
+                activeBackup->backupDetails.tmp.taskId = dialog.result.id;
+                initUIControls(*activeBackup);
+            }
         }
     }
 }
@@ -703,16 +668,16 @@ void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
 }
 
 void MainWindow::onSystemdUnitChanged(QString newUnitName) {
-    qInfo() << "onSystemdUnitChanged(): systemd unit changed: " << newUnitName;
+    //qInfo() << "onSystemdUnitChanged(): systemd unit changed: " << newUnitName;
+    ui->pushButtonInstallTrigger->setEnabled(!newUnitName.isEmpty());
+    ui->pushButtonUpdateTrigger->setEnabled(!newUnitName.isEmpty());
     // update model
     activeBackup->backupDetails.systemdMountUnit = newUnitName;
+    emit modelUpdated(BackupModel::ValueType::systemdMountUnit);
+}
 
-
-    //if (newUnitName.isEmpty())
-    //    ui->lineEditSystemdUnit->clear();
-    //else
-    //    ui->lineEditSystemdUnit->setText(newUnitName);
-
+void MainWindow::onModelUpdated(BackupModel::ValueType valueType) {
+    qDebug() << "[debug] model updated";
 }
 
 
@@ -726,7 +691,8 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_toolButtonRun_triggered(QAction *arg1)
 {
-    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
+    checkSave();
+    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
     consoleProcess.start("bash", {"-c", backupScriptFile});
     if (!consoleProcess.waitForStarted(5000)) {
         ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
@@ -739,14 +705,51 @@ void MainWindow::on_toolButtonRun_triggered(QAction *arg1)
 
 void MainWindow::on_toolButtonRun_clicked()
 {
-    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
-    consoleProcess.start("bash", {"-c", backupScriptFile});
-    if (!consoleProcess.waitForStarted(5000)) {
-        ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
-        return;
+    if (checkSave() != QMessageBox::Cancel) {
+        QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
+        consoleProcess.start("bash", {"-c", backupScriptFile});
+        if (!consoleProcess.waitForStarted(5000)) {
+            ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
+            return;
+        }
+        ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
+    }
+}
+
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    qInfo() << "equal: " << (state.modelCopy == (*activeBackup));
+}
+
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    state.modelCopy = *activeBackup;
+    qInfo() << "kept a copy of state";
+}
+
+
+void MainWindow::on_pushButtonAdd_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOptions(QFileDialog::ShowDirsOnly);
+    dialog.setDirectory(session.defaultBrowseBackupDirectory);
+
+    QStringList selected;
+    if (dialog.exec()) {
+        selected= dialog.selectedFiles();
+        session.defaultBrowseBackupDirectory = dialog.directory().path();
     }
 
-    ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
+    for (int i=0; i<selected.size(); i++) {
+        SourceDetails sourceDetails;
+        sourceDetails.sourcePath = selected.at(i);
+        activeBackup->allSourceDetails.append(sourceDetails);
+        BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
+        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
 
+    }
 }
 

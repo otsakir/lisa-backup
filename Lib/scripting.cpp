@@ -7,7 +7,6 @@
 
 #include <utils.h>
 
-namespace Lb {
 
 bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands) {
     for (int i=0; i < appstate.allSourceDetails.size(); i++) {
@@ -93,7 +92,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
                 find_command.append(" | xargs -0 -I files rsync -avzh files ").append(destinationRoot);
             } else if ( source.actionType == SourceDetails::gitBundle) {
                 // git bundle
-                find_command.append(QString(" | xargs -0 -I files %1/bundle-git-repo.sh files %2").arg(appScriptsDir()).arg(destinationRoot));
+                find_command.append(QString(" | xargs -0 -I files %1/bundle-git-repo.sh files %2").arg(Lb::appScriptsDir()).arg(destinationRoot));
             }
 
             commands.append(find_command);
@@ -105,11 +104,12 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
 
 bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate) {
 
-    qDebug() << "Generating " << outfilename << " backup script from " << scriptTemplate;
+    qInfo() << "[info] Generating " << outfilename << " backup script from " << scriptTemplate;
 
     // open script template file
     QFile f(scriptTemplate);
     if ( ! f.open(QIODevice::ReadOnly | QIODevice::Text) ) {
+        qCritical("[error] script template file '%s' does not exist", qUtf8Printable(scriptTemplate) );
         return false;
     }
 
@@ -119,7 +119,8 @@ bool generateBackupScript(QString scriptTemplate, QString outfilename, const Bac
     f.close();
 
     // search and replace placeholders with actual content
-    content.replace("$BACKUP_NAME", appstate.backupDetails.tmp.name);
+    content.replace("$BACKUP_NAME", appstate.backupDetails.tmp.taskId);
+    content.replace("$DEST_PATH", appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath);
     QVector<QString> commands;
     buildBackupCommands(appstate, commands);
     QString commandsString;
@@ -144,4 +145,35 @@ bool generateBackupScript(QString scriptTemplate, QString outfilename, const Bac
     return true;
 }
 
-} // namespace Lb
+//// public implementation
+
+namespace Scripting
+{
+
+bool buildBackupScript(QString taskId, const BackupModel& persisted)
+{
+    QString scriptName = Lb::backupScriptFilePath(taskId);
+    return generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted);
+}
+
+/**
+ * @brief removeBackupScript
+ * @param taskId
+ * @return true or false
+ *
+ * Removes the respective backup script for the task. This is not always present. It
+ * will return false only if tried to removed an existing file and it failed.
+ */
+bool removeBackupScript(QString taskId)
+{
+    QString scriptName = Lb::backupScriptFilePath(taskId);
+    QFile f(scriptName);
+    if (f.exists())
+    {
+        return f.remove();
+    }
+    return true;
+}
+
+
+} // Scripting namespace

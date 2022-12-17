@@ -3,9 +3,13 @@
 
 #include <core.h>
 
-namespace Lb {
+namespace Scripting
+{
 
-bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate);
+bool buildBackupScript(QString taskId, const BackupModel& persisted);
+
+bool removeBackupScript(QString taskId);
 
 }
+
 #endif // SCRIPTING_H
