@@ -98,7 +98,7 @@ public:
 struct BackupDetails {
 
     struct Tmp { // temprary stuff not stored to disk but required as long as the applications runs. Per-task.
-        QString name;
+        QString taskId;   //  taskId. It's used to load the task but we have to keep it somewhere
         QString taskFilepath;
     } tmp;
 

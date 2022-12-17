@@ -9,14 +9,14 @@ namespace Systemd
 
 int installHook(const BackupDetails& backup)
 {
-    QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.name);
-    QString commandLine = QString("%1/%2 install -s %3 -u \"%4\" \"%5\"").arg(Lb::appScriptsDir(),"install-systemd-hook.sh",backup.tmp.name, backup.systemdMountUnit, backupScriptPath);
+    QString backupScriptPath = Lb::backupScriptFilePath(backup.tmp.taskId);
+    QString commandLine = QString("%1/%2 install -s %3 -u \"%4\" \"%5\"").arg(Lb::appScriptsDir(),"install-systemd-hook.sh",backup.tmp.taskId, backup.systemdMountUnit, backupScriptPath);
     return Terminal::runCommandInTerminal(commandLine);
 }
 
-int removeHook(const BackupDetails &backup)
+int removeHook(QString taskId)
 {
-    QString commandLine = QString("%1/%2 remove -s %3").arg(Lb::appScriptsDir(),"install-systemd-hook.sh",backup.tmp.name);
+    QString commandLine = QString("%1/%2 remove -s %3").arg(Lb::appScriptsDir(),"install-systemd-hook.sh",taskId);
     return Terminal::runCommandInTerminal(commandLine);
     //startProcess(process, "xterm", {"-e", QString("%1/%2").arg(appScriptsDir(),"install-systemd-hook.sh"),"remove","-s", backup.tmp.name});
 

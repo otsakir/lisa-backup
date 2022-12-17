@@ -8,7 +8,7 @@ namespace Systemd
 
 int installHook(const BackupDetails& backup);
 
-int removeHook(const BackupDetails &backup);
+int removeHook(QString taskId);
 
 bool hookPresent(const QString& backupName);
 

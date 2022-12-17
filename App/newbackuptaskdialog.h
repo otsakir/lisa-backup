@@ -63,6 +63,7 @@ private slots:
 
 private:
     Ui::NewBackupTaskDialog *ui;
+    QString getSelectedTaskId();
 };
 
 #endif // NEWBACKUPTASKDIALOG_H

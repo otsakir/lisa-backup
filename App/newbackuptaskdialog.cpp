@@ -6,10 +6,14 @@
 #include <QDebug>
 #include <QDir>
 #include <QStandardItem>
+#include <QMessageBox>
 
 #include <core.h>
 #include <utils.h>
 #include <task.h>
+#include <systemd.h>
+#include <terminal.h>
+#include <scripting.h>
 
 NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
     QDialog(parent),
@@ -54,11 +58,21 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
     emit ui->stackedWidgetWizard->currentChanged(mode);
 }
 
+QString NewBackupTaskDialog::getSelectedTaskId()
+{
+    QStandardItemModel* model = (QStandardItemModel*) ui->treeViewTasks->model();
+    QModelIndex index = ui->treeViewTasks->currentIndex().siblingAtColumn(1);
+    if (index.isValid())
+    {
+        QString taskId = model->data(index).toString();
+        return taskId;
+    }
+    return QString();
+}
+
 
 void NewBackupTaskDialog::taskClicked(const QModelIndex& index) {
-    if (index.isValid()) {
-        ui->pushButtonDeleteTask->setDisabled(false);
-    }
+    ui->pushButtonDeleteTask->setDisabled( ! index.isValid());
 }
 
 
@@ -80,8 +94,7 @@ void NewBackupTaskDialog::on_pushButtonCreate_clicked()
     // store to task file
     BackupModel model;
     model.backupDetails.friendlyName = result.name;
-    QString taskFilename = Lb::taskFilePathFromName(result.id);
-    Lb::persistTaskModel(model, taskFilename);
+    Tasks::saveTask(result.id, model);
     // TODO error handling
 
     this->accept();
@@ -168,11 +181,9 @@ void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
 
 void NewBackupTaskDialog::on_pushButtonOpen_clicked()
 {
-    QStandardItemModel* model = (QStandardItemModel*) ui->treeViewTasks->model();
-    QModelIndex index = ui->treeViewTasks->currentIndex().siblingAtColumn(1);
-    if (index.isValid()) {
-        QString taskId = model->data(index).toString();
-        //qInfo() << "currentItem: " << taskId;
+    QString taskId = getSelectedTaskId();
+    if (!taskId.isEmpty())
+    {
         this->result.id = taskId;
         this->accept();
     }
@@ -204,6 +215,43 @@ void NewBackupTaskDialog::on_treeViewTasks_doubleClicked(const QModelIndex &inde
 
 void NewBackupTaskDialog::on_pushButtonDeleteTask_clicked()
 {
-    // TODO - create deletion operation in utils or core
+    QStandardItemModel* model = (QStandardItemModel*) ui->treeViewTasks->model();
+    QModelIndex index = ui->treeViewTasks->currentIndex().siblingAtColumn(1);
+
+    QString taskId;
+    if (!index.isValid())
+        return;
+
+    taskId = model->data(index).toString();
+
+    if (! taskId.isEmpty())
+    {
+        // first, check if there is a systemd service attached
+        if (Systemd::hookPresent(taskId))
+        {
+            // ask, the user before starting xterm fuss
+            int ret = QMessageBox::warning(this, "Trigger active",tr("This backup task has an active trigger that should be removed.\n Should it be removed now ?"),QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+            if (ret == QMessageBox::Yes)
+            {
+                Systemd::removeHook(taskId); // TODO - error handling
+            } else
+            if (ret == QMessageBox::Cancel)
+            {
+                return;
+            }
+        }
+        // The hook was either removed or was chosen not to be removed. Moving on with the rest of the removal steps.
+        if (! Scripting::removeBackupScript(taskId))
+        {
+            qWarning() << "[warning] couldn't remove backup script for task '" << taskId << "'. I'll move on.";
+        }
+        // finally, remove the task itself
+        Tasks::deleteTask(taskId); // TODO - error handling ? where ?
+        // and the entry from the table/tree
+        model->removeRow(index.row());
+
+        taskClicked(QModelIndex()); // pass invalid index to trigger disabling the "Delete" button
+    }
+
 }
 

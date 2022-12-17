@@ -133,10 +133,11 @@ void MainWindow::openTask(QString taskId) {
     BackupModel persisted;
     if (Tasks::loadTask(taskId,persisted)) {
         *activeBackup = persisted;
-        activeBackup->backupDetails.tmp.name = taskId;
+        activeBackup->backupDetails.tmp.taskId = taskId;
         initUIControls(*activeBackup);
         state.modelCopy = *activeBackup;
     } else {
+        qCritical() << "[critical] error loading task " << taskId;
         //ui->statusbar->showMessage(QString("Error opening '%1' task").arg(taskId));
         // TODO show wizard again or exit program?
     }
@@ -263,7 +264,7 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
 
     refreshBasePaths(backupModel.backupDetails.destinationBasePath.isEmpty() ? "/" : backupModel.backupDetails.destinationBasePath);
 
-    setupTriggerButtons(activeBackup->backupDetails.tmp.name);
+    setupTriggerButtons(activeBackup->backupDetails.tmp.taskId);
 }
 
 void MainWindow::setupTriggerButtons(const QString& backupName) {
@@ -294,12 +295,14 @@ void MainWindow::applyChanges() {
     BackupModel persisted;
     collectUIControls(persisted);
 
-    Tasks::saveTask(activeBackup->backupDetails.tmp.name, persisted);
+    QString taskId = activeBackup->backupDetails.tmp.taskId;
 
-    QString scriptName = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
-    if (! Lb::generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted)) {
-                //append(QString("<font color=red>%1</font>").arg(chr));
-        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script '%1'</font>").arg(scriptName));
+    Tasks::saveTask(taskId, persisted);
+
+    if (!Scripting::buildBackupScript(taskId, persisted) )
+    {
+        //append(QString("<font color=red>%1</font>").arg(chr));
+        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script for task '%1'</font>").arg(taskId));
     }
 
     state.modelCopy = *activeBackup; // freshen model state
@@ -544,17 +547,17 @@ void MainWindow::on_pushButtonInstallTrigger_clicked()
     } else {
         ui->plainTextConsole->appendHtml(QString("On-mount trigger installed"));
     }
-    setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
+    setupTriggerButtons(activeBackup->backupDetails.tmp.taskId); // re-evaluate button state
 }
 
 void MainWindow::on_pushButtonRemoveTrigger_clicked()
 {
-    if (Systemd::removeHook(activeBackup->backupDetails) != 0) {
+    if (Systemd::removeHook(activeBackup->backupDetails.tmp.taskId) != 0) {
         ui->plainTextConsole->appendHtml(QString("<font color='red'>Error removing on-mount trigger</font>"));
     } else {
         ui->plainTextConsole->appendHtml(QString("On-mount trigger removed"));
     }
-    setupTriggerButtons(activeBackup->backupDetails.tmp.name); // re-evaluate button state
+    setupTriggerButtons(activeBackup->backupDetails.tmp.taskId); // re-evaluate button state
 }
 
 
@@ -598,15 +601,13 @@ void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
             // store to task file
             BackupModel model;
             model.backupDetails.friendlyName = dialog.result.name;
-            QString taskFilename = Lb::taskFilePathFromName(dialog.result.id);
-            Lb::persistTaskModel(model, taskFilename);
-            // TODO error handling
+            Tasks::saveTask(dialog.result.id, model);
 
             // reload task file and init UI
             BackupModel persisted;
-            if (Tasks::loadTask(taskFilename,persisted)) {
+            if (Tasks::loadTask(dialog.result.id,persisted)) {
                 *activeBackup = persisted;
-                activeBackup->backupDetails.tmp.name = dialog.result.id;
+                activeBackup->backupDetails.tmp.taskId = dialog.result.id;
                 initUIControls(*activeBackup);
             }
         }
@@ -691,7 +692,7 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_toolButtonRun_triggered(QAction *arg1)
 {
     checkSave();
-    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
+    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
     consoleProcess.start("bash", {"-c", backupScriptFile});
     if (!consoleProcess.waitForStarted(5000)) {
         ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
@@ -705,7 +706,7 @@ void MainWindow::on_toolButtonRun_triggered(QAction *arg1)
 void MainWindow::on_toolButtonRun_clicked()
 {
     if (checkSave() != QMessageBox::Cancel) {
-        QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.name);
+        QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
         consoleProcess.start("bash", {"-c", backupScriptFile});
         if (!consoleProcess.waitForStarted(5000)) {
             ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
