@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
     //qInfo() << "Config locations: " << configLocations;
 
-    //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false\n*.info=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=false\ndefault.info=false"));
 
     qDebug() << "[debug]";
     qInfo() << "[info]";
