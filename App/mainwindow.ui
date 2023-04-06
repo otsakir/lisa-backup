@@ -71,7 +71,6 @@
                <font>
                 <family>Sans Serif</family>
                 <pointsize>19</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -227,7 +226,6 @@
                </property>
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -237,7 +235,6 @@
               <widget class="QWidget" name="widget" native="true">
                <property name="font">
                 <font>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -272,6 +269,26 @@
                   </property>
                  </spacer>
                 </item>
+                <item>
+                 <widget class="QPushButton" name="pushButtonSourceUp">
+                  <property name="toolTip">
+                   <string>Change backup order for selected source</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButtonSourceDown">
+                  <property name="toolTip">
+                   <string>Change backup order for selected source</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
@@ -296,7 +313,6 @@
              </property>
              <property name="font">
               <font>
-               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -773,7 +789,6 @@
               <widget class="QLabel" name="label_7">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -966,7 +981,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

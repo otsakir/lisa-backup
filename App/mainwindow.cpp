@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->pushButtonEditFriendlyName->setIcon(QIcon::fromTheme("document-edit"));
     //ui->toolButton_5->setIcon(QIcon::fromTheme("media-play"));
+    ui->pushButtonSourceUp->setIcon(QIcon::fromTheme("up"));
+    ui->pushButtonSourceDown->setIcon(QIcon::fromTheme("down"));
 
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
@@ -98,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
     session.defaultBrowseBackupDirectory = Lb::homeDirectory();
 
     Lb::setupDirs();
-    activeBackup = new BackupModel();    
+    activeBackup = new BackupModel();
 
     session.recentBackupNames.append("music2"); // manually initialize it for now. Later it will be loaded from file upon startup.
 
@@ -749,5 +751,59 @@ void MainWindow::on_pushButtonAdd_clicked()
         }
     }
 
+}
+
+// assumes there is an source item selected
+void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, BackupModel::SourceDetailsIndex sourceIndex2)
+{
+    // make sure index1 is smaller and index2
+    BackupModel::SourceDetailsIndex toIndex = sourceIndex2; // sourceIndex2 is the "target" index. We keep it to re-select
+    if (sourceIndex2 < sourceIndex1)
+    {
+        BackupModel::SourceDetailsIndex tmp = sourceIndex2;
+        sourceIndex2 = sourceIndex1;
+        sourceIndex1 = tmp;
+    }
+
+    SourceDetails source = activeBackup->allSourceDetails[sourceIndex1];
+    activeBackup->allSourceDetails[sourceIndex1] = activeBackup->allSourceDetails[sourceIndex2];
+    activeBackup->allSourceDetails[sourceIndex2] = source;
+
+    QList<QStandardItem*> rowItems1 = sourcesModel->takeRow(sourceIndex1);
+    QList<QStandardItem*> rowItems2 = sourcesModel->takeRow(sourceIndex2-1);
+    sourcesModel->insertRow(sourceIndex1,rowItems2);
+    sourcesModel->insertRow(sourceIndex2,rowItems1);
+
+    // restore selected item
+    ui->sourcesListView->selectionModel()->clearSelection();
+    QModelIndex newCurrent = ui->sourcesListView->model()->index(toIndex,0);
+    ui->sourcesListView->selectionModel()->select( newCurrent, QItemSelectionModel::Select );
+    emit sourceChanged(newCurrent);
+}
+
+
+void MainWindow::on_pushButtonSourceDown_clicked()
+{
+    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
+    if (!selection.isEmpty()) {
+        QModelIndex i = selection.indexes().first();
+        qDebug() << "will move down " << i.data();
+        BackupModel::SourceDetailsIndex iSourceDetails = i.row();
+        if (iSourceDetails < ui->sourcesListView->model()->rowCount()-1) // is there any space above ?
+            swapSources(iSourceDetails, iSourceDetails+1);
+    }
+}
+
+
+void MainWindow::on_pushButtonSourceUp_clicked()
+{
+    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
+    if (!selection.isEmpty()) {
+        QModelIndex i = selection.indexes().first();
+        qDebug() << "will move up " << i.data();
+        BackupModel::SourceDetailsIndex iSourceDetails = i.row();
+        if (iSourceDetails > 0) // is there any space above ?
+            swapSources(iSourceDetails, iSourceDetails-1);
+    }
 }
 

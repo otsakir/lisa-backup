@@ -118,6 +118,10 @@ private slots:
 
     void on_pushButtonAdd_clicked();
 
+    void on_pushButtonSourceDown_clicked();
+
+    void on_pushButtonSourceUp_clicked();
+
 protected:
     virtual void closeEvent (QCloseEvent *event);
 
@@ -136,6 +140,7 @@ private:
     QStandardItem* appendSource(BackupModel::SourceDetailsIndex sourceDetails);
     void collectUIControls(BackupModel& persisted);
     void initUIControls(BackupModel& persisted);
+    void swapSources(BackupModel::SourceDetailsIndex source1, BackupModel::SourceDetailsIndex source2); // change the order two sources
 
     int checkSave(); // returns QMessageBox::X status or -1
     void applyChanges();
