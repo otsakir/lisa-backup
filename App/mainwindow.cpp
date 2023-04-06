@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "scripting.h"
 #include "task.h"
+#include "multipledirdialog.h"
 
 #include <core.h>
 
@@ -25,6 +26,9 @@
 #include <QDateTime>
 #include <QAbstractItemView>
 #include <QLoggingCategory>
+#include <QFileSystemModel>
+#include <QTreeView>
+#include <QScroller>
 
 //Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
@@ -732,24 +736,18 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButtonAdd_clicked()
 {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setOptions(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(session.defaultBrowseBackupDirectory);
+    MultipleDirDialog dialog(this);
+    if ( dialog.exec() == QDialog::Accepted) {
 
-    QStringList selected;
-    if (dialog.exec()) {
-        selected= dialog.selectedFiles();
-        session.defaultBrowseBackupDirectory = dialog.directory().path();
+        for (int i=0; i < dialog.selectedPaths.size(); i++)
+        {
+            SourceDetails sourceDetails;
+            sourceDetails.sourcePath = dialog.selectedPaths[i];
+            activeBackup->allSourceDetails.append(sourceDetails);
+            BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
+            ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
+        }
     }
 
-    for (int i=0; i<selected.size(); i++) {
-        SourceDetails sourceDetails;
-        sourceDetails.sourcePath = selected.at(i);
-        activeBackup->allSourceDetails.append(sourceDetails);
-        BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
-        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
-
-    }
 }
 
