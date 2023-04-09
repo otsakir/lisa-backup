@@ -42,23 +42,30 @@ QString runShellCommand(QString commandString)
     return out;
 }
 
-// return command status code or -1 in case of other error. 0 for success.
+// return child command status code or -1 in case of other error. 0 for success.
 int runCommandInTerminal(QString commandLine)
 {
     QProcess process;
-
     QTemporaryFile exitStatusFile; // temporary file to keep xterm child process exit status code
     if (exitStatusFile.open()) {
         exitStatusFile.close();
-        qInfo() << "exitStatusFile: " << exitStatusFile.fileName();
+        qDebug() << "exitStatusFile: " << exitStatusFile.fileName();
         startProcess(process, "xterm", {"-e", "bash", "-c", QString("%1 ; echo $? > %2").arg(commandLine,exitStatusFile.fileName())});
         process.waitForFinished(-1);
+        int exitcode = process.exitCode();
+        if (exitcode != 0)
+        {
+            qCritical() << "error running command" << process.program() << ":" << process.error() << "-" << process.exitCode();
+            return -1;
+        }
+
         // check exitStatusFile content for exit code of the process
         if (exitStatusFile.open()) {
             QTextStream in(&exitStatusFile);
             int status;
             in >> status;
-            qInfo() << "child process status: " << status;
+            if (status != 0)
+                qCritical() << "error running child process: " << status;
             return status;
         }
     }

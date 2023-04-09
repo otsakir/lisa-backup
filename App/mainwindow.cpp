@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
     //qInfo() << "Config locations: " << configLocations;
 
-    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=false\ndefault.info=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=false\ndefault.info=true"));
 
     qDebug() << "[debug]";
     qInfo() << "[info]";
@@ -551,7 +551,8 @@ void MainWindow::on_pushButtonInstallTrigger_clicked()
     if (Systemd::installHook(activeBackup->backupDetails) != 0) {
         ui->plainTextConsole->appendHtml(QString("<font color='red'>Error installing trigger</font>"));
     } else {
-        ui->plainTextConsole->appendHtml(QString("On-mount trigger installed"));
+        if (Systemd::hookPresent(activeBackup->backupDetails.tmp.taskId))
+            ui->plainTextConsole->appendHtml(QString("On-mount trigger installed"));
     }
     setupTriggerButtons(activeBackup->backupDetails.tmp.taskId); // re-evaluate button state
 }
@@ -561,7 +562,8 @@ void MainWindow::on_pushButtonRemoveTrigger_clicked()
     if (Systemd::removeHook(activeBackup->backupDetails.tmp.taskId) != 0) {
         ui->plainTextConsole->appendHtml(QString("<font color='red'>Error removing on-mount trigger</font>"));
     } else {
-        ui->plainTextConsole->appendHtml(QString("On-mount trigger removed"));
+        if (!Systemd::hookPresent(activeBackup->backupDetails.tmp.taskId))
+            ui->plainTextConsole->appendHtml(QString("On-mount trigger removed"));
     }
     setupTriggerButtons(activeBackup->backupDetails.tmp.taskId); // re-evaluate button state
 }
