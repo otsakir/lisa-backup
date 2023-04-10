@@ -6,6 +6,7 @@
 #include <QDebug>
 
 #include <utils.h>
+#include <logging.h>
 
 
 bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands) {
@@ -51,6 +52,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
                     maxdepth = -1; // do not set at all (default)
                 } else {
                     qInfo() << "Invalid backup depth: " << source.backupDepth; // we don't accept 'onlyRoot'
+                    Logging::logToUiConsole(QString("[source '%1']: 'Selective' method can not be used with 'Only root' depth").arg(source.sourcePath));
                     return false;
                 }
 

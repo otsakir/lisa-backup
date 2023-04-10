@@ -11,6 +11,7 @@
 #include <core.h>
 
 #include <systemd.h>
+#include "logging.h"
 
 #include <memory>
 
@@ -29,6 +30,7 @@
 #include <QFileSystemModel>
 #include <QTreeView>
 #include <QScroller>
+
 
 //Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
@@ -62,6 +64,8 @@ MainWindow::MainWindow(QWidget *parent)
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
     ui->sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    Logging::setUiConsole(ui->plainTextConsole);
 
     sourcesDataMapper->setModel(sourcesModel);
 
@@ -162,6 +166,7 @@ MainWindow::~MainWindow()
 {
     delete activeBackup;
     delete sourcesModel;
+    Logging::setUiConsole(0);
     delete ui;
 }
 

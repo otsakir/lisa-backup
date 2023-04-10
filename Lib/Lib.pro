@@ -11,6 +11,7 @@ CONFIG += c++11
 
 SOURCES += \
     core.cpp \
+    logging.cpp \
     scripting.cpp \
     systemd.cpp \
     task.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
 
 HEADERS += \
     core.h \
+    logging.h \
     scripting.h \
     systemd.h \
     task.h \
