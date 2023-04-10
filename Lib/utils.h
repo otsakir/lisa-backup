@@ -13,6 +13,7 @@ QString configDirectory();
 QString scriptsDirectory();
 QString homeDirectory();
 QString systemdDirectory(); // systemd service file directory (typically /etc/systemd/system/)
+const QVector<QString>& excludedDevicePathPrefix(); // a set prefices to exclude systemd devices. It is checked against the device path.
 
 QString taskFilePathFromName(const QString& backupName);
 QString taskNameFromPath(const QString& taskFilePath);

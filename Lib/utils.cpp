@@ -61,6 +61,13 @@ QString systemdDirectory() {
     return "/etc/systemd/system"; // TODO make this parametric from installation
 }
 
+const QVector<QString>& excludedDevicePathPrefix()
+{
+    static QVector<QString> prefixes = {"/snap","/run"};
+
+    return prefixes;
+}
+
 // generates the full path to the backup data file based on the 'backup name'
 QString taskFilePathFromName(const QString& backupName) {
     return dataDirectory() + "/" + backupName + ".task";

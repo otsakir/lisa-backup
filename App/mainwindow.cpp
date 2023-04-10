@@ -505,11 +505,26 @@ void MainWindow::on_action_Open_triggered()
 // reloads paths for system mounted devices. Adds 'current' if not already in the list
 void MainWindow::refreshBasePaths(QString current) {
     ui->comboBoxBasePath->clear();
+    const QVector<QString>& excludedPrefixes = Lb::excludedDevicePathPrefix();
     int indexFound = -1; // assume not found
     int i = 0; // counter
     QString rootPath;
     foreach( const QStorageInfo& storage, QStorageInfo::mountedVolumes()) {
         rootPath = storage.rootPath();
+
+        bool skip = false;
+        foreach (const QString& prefix, excludedPrefixes)
+        {
+            if (rootPath.startsWith(prefix))
+            {
+                skip = true;
+                break;
+            }
+
+        }
+        if (skip)
+            continue; // this is an excluded device
+
         if (!current.isEmpty() && rootPath == current) {
             indexFound = i;
         }
