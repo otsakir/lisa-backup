@@ -5,7 +5,7 @@
 
 SourceDetails::SourceDetails() :
     backupType(all),
-    backupDepth(rootOnly),
+    backupDepth(directChildren),
     predicateType(containsFilenameId) {}
 
 SourceDetails::~SourceDetails() {

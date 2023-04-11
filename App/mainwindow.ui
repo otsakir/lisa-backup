@@ -423,11 +423,6 @@
                     <widget class="QComboBox" name="comboBoxDepth">
                      <item>
                       <property name="text">
-                       <string>Only root</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
                        <string>Direct children</string>
                       </property>
                      </item>

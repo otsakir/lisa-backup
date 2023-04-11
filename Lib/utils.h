@@ -17,6 +17,7 @@ const QVector<QString>& excludedDevicePathPrefix(); // a set prefices to exclude
 
 QString taskFilePathFromName(const QString& backupName);
 QString taskNameFromPath(const QString& taskFilePath);
+QString lastDirInPath(const QString& path);
 QString backupScriptFilePath(const QString& backupName);
 
 QString windowTitle(const QString& taskFriendlyName);

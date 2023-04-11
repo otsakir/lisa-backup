@@ -84,6 +84,18 @@ QString taskNameFromPath(const QString& taskFilePath) {
     return QString(); // nothing matched
 }
 
+// from '/home/alice/Documents' returns 'Documents'
+QString lastDirInPath(const QString& path)
+{
+    QRegularExpression re(".*/([^/]+)$");
+    QRegularExpressionMatch match = re.match(path);
+    if (match.hasMatch()) {
+        return match.captured(1);
+    }
+
+    return QString(); // nothing matched
+}
+
 QString backupScriptFilePath(const QString& backupName) {
     return scriptsDirectory() + "/backup-" + backupName + ".sh";
 }

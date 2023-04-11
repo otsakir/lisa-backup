@@ -36,13 +36,12 @@ public:
      */
     enum BackupType {
         all = 0,
-        selective = 1
+        selective = 1 // i.e. select sub-directories
     } backupType; // how to backup each sub-dir entry
 
     enum BackupDepth {
-        rootOnly = 0,
-        directChildren = 1,
-        recursive = 2
+        directChildren = 0,
+        recursive = 1
     } backupDepth;
 
     enum PredicateType {
@@ -72,7 +71,6 @@ public:
     QString nameMatches; // match when _traversed_ directory's name is like this (use bash shell pattern)
 
 public:
-    //SourceDetails(const BackupType psourceType = all, const QString& ppredicate = nullptr, const BackupDepth pbackupDepth = rootOnly);
     SourceDetails();
 
 

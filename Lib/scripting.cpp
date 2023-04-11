@@ -40,20 +40,20 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             QString command;
             command.reserve(100);
 
+            // find last part of the source path
+            QString sourcePathLastDir = Lb::lastDirInPath(source.sourcePath);
+
             int mindepth = 1; // by default, not match the command arguments theselves
             int maxdepth = -1; // my default, do not set at all
             bool getparent = false; // should 'find' report the matched entry or its parent
             QString name;
-            QString destinationRoot = QString("'%1/%2' ").arg(appstate.backupDetails.destinationBasePath).arg(appstate.backupDetails.destinationBaseSuffixPath);
+            // note the trailing slash after %3 below: it results in creating the source directory under the destination
+            QString destinationRoot = QString("'%1/%2/%3/' ").arg(appstate.backupDetails.destinationBasePath, appstate.backupDetails.destinationBaseSuffixPath, sourcePathLastDir);
             if (source.predicateType == SourceDetails::nameMatchesId) {
                 if (source.backupDepth == SourceDetails::directChildren) {
                     maxdepth = 1;
                 } else if (source.backupDepth == SourceDetails::recursive) {
                     maxdepth = -1; // do not set at all (default)
-                } else {
-                    qInfo() << "Invalid backup depth: " << source.backupDepth; // we don't accept 'onlyRoot'
-                    Logging::logToUiConsole(QString("[source '%1']: 'Selective' method can not be used with 'Only root' depth").arg(source.sourcePath));
-                    return false;
                 }
 
                 name = QString("'%1'").arg(source.nameMatches);
