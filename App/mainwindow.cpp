@@ -745,19 +745,6 @@ void MainWindow::on_toolButtonRun_clicked()
 }
 
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    qInfo() << "equal: " << (state.modelCopy == (*activeBackup));
-}
-
-
-void MainWindow::on_pushButton_3_clicked()
-{
-    state.modelCopy = *activeBackup;
-    qInfo() << "kept a copy of state";
-}
-
-
 void MainWindow::on_pushButtonAdd_clicked()
 {
     MultipleDirDialog dialog(this);

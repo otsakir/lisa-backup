@@ -19,6 +19,7 @@ fi
 
 cwd=`pwd`
 echo "creating bundle for '$reporoot' repo under $2. Repo name: '$reponame'."
+mkdir -p "$2"
 
 error_out=`cd "$reporoot" 2>&1 > /dev/null && git bundle create "$2/$reponame".gitbundle --all 2>&1 > /dev/null && cd "$cwd" 2>&1 > /dev/null`
 if [ $? -ne 0 ]; then
