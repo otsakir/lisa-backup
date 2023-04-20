@@ -6,7 +6,8 @@
 SourceDetails::SourceDetails() :
     backupType(all),
     backupDepth(directChildren),
-    predicateType(containsFilenameId) {}
+    predicateType(containsFilenameId),
+    actionType(rsync) {}
 
 SourceDetails::~SourceDetails() {
 }
