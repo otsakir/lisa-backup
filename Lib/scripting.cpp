@@ -56,7 +56,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
                     maxdepth = -1; // do not set at all (default)
                 }
 
-                name = QString("'%1'").arg(source.nameMatches);
+                name = source.nameMatches;
                 getparent = false;
             } else if (source.predicateType == SourceDetails::containsFilenameId) {
                 if (source.backupDepth == SourceDetails::directChildren) {
@@ -66,7 +66,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
                     maxdepth = -1; // do not set at all
                 }
 
-                name = QString("'%1'").arg(source.containsFilename);
+                name = source.containsFilename;
                 getparent = true;
             }
 
@@ -77,7 +77,8 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             if (maxdepth != -1)
                 find_command.append("-maxdepth ").append(QString::number(maxdepth)).append(" ");
             // -name parameter
-            find_command.append("-name ").append(name).append(" ");
+            find_command.append(QString("-name '%1' ! -path '*/.*/%2' ").arg(name).arg(name)); // exclude hidden directories from the search predicates
+
 
             // get matched entry or its parent ?
 
@@ -91,10 +92,12 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             // action
             if (source.actionType == SourceDetails::rsync) {
                 //rsync copy
-                find_command.append(" | xargs -0 -I files rsync -avzh files ").append(destinationRoot);
+                find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a rsync %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot));
             } else if ( source.actionType == SourceDetails::gitBundle) {
                 // git bundle
-                find_command.append(QString(" | xargs -0 -I files %1/bundle-git-repo.sh files %2").arg(Lb::appScriptsDir()).arg(destinationRoot));
+                find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a gitbundle %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot));
+            } else if (source.actionType == SourceDetails::automatic) {
+                find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a auto %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot));
             }
 
             commands.append(find_command);

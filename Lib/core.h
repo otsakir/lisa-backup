@@ -51,7 +51,8 @@ public:
 
     enum ActionType {
         rsync = 0,
-        gitBundle = 1
+        gitBundle = 1,
+        automatic = 2 // let the backup script decide on the fly
     } actionType;
 
     /*!

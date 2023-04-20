@@ -213,6 +213,7 @@ void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
         }
         ui->radioButtonRsync->setChecked(pDetails->actionType == SourceDetails::rsync);
         ui->radioButtonGitBundle->setChecked(pDetails->actionType == SourceDetails::gitBundle);
+        ui->radioButtonAuto->setChecked(pDetails->actionType == SourceDetails::automatic);
         emit actionChanged(pDetails->actionType);
 
         ui->lineEditContainsFilename->setText(pDetails->containsFilename);
@@ -690,6 +691,17 @@ void MainWindow::on_radioButtonGitBundle_toggled(bool checked)
     }
 }
 
+void MainWindow::on_radioButtonAuto_toggled(bool checked)
+{
+    if (checked) {
+        SourceDetails* sourcep = getSelectedSourceDetails();
+        if (sourcep)
+            sourcep->actionType = SourceDetails::automatic;
+
+        emit actionChanged(SourceDetails::automatic);
+    }
+}
+
 // higher-level handler. Model (getSelectedSourceDetails()) is assumed to contain the updated value
 void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
     // TODO
@@ -815,4 +827,6 @@ void MainWindow::on_pushButtonSourceUp_clicked()
             swapSources(iSourceDetails, iSourceDetails-1);
     }
 }
+
+
 

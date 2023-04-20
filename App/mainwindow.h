@@ -118,6 +118,8 @@ private slots:
 
     void on_pushButtonSourceUp_clicked();
 
+    void on_radioButtonAuto_toggled(bool checked);
+
 protected:
     virtual void closeEvent (QCloseEvent *event);
 
