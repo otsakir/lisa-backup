@@ -60,10 +60,6 @@ private slots:
 
     void on_radioButtonSelective_toggled(bool checked);
 
-    void on_lineEditContainsFilename_editingFinished();
-
-    void on_lineEditNameMatches_editingFinished();
-
     void updatePredicateTypeIndex(int index);
 
     void on_lineEditSystemdUnit_textChanged(const QString &arg1);
@@ -113,6 +109,10 @@ private slots:
     void on_pushButtonSourceUp_clicked();
 
     void on_radioButtonAuto_toggled(bool checked);
+
+    void on_lineEditContainsFilename_textEdited(const QString &arg1);
+
+    void on_lineEditNameMatches_textEdited(const QString &arg1);
 
 protected:
     virtual void closeEvent (QCloseEvent *event);

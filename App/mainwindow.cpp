@@ -365,22 +365,6 @@ void MainWindow::on_radioButtonSelective_toggled(bool checked)
 }
 
 // update internal model
-void MainWindow::on_lineEditContainsFilename_editingFinished()
-{
-    SourceDetails* sourcep = getSelectedSourceDetails();
-    if (sourcep)
-        sourcep->containsFilename = ui->lineEditContainsFilename->text();
-}
-
-// update internal model
-void MainWindow::on_lineEditNameMatches_editingFinished()
-{
-    SourceDetails* sourcep = getSelectedSourceDetails();
-    if (sourcep)
-        sourcep->nameMatches = ui->lineEditNameMatches->text();
-}
-
-// update internal model
 void MainWindow::updatePredicateTypeIndex(int index)
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
@@ -800,4 +784,21 @@ void MainWindow::on_pushButtonSourceUp_clicked()
 }
 
 
+
+
+void MainWindow::on_lineEditContainsFilename_textEdited(const QString &newText)
+{
+    SourceDetails* sourcep = getSelectedSourceDetails();
+    if (sourcep)
+        sourcep->containsFilename = newText;
+}
+
+
+void MainWindow::on_lineEditNameMatches_textEdited(const QString &newText)
+{
+    SourceDetails* sourcep = getSelectedSourceDetails();
+    if (sourcep)
+        sourcep->nameMatches = newText;
+
+}
 

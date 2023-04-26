@@ -885,6 +885,10 @@
    </property>
   </action>
   <action name="action_New">
+   <property name="icon">
+    <iconset theme="document-new">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>&amp;New</string>
    </property>
@@ -901,6 +905,10 @@
    </property>
   </action>
   <action name="action_Save">
+   <property name="icon">
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>

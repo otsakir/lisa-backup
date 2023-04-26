@@ -146,6 +146,9 @@
            <property name="text">
             <string>Back</string>
            </property>
+           <property name="icon">
+            <iconset theme="go-previous"/>
+           </property>
            <property name="autoDefault">
             <bool>false</bool>
            </property>
@@ -183,6 +186,9 @@
            </property>
            <property name="text">
             <string>Create</string>
+           </property>
+           <property name="icon">
+            <iconset theme="document-new"/>
            </property>
            <property name="autoDefault">
             <bool>true</bool>
@@ -274,6 +280,9 @@
            <property name="text">
             <string>Back</string>
            </property>
+           <property name="icon">
+            <iconset theme="go-previous"/>
+           </property>
            <property name="autoDefault">
             <bool>false</bool>
            </property>
@@ -305,6 +314,9 @@
            </property>
            <property name="text">
             <string>Open</string>
+           </property>
+           <property name="icon">
+            <iconset theme="document-open"/>
            </property>
            <property name="default">
             <bool>true</bool>
