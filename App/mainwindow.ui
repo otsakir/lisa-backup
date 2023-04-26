@@ -369,7 +369,7 @@
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_12">
                        <property name="topMargin">
-                        <number>24</number>
+                        <number>22</number>
                        </property>
                        <item>
                         <widget class="QLineEdit" name="lineEditContainsFilename"/>
@@ -392,7 +392,7 @@
                      <widget class="QWidget" name="page_2">
                       <layout class="QVBoxLayout" name="verticalLayout_13">
                        <property name="topMargin">
-                        <number>23</number>
+                        <number>22</number>
                        </property>
                        <item>
                         <widget class="QLineEdit" name="lineEditNameMatches"/>
@@ -875,6 +875,9 @@
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>&amp;About</string>
    </property>
