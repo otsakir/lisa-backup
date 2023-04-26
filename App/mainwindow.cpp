@@ -49,15 +49,13 @@ MainWindow::MainWindow(QWidget *parent)
     //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
     //qInfo() << "Config locations: " << configLocations;
 
-    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=false\ndefault.info=true"));
+    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
 
     qDebug() << "[debug]";
     qInfo() << "[info]";
     qWarning() << "[warning]";
     qCritical() << "[critical]";
 
-    ui->pushButtonEditFriendlyName->setIcon(QIcon::fromTheme("document-edit"));
-    //ui->toolButton_5->setIcon(QIcon::fromTheme("media-play"));
     ui->pushButtonSourceUp->setIcon(QIcon::fromTheme("up"));
     ui->pushButtonSourceDown->setIcon(QIcon::fromTheme("down"));
 
@@ -80,7 +78,6 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
     QObject::connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
-    QObject::connect(this, &MainWindow::friendlyNameEdited, this, &MainWindow::onFriendlyNameEdited);
     QObject::connect(ui->lineEditSystemdUnit, &QLineEdit::textChanged, this, &MainWindow::onSystemdUnitChanged);
     QObject::connect(this, &MainWindow::modelUpdated, this, &MainWindow::onModelUpdated);
 
@@ -255,10 +252,8 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
 
 void MainWindow::initUIControls(BackupModel& backupModel) {
     //*activeBackup = persisted.backupDetails;
-    this->setWindowTitle( Lb::windowTitle(backupModel.backupDetails.friendlyName) );
+    this->setWindowTitle( Lb::windowTitle(backupModel.backupDetails.tmp.taskId ));  //friendlyName) );
     //ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
-    ui->lineEditFriendlyName->setText(backupModel.backupDetails.friendlyName);
-    ui->labelFriendlyName->setText(backupModel.backupDetails.friendlyName);
     ui->lineEditSystemdUnit->setText(backupModel.backupDetails.systemdMountUnit);
     emit ui->lineEditSystemdUnit->textChanged(ui->lineEditSystemdUnit->text()); // updates Install/Update button state
     ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationBaseSuffixPath);
@@ -641,30 +636,6 @@ void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
             }
         }
     }
-}
-
-
-void MainWindow::on_pushButtonEditFriendlyName_toggled(bool checked)
-{
-    ui->stackedWidgetFriendlyName->setCurrentIndex(checked);
-    if(!checked) {
-        if ( activeBackup->backupDetails.friendlyName != ui->lineEditFriendlyName->text() ) {
-            activeBackup->backupDetails.friendlyName = ui->lineEditFriendlyName->text();
-            emit friendlyNameEdited();
-        }
-    }
-}
-
-void MainWindow::onFriendlyNameEdited() {
-    qInfo() << "friendlyNameEdited: " << activeBackup->backupDetails.friendlyName;
-    ui->labelFriendlyName->setText(activeBackup->backupDetails.friendlyName);
-    setWindowTitle(Lb::windowTitle(activeBackup->backupDetails.friendlyName));
-}
-
-void MainWindow::on_lineEditFriendlyName_returnPressed()
-{
-    qInfo() << "return pressed";
-    ui->pushButtonEditFriendlyName->setChecked(false);
 }
 
 

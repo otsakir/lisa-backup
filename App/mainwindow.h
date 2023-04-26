@@ -96,12 +96,6 @@ private slots:
 
     void newBackupTaskFromDialog(qint32 dialogMode);
 
-    void on_pushButtonEditFriendlyName_toggled(bool checked);
-
-    void on_lineEditFriendlyName_returnPressed();
-
-    void onFriendlyNameEdited(); // handler for custom signal 'friendlyNameEdited
-
     void on_radioButtonRsync_toggled(bool checked);
 
     void on_radioButtonGitBundle_toggled(bool checked);

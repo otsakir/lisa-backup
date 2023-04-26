@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>498</width>
-    <height>278</height>
+    <height>177</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,40 +63,6 @@
           <number>16</number>
          </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="font">
-            <font>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Name</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <property name="spacing">
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QLineEdit" name="lineEditName"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_3">
-             <property name="font">
-              <font>
-               <pointsize>8</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>A friendly name for the task</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="0">
           <widget class="QLabel" name="label_2">
            <property name="font">
             <font>
@@ -108,7 +74,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="0" column="1">
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <property name="spacing">
             <number>6</number>
@@ -238,13 +204,6 @@
        <property name="spacing">
         <number>11</number>
        </property>
-       <item>
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Existing tasks</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QTreeView" name="treeViewTasks">
          <property name="sizeAdjustPolicy">

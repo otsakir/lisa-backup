@@ -61,7 +61,7 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
 QString NewBackupTaskDialog::getSelectedTaskId()
 {
     QStandardItemModel* model = (QStandardItemModel*) ui->treeViewTasks->model();
-    QModelIndex index = ui->treeViewTasks->currentIndex().siblingAtColumn(1);
+    QModelIndex index = ui->treeViewTasks->currentIndex(); //.siblingAtColumn(1);
     if (index.isValid())
     {
         QString taskId = model->data(index).toString();
@@ -86,7 +86,7 @@ void NewBackupTaskDialog::on_wizardStepActivated(int index, int prevIndex) {
 
 void NewBackupTaskDialog::on_pushButtonCreate_clicked()
 {
-    result.name = ui->lineEditName->text();
+    //result.name = ui->lineEditName->text();
     result.id = ui->lineEditId->text();
     if (result.name.isEmpty())
         result.name = result.id;
@@ -147,8 +147,8 @@ void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
         QStandardItemModel* model = (QStandardItemModel*) ui->treeViewTasks->model(); // listViewTasks->model();
         BackupModel backupModel;
         model->clear();
-        model->setHorizontalHeaderItem(0, new QStandardItem("Name"));
-        model->setHorizontalHeaderItem(1, new QStandardItem("Id"));
+        //model->setHorizontalHeaderItem(0, new QStandardItem("Name"));
+        model->setHorizontalHeaderItem(0, new QStandardItem("Id"));
         for (int i = 0; i < entries.size(); i++) {
             //qInfo() << "entry " << entries.at(i);
             QString taskId = entries.at(i); // returns "{id}.task"
@@ -156,7 +156,7 @@ void NewBackupTaskDialog::on_stackedWidgetWizard_currentChanged(int stepIndex)
             taskId = taskId.replace(QRegularExpression("\\.task$"),"");
             if (Tasks::loadTask(taskId, backupModel)) {
                 QList<QStandardItem*> rowItems;
-                rowItems << new QStandardItem(backupModel.backupDetails.friendlyName) << new QStandardItem(taskId);
+                rowItems << /*new QStandardItem(backupModel.backupDetails.friendlyName) << */ new QStandardItem(taskId);
                 model->appendRow(rowItems);
             } else {
                 // TODO - log error
@@ -205,7 +205,7 @@ void NewBackupTaskDialog::on_pushButtonCancelFromCreate_clicked()
 void NewBackupTaskDialog::on_treeViewTasks_doubleClicked(const QModelIndex &index)
 {
     if (index.isValid()) {
-        QString taskId = ui->treeViewTasks->model()->data(index.siblingAtColumn(1)).toString();
+        QString taskId = ui->treeViewTasks->model()->data(index).toString(); //index.siblingAtColumn(1)).toString();
         //qInfo() << "selectedItem: " << taskId;
         this->result.id = taskId;
         this->accept();
@@ -216,7 +216,7 @@ void NewBackupTaskDialog::on_treeViewTasks_doubleClicked(const QModelIndex &inde
 void NewBackupTaskDialog::on_pushButtonDeleteTask_clicked()
 {
     QStandardItemModel* model = (QStandardItemModel*) ui->treeViewTasks->model();
-    QModelIndex index = ui->treeViewTasks->currentIndex().siblingAtColumn(1);
+    QModelIndex index = ui->treeViewTasks->currentIndex(); //).siblingAtColumn(1);
 
     QString taskId;
     if (!index.isValid())
