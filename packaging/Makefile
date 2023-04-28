@@ -1,7 +1,12 @@
 
 LBACKUP_VERSION := $(shell bash -c 'grep Version  lbackup/DEBIAN/control | sed -e "s/Version:\s*//" -e "s/\s+//"')
 
-all: 	scripts lbackup.deb doversion 
+default: debian installer
+
+.PHONY:	debian scripts installer
+
+
+debian:	scripts lbackup.deb doversion 
 
 lbackup/usr/bin/lbackup: ../build/App/App
 	mkdir -p lbackup/usr/bin
@@ -9,7 +14,7 @@ lbackup/usr/bin/lbackup: ../build/App/App
 
 scripts:
 	mkdir -p lbackup/usr/share/lbackup
-	cp -r ../scripts/* lbackup/usr/share/lbackup/
+	cp -r ../scripts/app/* lbackup/usr/share/lbackup/
 
 
 lbackup.deb: lbackup/usr/bin/lbackup lbackup/DEBIAN/control 
@@ -18,6 +23,18 @@ lbackup.deb: lbackup/usr/bin/lbackup lbackup/DEBIAN/control
 
 doversion: lbackup.deb
 	cp lbackup.deb lbackup_$(LBACKUP_VERSION)-1_amd64.deb
+
+installer:
+	rm -rf installer/lbackup
+	[ -d installer/lbackup/scripts ] || mkdir -p installer/lbackup/scripts
+	cp ../build/App/App installer/lbackup/lbackup
+	cp ../scripts/installer/*.sh installer/lbackup/
+	cp -r ../scripts/app/* installer/lbackup/scripts
+	cd installer && tar zcvf lbackup.tar.gz lbackup
+	mv installer/lbackup.tar.gz .
+	
+
+
 
 
 
