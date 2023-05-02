@@ -1,6 +1,7 @@
 
 #include "utils.h"
 #include "terminal.h"
+#include "conf.h"
 
 #include <QStandardPaths>
 #include <QDir>
@@ -27,6 +28,11 @@ QString appDir() {
     return "/usr/share/lbackup";
 }
 */
+
+
+QString appVersion() {
+    return LBACKUP_VERSION;
+}
 
 // usr/share/lbackup/
 QString appScriptsDir() {

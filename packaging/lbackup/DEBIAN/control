@@ -1,5 +1,5 @@
 Package: lbackup
-Version: 0.1.0
+Version: 0.2.0
 Architecture: amd64
 Depends: libc6 (>= 2.14), libgcc-s1 (>= 3.0), libqt5core5a (>= 5.12.2), libqt5gui5 (>= 5.1.0) | libqt5gui5-gles (>= 5.1.0), libqt5widgets5 (>= 5.11.0~rc1), libstdc++6 (>= 4.1.1), xterm
 Maintainer: Orestis Tsakiridis <otsakir@gmail.com>

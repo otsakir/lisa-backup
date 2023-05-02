@@ -20,7 +20,6 @@ scripts:
 lbackup.deb: lbackup/usr/bin/lbackup lbackup/DEBIAN/control 
 	dpkg-deb --build --root-owner-group lbackup
 
-
 doversion: lbackup.deb
 	cp lbackup.deb lbackup_$(LBACKUP_VERSION)-1_amd64.deb
 
@@ -30,8 +29,8 @@ installer:
 	cp ../build/App/App installer/lbackup/lbackup
 	cp ../scripts/installer/*.sh installer/lbackup/
 	cp -r ../scripts/app/* installer/lbackup/scripts
-	cd installer && tar zcvf lbackup.tar.gz lbackup
-	mv installer/lbackup.tar.gz .
+	cd installer && tar zcvf lbackup_$(LBACKUP_VERSION)_amd64.tar.gz lbackup
+	mv installer/lbackup_$(LBACKUP_VERSION)_amd64.tar.gz .
 	
 
 

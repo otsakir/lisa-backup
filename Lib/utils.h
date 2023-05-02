@@ -7,6 +7,7 @@
 
 namespace Lb {
 
+QString appVersion();
 QString appScriptsDir();    // application installation directory (typically /usr/share/lbackup). Contains install-systemd-hook.sh or bundle-git-repo.sh
 QString dataDirectory();    // for .task  files and respective backup scripts (.sh)
 QString configDirectory();

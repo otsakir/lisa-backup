@@ -19,6 +19,7 @@ SOURCES += \
     utils.cpp
 
 HEADERS += \
+    conf.h \
     core.h \
     logging.h \
     scripting.h \
