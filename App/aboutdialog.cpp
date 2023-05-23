@@ -8,7 +8,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->label_2->setText(QString("Version: %1").arg(LBACKUP_VERSION));
+    ui->labelVersion->setText(QString("Version: %1").arg(LBACKUP_VERSION));
 }
 
 AboutDialog::~AboutDialog()

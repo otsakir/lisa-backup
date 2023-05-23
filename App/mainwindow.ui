@@ -110,6 +110,9 @@
                 <property name="leftMargin">
                  <number>0</number>
                 </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
                 <item>
                  <widget class="QPushButton" name="pushButtonAdd">
                   <property name="text">
@@ -138,22 +141,28 @@
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButtonSourceUp">
+                 <widget class="QToolButton" name="toolButtonSourceUp">
                   <property name="toolTip">
                    <string>Change backup order for selected source</string>
                   </property>
                   <property name="text">
                    <string/>
+                  </property>
+                  <property name="arrowType">
+                   <enum>Qt::UpArrow</enum>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButtonSourceDown">
+                 <widget class="QToolButton" name="toolButtonSourceDown">
                   <property name="toolTip">
                    <string>Change backup order for selected source</string>
                   </property>
                   <property name="text">
                    <string/>
+                  </property>
+                  <property name="arrowType">
+                   <enum>Qt::DownArrow</enum>
                   </property>
                  </widget>
                 </item>
@@ -876,7 +885,8 @@
   </widget>
   <action name="actionAbout">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;About</string>

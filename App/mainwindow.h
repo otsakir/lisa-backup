@@ -104,15 +104,17 @@ private slots:
 
     void on_pushButtonAdd_clicked();
 
-    void on_pushButtonSourceDown_clicked();
-
-    void on_pushButtonSourceUp_clicked();
-
     void on_radioButtonAuto_toggled(bool checked);
 
     void on_lineEditContainsFilename_textEdited(const QString &arg1);
 
     void on_lineEditNameMatches_textEdited(const QString &arg1);
+
+    void on_toolButtonSourceUp_clicked();
+
+    void on_toolButtonSourceDown_clicked();
+
+    void on_actionE_xit_triggered();
 
 protected:
     virtual void closeEvent (QCloseEvent *event);

@@ -56,9 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
     qWarning() << "[warning]";
     qCritical() << "[critical]";
 
-    ui->pushButtonSourceUp->setIcon(QIcon::fromTheme("up"));
-    ui->pushButtonSourceDown->setIcon(QIcon::fromTheme("down"));
-
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
     ui->sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -758,34 +755,6 @@ void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, Backu
 }
 
 
-void MainWindow::on_pushButtonSourceDown_clicked()
-{
-    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
-    if (!selection.isEmpty()) {
-        QModelIndex i = selection.indexes().first();
-        qDebug() << "will move down " << i.data();
-        BackupModel::SourceDetailsIndex iSourceDetails = i.row();
-        if (iSourceDetails < ui->sourcesListView->model()->rowCount()-1) // is there any space above ?
-            swapSources(iSourceDetails, iSourceDetails+1);
-    }
-}
-
-
-void MainWindow::on_pushButtonSourceUp_clicked()
-{
-    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
-    if (!selection.isEmpty()) {
-        QModelIndex i = selection.indexes().first();
-        qDebug() << "will move up " << i.data();
-        BackupModel::SourceDetailsIndex iSourceDetails = i.row();
-        if (iSourceDetails > 0) // is there any space above ?
-            swapSources(iSourceDetails, iSourceDetails-1);
-    }
-}
-
-
-
-
 void MainWindow::on_lineEditContainsFilename_textEdited(const QString &newText)
 {
     SourceDetails* sourcep = getSelectedSourceDetails();
@@ -799,6 +768,38 @@ void MainWindow::on_lineEditNameMatches_textEdited(const QString &newText)
     SourceDetails* sourcep = getSelectedSourceDetails();
     if (sourcep)
         sourcep->nameMatches = newText;
+
+}
+
+
+void MainWindow::on_toolButtonSourceUp_clicked()
+{
+    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
+    if (!selection.isEmpty()) {
+        QModelIndex i = selection.indexes().first();
+        qDebug() << "will move up " << i.data();
+        BackupModel::SourceDetailsIndex iSourceDetails = i.row();
+        if (iSourceDetails > 0) // is there any space above ?
+            swapSources(iSourceDetails, iSourceDetails-1);
+    }
+}
+
+
+void MainWindow::on_toolButtonSourceDown_clicked()
+{
+    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
+    if (!selection.isEmpty()) {
+        QModelIndex i = selection.indexes().first();
+        qDebug() << "will move down " << i.data();
+        BackupModel::SourceDetailsIndex iSourceDetails = i.row();
+        if (iSourceDetails < ui->sourcesListView->model()->rowCount()-1) // is there any space above ?
+            swapSources(iSourceDetails, iSourceDetails+1);
+    }
+}
+
+
+void MainWindow::on_actionE_xit_triggered()
+{
 
 }
 

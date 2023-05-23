@@ -21,7 +21,10 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
 {
     ui->setupUi(this);
 
-    ui->pushButtonDeleteTask->setIcon(QIcon::fromTheme("trash-empty"));
+    ui->pushButtonBackFromOpen->setIcon(QIcon(":/custom-icons/chevron-left.svg"));
+    ui->pushButtonBackFromCreate->setIcon(QIcon(":/custom-icons/chevron-left.svg"));
+    ui->pushButtonDeleteTask->setIcon(QIcon(":/custom-icons/trash.svg"));
+    //ui->pushButtonOpen->setIcon(QIcon(":/custom-icons/chevron-right.svg"));
 
     QStandardItemModel* model = new QStandardItemModel(0,2,this);
     ui->treeViewTasks->setModel(model);
@@ -43,6 +46,8 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
     ui->pushButtonCancelFromOpen->setVisible(mode != Wizard);
     ui->pushButtonBackFromCreate->setVisible(mode == Wizard);
     ui->pushButtonBackFromOpen->setVisible(mode == Wizard);
+
+    ui->pushButtonOpen->setDisabled(true); // nothing selected
 
     if (mode == Wizard) {
         this->setWindowTitle("Backup task wizard");
@@ -73,6 +78,7 @@ QString NewBackupTaskDialog::getSelectedTaskId()
 
 void NewBackupTaskDialog::taskClicked(const QModelIndex& index) {
     ui->pushButtonDeleteTask->setDisabled( ! index.isValid());
+    ui->pushButtonOpen->setDisabled( ! index.isValid());
 }
 
 
