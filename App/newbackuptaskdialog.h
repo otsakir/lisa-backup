@@ -32,8 +32,6 @@ signals:
 
 private slots:
 
-    void taskClicked(const QModelIndex& index);
-
     void on_pushButtonCreate_clicked();
 
     void on_lineEditId_textChanged(const QString &arg1);
@@ -46,24 +44,21 @@ private slots:
 
     void on_pushButtonOpenStep_clicked();
 
-    // custom slots
     void on_wizardStepActivated(int index, int prevIndex);
 
-    void on_stackedWidgetWizard_currentChanged(int arg1);
-
-    void on_pushButtonOpen_clicked();
+    void on_OpenTask();
 
     void on_pushButtonCancelFromOpen_clicked();
 
     void on_pushButtonCancelFromCreate_clicked();
 
-    void on_treeViewTasks_doubleClicked(const QModelIndex &index);
-
-    void on_pushButtonDeleteTask_clicked();
+    void onCurrentTaskIs(QString taskName, const QModelIndex& modelIndex);
 
 private:
     Ui::NewBackupTaskDialog *ui;
     QString getSelectedTaskId();
+
+    QString selectedTask;
 };
 
 #endif // NEWBACKUPTASKDIALOG_H

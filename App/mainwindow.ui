@@ -868,9 +868,9 @@
      <string>&amp;Task</string>
     </property>
     <addaction name="action_New"/>
-    <addaction name="action_Open"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
+    <addaction name="action_Open"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -911,10 +911,10 @@
   </action>
   <action name="action_Open">
    <property name="text">
-    <string>&amp;Open</string>
+    <string>&amp;Manage tasks</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Ctrl+M</string>
    </property>
   </action>
   <action name="action_Save">
