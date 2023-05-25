@@ -103,6 +103,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBoxShowConfirmation">
+        <property name="text">
+         <string>Show confirmation </string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="checkBoxGenerateScripts">
         <property name="text">
          <string>Generate bash backup scripts</string>

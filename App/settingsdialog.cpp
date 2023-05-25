@@ -22,6 +22,11 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
         this->settings.setValue("GenerateBashScripts", value);
     });
 
+    ui->checkBoxShowConfirmation->setChecked(settings.value("ShowConfirmation").toInt());
+    connect(ui->checkBoxShowConfirmation, &QCheckBox::stateChanged, [this] (const int value){
+        this->settings.setValue("ShowConfirmation", value);
+    });
+
 
 }
 
