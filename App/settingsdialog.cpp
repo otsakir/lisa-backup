@@ -10,21 +10,19 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->comboBoxTaskRunner->setCurrentText(settings.value("TaskRunner").toString());
+    ui->comboBoxTaskRunner->setCurrentText(settings.value("taskrunner/TaskRunner").toString());
     connect(ui->comboBoxTaskRunner, &QComboBox::currentTextChanged, [this] (const QString& value) {
-        qDebug() << "combo: current text changed to " << value;
-        this->settings.setValue("TaskRunner", value);
+        this->settings.setValue("taskrunner/TaskRunner", value);
     });
 
-    ui->checkBoxGenerateScripts->setChecked(settings.value("GenerateBashScripts").toInt());
+    ui->checkBoxGenerateScripts->setChecked(settings.value("taskrunner/GenerateBashScripts").toInt());
     connect(ui->checkBoxGenerateScripts, &QCheckBox::stateChanged, [this] (const int value) {
-        qDebug() << "checkbox: setting state to " << value;
-        this->settings.setValue("GenerateBashScripts", value);
+        this->settings.setValue("taskrunner/GenerateBashScripts", value);
     });
 
-    ui->checkBoxShowConfirmation->setChecked(settings.value("ShowConfirmation").toInt());
+    ui->checkBoxShowConfirmation->setChecked(settings.value("taskrunner/ShowConfirmation").toInt());
     connect(ui->checkBoxShowConfirmation, &QCheckBox::stateChanged, [this] (const int value){
-        this->settings.setValue("ShowConfirmation", value);
+        this->settings.setValue("taskrunner/ShowConfirmation", value);
     });
 
 

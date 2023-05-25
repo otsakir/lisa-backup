@@ -305,7 +305,7 @@ void MainWindow::applyChanges() {
     Tasks::saveTask(taskId, persisted);
 
     // generate backup script file based on the model if applicable
-    if (settings.value("GenerateBashScripts").toInt() == 2) // i.e. checked
+    if (settings.value("taskrunner/GenerateBashScripts").toInt() == 2) // i.e. checked
         if (!Scripting::buildBackupScript(taskId, persisted) )
         {
             ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script for task '%1'</font>").arg(taskId));
@@ -683,7 +683,7 @@ void MainWindow::on_toolButtonRun_clicked()
 {
     QSettings settings;
 
-    QString taskRunner = settings.value("TaskRunner").toString();
+    QString taskRunner = settings.value("taskrunner/mode").toString();
     if (checkSave() != QMessageBox::Cancel) {
 
         if ( taskRunner == "internal")

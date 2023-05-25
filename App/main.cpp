@@ -23,12 +23,12 @@ int main(int argc, char *argv[])
     if ( ! settings.value("initialized", false).toBool())
     {
         qDebug() << "Blank settings found. They will get initialized.";
-        settings.setValue("TaskRunner", "internal" );
-        settings.setValue("GenerateBashScripts", 0);
-        settings.setValue("ShowConfirmation", 2); // i.e. true
+        settings.setValue("taskrunner/mode", "internal" );
+        settings.setValue("taskrunner/GenerateBashScripts", 0);
+        settings.setValue("taskrunner/ShowConfirmation", 2); // i.e. true
         settings.setValue("initialized",true);
-
     }
+    settings.setValue("ApplicationFilePath", QApplication::applicationFilePath());
 
     //parse command line
     QCommandLineParser parser;
@@ -37,18 +37,7 @@ int main(int argc, char *argv[])
 
     QCommandLineOption runOption(QStringList() << "r" << "run", "Run the specified task", "task name");
     parser.addOption(runOption);
-    QCommandLineOption confirmOption(QStringList() << "c" << "confirm", "Show confirmation dialog");
-    parser.addOption(confirmOption);
-
     parser.process(a);
-
-    if (parser.isSet(confirmOption) && !parser.isSet(runOption))
-    {
-        fputs(qPrintable("error: can't show confirmation in GUI mode. Maybe run with '-r' ?"), stderr);
-        fputs("\n\n", stderr);
-        fputs(qPrintable(parser.helpText()), stderr);
-        return 1;
-    }
 
     if (parser.isSet(runOption))    // "CLI" mode
     {
@@ -58,9 +47,9 @@ int main(int argc, char *argv[])
         BackupModel persisted;
         if (Tasks::loadTask(taskName,persisted)) {
 
-            if (settings.value("ShowConfirmation").toInt() == 2)
+            if (settings.value("taskrunner/ShowConfirmation").toInt() == 2)
             {
-                QMessageBox messageBox(QMessageBox::Warning, "Starting backup task", QString("Backup task '%1' will be run. Do you agree ?").arg(taskName), QMessageBox::Yes | QMessageBox::Cancel, nullptr,Qt::Dialog);
+                QMessageBox messageBox(QMessageBox::Information, "Lisa Backup", QString("Backup task '%1' triggered. Shall i proceed ?").arg(taskName), QMessageBox::Yes | QMessageBox::Cancel, nullptr,Qt::Dialog);
                 int ret = messageBox.exec();
                 if (ret == QMessageBox::Yes) {
                     QVector<QString> commands;
