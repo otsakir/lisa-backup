@@ -5,6 +5,7 @@
 #include <QCommandLineParser>
 #include <QObject>
 #include <QDebug>
+#include <QSettings>
 
 int main(int argc, char *argv[])
 {
@@ -35,6 +36,23 @@ int main(int argc, char *argv[])
         qDebug().noquote() << QString("running backup task '%1'...").arg(parser.value(runOption));
         exit(0);
     }
+
+    QApplication::setOrganizationName("otsakir");
+    QApplication::setApplicationName("Lisa Backup");
+
+    QSettings settings;
+
+    //settings.setValue("initialized", false);
+
+    if ( ! settings.value("initialized", false).toBool())
+    {
+        qDebug() << "Blank settings found. They will get initialized.";
+        settings.setValue("TaskRunner", "internal" );
+        settings.setValue("GenerateBashScripts", 0);
+        settings.setValue("initialized",true);
+
+    }
+
 
     // "GUI" mode
     QIcon::setThemeName("Papirus");

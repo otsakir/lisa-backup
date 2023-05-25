@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+#include "settingsdialog.h"
+#include "terminal.h"
 #include "ui_mainwindow.h"
 #include "systemdunitdialog.h"
 #include "newbackuptaskdialog.h"
@@ -292,22 +294,22 @@ void MainWindow::on_pushButtonSelectDevice_clicked()
 }
 
 void MainWindow::applyChanges() {
-    // 1. gather model data from UI and put in a big object
-    // 2. generate backup script file based on the model
-    // 3. store model to disk
+    QSettings settings;
 
+    // gather model data from UI and put in a big object
     BackupModel persisted;
     collectUIControls(persisted);
 
+    // store model to disk
     QString taskId = activeBackup->backupDetails.tmp.taskId;
-
     Tasks::saveTask(taskId, persisted);
 
-    if (!Scripting::buildBackupScript(taskId, persisted) )
-    {
-        //append(QString("<font color=red>%1</font>").arg(chr));
-        ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script for task '%1'</font>").arg(taskId));
-    }
+    // generate backup script file based on the model if applicable
+    if (settings.value("GenerateBashScripts").toInt() == 2) // i.e. checked
+        if (!Scripting::buildBackupScript(taskId, persisted) )
+        {
+            ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script for task '%1'</font>").arg(taskId));
+        }
 
     state.modelCopy = *activeBackup; // freshen model state
 }
@@ -382,12 +384,7 @@ void MainWindow::on_lineEditDestinationSuffixPath_textChanged(const QString &arg
 void MainWindow::on_lineEditDestinationSuffixPath_editingFinished()
 {
     QString path = activeBackup->backupDetails.destinationBasePath + "/" + activeBackup->backupDetails.destinationBaseSuffixPath;
-
     QFileInfo dirInfo(path);
-    //qInfo() << "exists: " << dirInfo.exists();
-    //qInfo() << "isDir: " << dirInfo.isDir();
-    //qInfo() << "is writable: " << dirInfo.isWritable();
-
     QString message;
     bool ok;
     if (dirInfo.isDir() && dirInfo.isWritable()) {
@@ -681,30 +678,36 @@ void MainWindow::on_actionAbout_triggered()
     }
 }
 
-void MainWindow::on_toolButtonRun_triggered(QAction *arg1)
-{
-    checkSave();
-    QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
-    consoleProcess.start("bash", {"-c", backupScriptFile});
-    if (!consoleProcess.waitForStarted(5000)) {
-        ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
-        return;
-    }
-
-    ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
-}
-
 
 void MainWindow::on_toolButtonRun_clicked()
 {
+    QSettings settings;
+
+    QString taskRunner = settings.value("TaskRunner").toString();
     if (checkSave() != QMessageBox::Cancel) {
-        QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
-        consoleProcess.start("bash", {"-c", backupScriptFile});
-        if (!consoleProcess.waitForStarted(5000)) {
-            ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
-            return;
+
+        if ( taskRunner == "internal")
+        {
+            QVector<QString> commands;
+            Scripting::buildBackupCommands(*activeBackup, commands);
+            qDebug() << commands;
+            for (QString& command: commands)
+            {
+                QString out = Terminal::runShellCommand(command);
+                qDebug() << out;
+                ui->plainTextConsole->appendHtml(out);
+            }
+        } else
+        if ( taskRunner == "script")
+        {
+            QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
+            consoleProcess.start("bash", {"-c", backupScriptFile});
+            if (!consoleProcess.waitForStarted(5000)) {
+                ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
+                return;
+            }
+            ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
         }
-        ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
     }
 }
 
@@ -798,8 +801,9 @@ void MainWindow::on_toolButtonSourceDown_clicked()
 }
 
 
-void MainWindow::on_actionE_xit_triggered()
+void MainWindow::on_actionSe_ttings_triggered()
 {
-
+    SettingsDialog dialog(this);
+    dialog.exec();
 }
 

@@ -15,6 +15,7 @@ SOURCES += \
     multipledirdialog.cpp \
     mylistview.cpp \
     newbackuptaskdialog.cpp \
+    settingsdialog.cpp \
     systemdunitdialog.cpp \
     treeviewtasks.cpp
 
@@ -24,6 +25,7 @@ HEADERS += \
     multipledirdialog.h \
     mylistview.h \
     newbackuptaskdialog.h \
+    settingsdialog.h \
     systemdunitdialog.h \
     treeviewtasks.h
 
@@ -32,6 +34,7 @@ FORMS += \
     mainwindow.ui \
     multipledirdialog.ui \
     newbackuptaskdialog.ui \
+    settingsdialog.ui \
     systemdunitdialog.ui
 
 

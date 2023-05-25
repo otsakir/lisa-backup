@@ -98,8 +98,6 @@ private slots:
 
     void on_actionAbout_triggered();
 
-    void on_toolButtonRun_triggered(QAction *arg1);
-
     void on_toolButtonRun_clicked();
 
     void on_pushButtonAdd_clicked();
@@ -114,7 +112,7 @@ private slots:
 
     void on_toolButtonSourceDown_clicked();
 
-    void on_actionE_xit_triggered();
+    void on_actionSe_ttings_triggered();
 
 protected:
     virtual void closeEvent (QCloseEvent *event);

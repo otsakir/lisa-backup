@@ -872,6 +872,8 @@
     <addaction name="separator"/>
     <addaction name="action_Open"/>
     <addaction name="separator"/>
+    <addaction name="actionSe_ttings"/>
+    <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -937,6 +939,11 @@
   <action name="actionE_xit">
    <property name="text">
     <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="actionSe_ttings">
+   <property name="text">
+    <string>Se&amp;ttings...</string>
    </property>
   </action>
  </widget>
