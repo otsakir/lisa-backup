@@ -34,144 +34,6 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <property name="spacing">
-       <number>6</number>
-      </property>
-      <item>
-       <widget class="QStackedWidget" name="stackedWidgetFriendlyName">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="currentIndex">
-         <number>1</number>
-        </property>
-        <widget class="QWidget" name="page_3">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_11">
-          <property name="spacing">
-           <number>6</number>
-          </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <item>
-             <widget class="QLabel" name="labelFriendlyName">
-              <property name="font">
-               <font>
-                <family>Sans Serif</family>
-                <pointsize>19</pointsize>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="page_4">
-         <layout class="QHBoxLayout" name="horizontalLayout_12">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="lineEditFriendlyName">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonEditFriendlyName">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="sizeIncrement">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>19</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -248,6 +110,9 @@
                 <property name="leftMargin">
                  <number>0</number>
                 </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
                 <item>
                  <widget class="QPushButton" name="pushButtonAdd">
                   <property name="text">
@@ -276,22 +141,28 @@
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButtonSourceUp">
+                 <widget class="QToolButton" name="toolButtonSourceUp">
                   <property name="toolTip">
                    <string>Change backup order for selected source</string>
                   </property>
                   <property name="text">
                    <string/>
+                  </property>
+                  <property name="arrowType">
+                   <enum>Qt::UpArrow</enum>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButtonSourceDown">
+                 <widget class="QToolButton" name="toolButtonSourceDown">
                   <property name="toolTip">
                    <string>Change backup order for selected source</string>
                   </property>
                   <property name="text">
                    <string/>
+                  </property>
+                  <property name="arrowType">
+                   <enum>Qt::DownArrow</enum>
                   </property>
                  </widget>
                 </item>
@@ -507,7 +378,7 @@
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_12">
                        <property name="topMargin">
-                        <number>24</number>
+                        <number>22</number>
                        </property>
                        <item>
                         <widget class="QLineEdit" name="lineEditContainsFilename"/>
@@ -530,7 +401,7 @@
                      <widget class="QWidget" name="page_2">
                       <layout class="QVBoxLayout" name="verticalLayout_13">
                        <property name="topMargin">
-                        <number>23</number>
+                        <number>22</number>
                        </property>
                        <item>
                         <widget class="QLineEdit" name="lineEditNameMatches"/>
@@ -997,9 +868,9 @@
      <string>&amp;Task</string>
     </property>
     <addaction name="action_New"/>
-    <addaction name="action_Open"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
+    <addaction name="action_Open"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -1009,10 +880,21 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionSe_ttings"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuSettings"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>&amp;About</string>
    </property>
@@ -1023,6 +905,10 @@
    </property>
   </action>
   <action name="action_New">
+   <property name="icon">
+    <iconset theme="document-new">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>&amp;New</string>
    </property>
@@ -1032,13 +918,17 @@
   </action>
   <action name="action_Open">
    <property name="text">
-    <string>&amp;Open</string>
+    <string>&amp;Manage tasks</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Ctrl+M</string>
    </property>
   </action>
   <action name="action_Save">
+   <property name="icon">
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
@@ -1054,6 +944,11 @@
   <action name="actionE_xit">
    <property name="text">
     <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="actionSe_ttings">
+   <property name="text">
+    <string>Se&amp;ttings...</string>
    </property>
   </action>
  </widget>

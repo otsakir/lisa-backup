@@ -9,6 +9,13 @@
 #include <logging.h>
 
 
+bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate);
+
+//// public implementation
+
+namespace Scripting
+{
+
 bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands) {
     for (int i=0; i < appstate.allSourceDetails.size(); i++) {
 
@@ -107,54 +114,6 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
     return true;
 }
 
-bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate) {
-
-    qInfo() << "[info] Generating " << outfilename << " backup script from " << scriptTemplate;
-
-    // open script template file
-    QFile f(scriptTemplate);
-    if ( ! f.open(QIODevice::ReadOnly | QIODevice::Text) ) {
-        qCritical("[error] script template file '%s' does not exist", qUtf8Printable(scriptTemplate) );
-        return false;
-    }
-
-    // read file content
-    QTextStream s(&f);
-    QString content = s.readAll();
-    f.close();
-
-    // search and replace placeholders with actual content
-    content.replace("$BACKUP_NAME", appstate.backupDetails.tmp.taskId);
-    content.replace("$DEST_PATH", appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath);
-    QVector<QString> commands;
-    buildBackupCommands(appstate, commands);
-    QString commandsString;
-    commandsString.reserve(100 * commands.size()); // assume an average of 100 bytes per command
-    for (int i=0; i<commands.size(); i++)
-        commandsString.append(commands.at(i)).append("\n");
-    content.replace("$BACKUP_COMMANDS", commandsString);
-
-    // create executable script
-    //QString outfilename = outputDirectory + "/backup-" + appstate.backupDetails.backupName + ".sh";
-    QFile outf(outfilename);
-    if (! outf.open(QIODevice::WriteOnly | QIODevice::Text))
-        return false;
-    QTextStream outs(&outf);
-    outs << content;
-
-    if (outs.status() != QTextStream::Ok) {
-        return false;
-    }
-
-    outf.setPermissions(QFile::ExeOwner | QFile::ReadOwner | QFile::WriteOwner);
-    return true;
-}
-
-//// public implementation
-
-namespace Scripting
-{
-
 bool buildBackupScript(QString taskId, const BackupModel& persisted)
 {
     QString scriptName = Lb::backupScriptFilePath(taskId);
@@ -182,3 +141,46 @@ bool removeBackupScript(QString taskId)
 
 
 } // Scripting namespace
+
+bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate) {
+
+    qInfo() << "[info] Generating " << outfilename << " backup script from " << scriptTemplate;
+
+    // open script template file
+    QFile f(scriptTemplate);
+    if ( ! f.open(QIODevice::ReadOnly | QIODevice::Text) ) {
+        qCritical("[error] script template file '%s' does not exist", qUtf8Printable(scriptTemplate) );
+        return false;
+    }
+
+    // read file content
+    QTextStream s(&f);
+    QString content = s.readAll();
+    f.close();
+
+    // search and replace placeholders with actual content
+    content.replace("$BACKUP_NAME", appstate.backupDetails.tmp.taskId);
+    content.replace("$DEST_PATH", appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath);
+    QVector<QString> commands;
+    Scripting::buildBackupCommands(appstate, commands);
+    QString commandsString;
+    commandsString.reserve(100 * commands.size()); // assume an average of 100 bytes per command
+    for (int i=0; i<commands.size(); i++)
+        commandsString.append(commands.at(i)).append("\n");
+    content.replace("$BACKUP_COMMANDS", commandsString);
+
+    // create executable script
+    //QString outfilename = outputDirectory + "/backup-" + appstate.backupDetails.backupName + ".sh";
+    QFile outf(outfilename);
+    if (! outf.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+    QTextStream outs(&outf);
+    outs << content;
+
+    if (outs.status() != QTextStream::Ok) {
+        return false;
+    }
+
+    outf.setPermissions(QFile::ExeOwner | QFile::ReadOwner | QFile::WriteOwner);
+    return true;
+}

@@ -4,10 +4,12 @@ Requires=$SYSTEMD_UNIT
 After=$SYSTEMD_UNIT
 
 [Service]
-ExecStart="$SCRIPT_PATH"
+Environment=DISPLAY=:0
+ExecStart=$SCRIPT_PATH
 User=$USER
 Group=$GROUP
 
 [Install]
 WantedBy=$SYSTEMD_UNIT
+
 

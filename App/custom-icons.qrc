@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>custom-icons/chevron-left.svg</file>
+        <file>custom-icons/trash.svg</file>
+        <file>custom-icons/file-plus.svg</file>
+        <file>custom-icons/chevron-right.svg</file>
+    </qresource>
+</RCC>

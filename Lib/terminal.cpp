@@ -17,12 +17,6 @@ void startProcess(QProcess& process, const QString& program, const QStringList& 
 void runScriptInWindow(QString scriptPath)
 {
     QProcess process;
-    //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
-
-    //QString backupName = "backup1.sh";
-    //QString backupScriptPath = Lb::backupScriptFilePath(backup.backupName);
-
-    //process.startDetached("xterm", {"-e", scriptPath});
     startProcess(process, "xterm", {"-e", scriptPath});
     process.waitForFinished(-1);
 }

@@ -15,7 +15,9 @@ SOURCES += \
     multipledirdialog.cpp \
     mylistview.cpp \
     newbackuptaskdialog.cpp \
-    systemdunitdialog.cpp
+    settingsdialog.cpp \
+    systemdunitdialog.cpp \
+    treeviewtasks.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -23,13 +25,16 @@ HEADERS += \
     multipledirdialog.h \
     mylistview.h \
     newbackuptaskdialog.h \
-    systemdunitdialog.h
+    settingsdialog.h \
+    systemdunitdialog.h \
+    treeviewtasks.h
 
 FORMS += \
     aboutdialog.ui \
     mainwindow.ui \
     multipledirdialog.ui \
     newbackuptaskdialog.ui \
+    settingsdialog.ui \
     systemdunitdialog.ui
 
 
@@ -41,6 +46,7 @@ DEPENDPATH += $$PWD/../Lib
 unix:!macx: PRE_TARGETDEPS += $$OUT_PWD/../Lib/libLib.a
 
 RESOURCES += \
+    custom-icons.qrc \
     fontawesome.qrc
 
 DISTFILES += \

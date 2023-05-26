@@ -60,10 +60,6 @@ private slots:
 
     void on_radioButtonSelective_toggled(bool checked);
 
-    void on_lineEditContainsFilename_editingFinished();
-
-    void on_lineEditNameMatches_editingFinished();
-
     void updatePredicateTypeIndex(int index);
 
     void on_lineEditSystemdUnit_textChanged(const QString &arg1);
@@ -96,29 +92,27 @@ private slots:
 
     void newBackupTaskFromDialog(qint32 dialogMode);
 
-    void on_pushButtonEditFriendlyName_toggled(bool checked);
-
-    void on_lineEditFriendlyName_returnPressed();
-
-    void onFriendlyNameEdited(); // handler for custom signal 'friendlyNameEdited
-
     void on_radioButtonRsync_toggled(bool checked);
 
     void on_radioButtonGitBundle_toggled(bool checked);
 
     void on_actionAbout_triggered();
 
-    void on_toolButtonRun_triggered(QAction *arg1);
-
     void on_toolButtonRun_clicked();
 
     void on_pushButtonAdd_clicked();
 
-    void on_pushButtonSourceDown_clicked();
-
-    void on_pushButtonSourceUp_clicked();
-
     void on_radioButtonAuto_toggled(bool checked);
+
+    void on_lineEditContainsFilename_textEdited(const QString &arg1);
+
+    void on_lineEditNameMatches_textEdited(const QString &arg1);
+
+    void on_toolButtonSourceUp_clicked();
+
+    void on_toolButtonSourceDown_clicked();
+
+    void on_actionSe_ttings_triggered();
 
 protected:
     virtual void closeEvent (QCloseEvent *event);

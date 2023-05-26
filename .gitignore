@@ -3,4 +3,6 @@ build
 /Makefile
 **/*.pro.user*
 build-*
+**/*.o
+**/*.a
 
