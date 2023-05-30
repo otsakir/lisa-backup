@@ -9,6 +9,7 @@
 #include "task.h"
 #include "terminal.h"
 #include "scripting.h"
+#include "settings.h"
 #include <QMessageBox>
 
 int main(int argc, char *argv[])
@@ -23,10 +24,11 @@ int main(int argc, char *argv[])
     if ( ! settings.value("initialized", false).toBool())
     {
         qDebug() << "Blank settings found. They will get initialized.";
-        settings.setValue("taskrunner/mode", "internal" );
+        settings.setValue(Settings::TaskrunnerKey, static_cast<int>(Settings::Taskrunner::Gui));
         settings.setValue("taskrunner/GenerateBashScripts", 0);
         settings.setValue("taskrunner/ShowConfirmation", 2); // i.e. true
         settings.setValue("initialized",true);
+        settings.setValue(Settings::LoglevelKey, static_cast<int>(Settings::Loglevel::Errors));
     }
     settings.setValue("ApplicationFilePath", QApplication::applicationFilePath());
 

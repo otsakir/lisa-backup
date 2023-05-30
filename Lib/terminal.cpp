@@ -28,11 +28,12 @@ QString runShellCommand(QString commandString)
     //process.start("bash", {"-c", "systemctl list-units --type=mount | grep mounted > a"});
 
     //process.start("bash", {"-c", commandString});
+    process.setProcessChannelMode(QProcess::MergedChannels);
     startProcess(process, "bash", {"-c", commandString});
 
     process.waitForFinished(-1);
 
-    QString out = process.readAllStandardOutput();
+    QString out = process.readAll();
     return out;
 }
 

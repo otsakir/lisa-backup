@@ -9,6 +9,7 @@
 #include "scripting.h"
 #include "task.h"
 #include "multipledirdialog.h"
+#include "settings.h"
 
 #include <core.h>
 
@@ -678,27 +679,42 @@ void MainWindow::on_actionAbout_triggered()
     }
 }
 
-
 void MainWindow::on_toolButtonRun_clicked()
 {
     QSettings settings;
 
-    QString taskRunner = settings.value("taskrunner/mode").toString();
+    Settings::Taskrunner taskRunner = GET_INT_SETTING(Settings::Taskrunner);
     if (checkSave() != QMessageBox::Cancel) {
 
-        if ( taskRunner == "internal")
+        if ( taskRunner == Settings::Taskrunner::Gui)
         {
             QVector<QString> commands;
             Scripting::buildBackupCommands(*activeBackup, commands);
             qDebug() << commands;
+            ui->plainTextConsole->appendHtml("<strong>----- Started backup task at " + QDateTime::currentDateTime().toString() + " -----</strong>");
             for (QString& command: commands)
             {
-                QString out = Terminal::runShellCommand(command);
-                qDebug() << out;
+                QProcess process;
+                QString out;
+                //Settings::Loglevel loglevel = static_cast<Settings::Loglevel>(settings.value(Settings::LoglevelKey).toInt());
+                Settings::Loglevel loglevel = GET_INT_SETTING(Settings::Loglevel);
+                if (loglevel == Settings::Loglevel::All)
+                {
+                    process.setProcessChannelMode(QProcess::MergedChannels);
+                    process.start("bash", {"-c", command});
+                    process.waitForFinished(-1);
+                    out = process.readAll();
+                } else
+                if (loglevel == Settings::Loglevel::Errors)
+                {
+                    process.start("bash", {"-c", command});
+                    process.waitForFinished(-1);
+                    out = process.readAllStandardError(); // Terminal::runShellCommand(command);
+                }
                 ui->plainTextConsole->appendHtml(out);
             }
         } else
-        if ( taskRunner == "script")
+        if ( taskRunner == Settings::Taskrunner::Script)
         {
             QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
             consoleProcess.start("bash", {"-c", backupScriptFile});
