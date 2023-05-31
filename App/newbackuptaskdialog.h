@@ -1,6 +1,8 @@
 #ifndef NEWBACKUPTASKDIALOG_H
 #define NEWBACKUPTASKDIALOG_H
 
+#include "treeviewtasks.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -36,19 +38,13 @@ private slots:
 
     void on_lineEditId_textChanged(const QString &arg1);
 
-    void on_pushButtonBackFromOpen_clicked();
-
     void on_pushButtonBackFromCreate_clicked();
 
     void on_pushButtonCreateStep_clicked();
 
-    void on_pushButtonOpenStep_clicked();
-
     void on_wizardStepActivated(int index, int prevIndex);
 
     void on_OpenTask();
-
-    void on_pushButtonCancelFromOpen_clicked();
 
     void on_pushButtonCancelFromCreate_clicked();
 
@@ -59,6 +55,7 @@ private:
     QString getSelectedTaskId();
 
     QString selectedTask;
+    TreeViewTasks* tasks = nullptr;
 };
 
 #endif // NEWBACKUPTASKDIALOG_H

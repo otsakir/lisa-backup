@@ -33,13 +33,19 @@
     </sizepolicy>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_16">
+    <property name="topMargin">
+     <number>0</number>
+    </property>
     <item>
-     <widget class="QStackedWidget" name="stackedWidget">
+     <widget class="QStackedWidget" name="stackedMain">
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <widget class="QWidget" name="page_5">
+      <widget class="QWidget" name="pageAll">
        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QSplitter" name="splitter">
           <property name="orientation">
@@ -861,7 +867,20 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_6"/>
+      <widget class="QWidget" name="pageNothing">
+       <layout class="QVBoxLayout" name="verticalLayout_17">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>No task selected. Check the 'Task' menu for more...</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

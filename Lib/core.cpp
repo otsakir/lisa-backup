@@ -84,15 +84,3 @@ QDataStream& operator >> (QDataStream& s, BackupModel& pmodel) {
     s >> pmodel.allSourceDetails;
     return s;
 }
-
-QDataStream& operator << (QDataStream& s, const Session& o) {
-    s << o.defaultBrowseBackupDirectory;
-    s << o.recentBackupNames;
-    return s;
-}
-
-QDataStream& operator >> (QDataStream& s, Session& o) {
-    s >> o.defaultBrowseBackupDirectory;
-    s >> o.recentBackupNames;
-    return s;
-}

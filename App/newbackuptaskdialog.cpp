@@ -22,17 +22,12 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
 {
     ui->setupUi(this);
 
-    ui->pushButtonBackFromOpen->setIcon(QIcon(":/custom-icons/chevron-left.svg"));
     ui->pushButtonBackFromCreate->setIcon(QIcon(":/custom-icons/chevron-left.svg"));
-    ui->pushButtonDeleteTask->setIcon(QIcon(":/custom-icons/trash.svg"));
-
-    TreeViewTasks* tasks = new TreeViewTasks(this);
+    ui->pushButtonDeleteInPageOpen->setIcon(QIcon(":/custom-icons/trash.svg"));
 
     QObject::connect(this, &NewBackupTaskDialog::wizardStepActivated, this, &NewBackupTaskDialog::on_wizardStepActivated);
-    connect(tasks, &TreeViewTasks::currentTaskIs, this, &NewBackupTaskDialog::onCurrentTaskIs);
-    connect(ui->pushButtonDeleteTask, &QPushButton::clicked, tasks, &TreeViewTasks::removeCurrent);
-    connect(tasks, &TreeViewTasks::doubleClicked,this, &NewBackupTaskDialog::on_OpenTask);
     connect(ui->pushButtonOpen, &QPushButton::clicked, this, &NewBackupTaskDialog::on_OpenTask);
+    connect(ui->pushButtonOpenInPageOpen, &QPushButton::clicked, this, &NewBackupTaskDialog::on_OpenTask);
 
     mode = pMode;
 
@@ -44,26 +39,51 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
 
     // assume all buttons enabled
     ui->pushButtonCancelFromCreate->setVisible(mode != Wizard);
-    ui->pushButtonCancelFromOpen->setVisible(mode != Wizard);
     ui->pushButtonBackFromCreate->setVisible(mode == Wizard);
-    ui->pushButtonBackFromOpen->setVisible(mode == Wizard);
 
     ui->pushButtonOpen->setDisabled(true); // nothing selected
 
+    emit ui->lineEditId->textChanged(ui->lineEditId->text()); // initialize state
+    emit ui->stackedWidgetWizard->currentChanged(mode);
+
+
+    if (mode == Wizard || mode == OpenOnly)
+    {
+        tasks = new TreeViewTasks(this);
+        connect(tasks, &TreeViewTasks::currentTaskIs, this, &NewBackupTaskDialog::onCurrentTaskIs);
+        connect(tasks, &TreeViewTasks::doubleClicked,this, &NewBackupTaskDialog::on_OpenTask);
+        connect(ui->pushButtonDeleteInPageOpen, &QPushButton::clicked, tasks, &TreeViewTasks::removeCurrent);
+
+    }
+
     if (mode == Wizard) {
-        this->setWindowTitle("Backup task wizard");
+        this->setWindowTitle("Welcome to Lisa Backup!");
+        static_cast<QHBoxLayout*>(ui->verticalLayoutExistingTasks->layout())->insertWidget(1, tasks);
+        // disable "re-open task"-specific controls if there are not old tasks
+        if (tasks->taskCount() <= 0)
+        {
+            for (int i=0; i < ui->verticalLayoutExistingTasks->count(); i++)
+            {
+                QWidget* childWidget = ui->verticalLayoutExistingTasks->itemAt(i)->widget();
+                if (childWidget != nullptr)
+                    childWidget->setEnabled(false);
+
+            }
+        }
     } else if (mode == OpenOnly) {
-        this->setWindowTitle("Open task");
+        this->setWindowTitle("Manage backup tasks");
+        ui->pushButtonDeleteInPageOpen->setEnabled(tasks->taskCount() > 0);
+        ui->pushButtonOpenInPageOpen->setEnabled(tasks->taskCount() > 0);
+        static_cast<QHBoxLayout*>(ui->page3Open->layout())->insertWidget(1, tasks);
     } else if (mode == CreateOnly) {
         this->setWindowTitle("Start new task");
     } else {
         this->setWindowTitle("Hmmm...");
     }
 
-    emit ui->lineEditId->textChanged(ui->lineEditId->text()); // initialize state
-    emit ui->stackedWidgetWizard->currentChanged(mode);
 
-    static_cast<QHBoxLayout*>(ui->page3Open->layout())->insertWidget(0, tasks);
+
+
 }
 
 NewBackupTaskDialog::~NewBackupTaskDialog()
@@ -96,11 +116,6 @@ void NewBackupTaskDialog::on_lineEditId_textChanged(const QString &arg1)
     ui->pushButtonCreate->setEnabled(arg1.length() >= 2); // have at least two chars
 }
 
-void NewBackupTaskDialog::on_pushButtonBackFromOpen_clicked()
-{
-    ui->stackedWidgetWizard->setCurrentIndex(0);
-}
-
 
 void NewBackupTaskDialog::on_pushButtonBackFromCreate_clicked()
 {
@@ -114,23 +129,11 @@ void NewBackupTaskDialog::on_pushButtonCreateStep_clicked()
 }
 
 
-void NewBackupTaskDialog::on_pushButtonOpenStep_clicked()
-{
-    ui->stackedWidgetWizard->setCurrentIndex(2);
-}
-
-
 void NewBackupTaskDialog::on_OpenTask()
 {
     assert(!selectedTask.isEmpty());
     this->result.id = selectedTask;
     this->accept();
-}
-
-
-void NewBackupTaskDialog::on_pushButtonCancelFromOpen_clicked()
-{
-    this->reject();
 }
 
 
@@ -145,7 +148,7 @@ void NewBackupTaskDialog::onCurrentTaskIs(QString taskName, const QModelIndex& m
 {
     bool valid = modelIndex.isValid();
     ui->pushButtonOpen->setEnabled(valid);
-    ui->pushButtonDeleteTask->setEnabled(valid);
+    ui->pushButtonDeleteInPageOpen->setEnabled(valid);
     selectedTask = taskName;
 }
 

@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QString taskName, QWidget *parent = nullptr);
     ~MainWindow();
 
 signals:
@@ -123,11 +123,12 @@ private:
     QStandardItemModel* sourcesModel;
     QDataWidgetMapper* sourcesDataMapper;
     BackupModel* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
-    Session session;
     State state; // generic application state. Not part of a backup.
+    QString taskName;
+    bool newBackupTaskDialogShown = false;
     QProcess consoleProcess;
 
-    void openTask(QString taskId);
+    bool openTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);
     QStandardItem* appendSource(BackupModel::SourceDetailsIndex sourceDetails);
     void collectUIControls(BackupModel& persisted);
@@ -143,5 +144,11 @@ private:
     void consoleProcessStarted();
     void consoleProcessDataAvail();
     void consoleProcessFinished(int exitCode);
+
+    virtual void showEvent(QShowEvent* event) override;
+
+
+private slots:
+    void afterWindowShown();
 };
 #endif // MAINWINDOW_H

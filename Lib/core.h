@@ -177,16 +177,6 @@ public:
 };
 
 
-// application state that deserves to be saved to disk to ease user experience. But he/she cn also do without it.
-class Session {
-public:
-    QString defaultBrowseBackupDirectory; // that's the starting location when browsing fs for the directory to backup
-    QVector<QString> recentBackupNames;
-
-    friend QDataStream& operator << (QDataStream& s, const Session& o);
-    friend QDataStream& operator >> (QDataStream& s, Session& o);
-};
-
 // application operation state. Things that we don't want to load and check again and again
 class State {
 public:

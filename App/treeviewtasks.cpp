@@ -50,6 +50,11 @@ TreeViewTasks::TreeViewTasks(QWidget* parent) : QTreeView(parent)
     }
 }
 
+int TreeViewTasks::taskCount()
+{
+    return model()->rowCount();
+}
+
 void TreeViewTasks::removeCurrent()
 {
     QModelIndex current = currentIndex();

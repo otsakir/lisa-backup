@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QSettings>
+#include <QDesktopWidget>
 #include "task.h"
 #include "terminal.h"
 #include "scripting.h"
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QApplication::setOrganizationName("otsakir");
     QApplication::setApplicationName("Lisa Backup");
+
 
     QSettings settings;
     //settings.setValue("initialized", false);  // remove settings file and uncomment this to start afresh
@@ -36,14 +38,19 @@ int main(int argc, char *argv[])
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
-
-    QCommandLineOption runOption(QStringList() << "r" << "run", "Run the specified task", "task name");
+    QCommandLineOption runOption(QStringList() << "r" << "run", "Run the specified task");
     parser.addOption(runOption);
+    QCommandLineOption taskOption(QStringList() << "t" << "task", "Choose a task", "task name");
+    parser.addOption(taskOption);
+
     parser.process(a);
 
-    if (parser.isSet(runOption))    // "CLI" mode
+    QString taskName;
+    if (parser.isSet(taskOption))
+        taskName = parser.value(taskOption);
+
+    if (parser.isSet(runOption) && parser.isSet(taskOption))    // "CLI" mode
     {
-        QString taskName = parser.value(runOption);
         qDebug().noquote() << QString("running backup task '%1'...").arg(taskName);
 
         BackupModel persisted;
@@ -73,8 +80,13 @@ int main(int argc, char *argv[])
 
     // "GUI" mode
     QIcon::setThemeName("Papirus");
-    MainWindow w;
-    w.show();
+    MainWindow w(taskName);
 
+    // center within desktop
+    QDesktopWidget *desktop = QApplication::desktop();
+    QPoint windowOrigin((desktop->width()-w.width())/2, (desktop->height()-w.height())/2);
+    w.move(windowOrigin);
+
+    w.show();
     return a.exec();
 }

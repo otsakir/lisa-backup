@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "settingsdialog.h"
-#include "terminal.h"
 #include "ui_mainwindow.h"
 #include "systemdunitdialog.h"
 #include "newbackuptaskdialog.h"
@@ -37,7 +36,7 @@
 
 //Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QString taskName, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , sourcesDataMapper(new QDataWidgetMapper(this))
@@ -59,70 +58,43 @@ MainWindow::MainWindow(QWidget *parent)
     qWarning() << "[warning]";
     qCritical() << "[critical]";
 
+    // set up models for sources listview
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
     ui->sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    sourcesDataMapper->setModel(sourcesModel);
+    QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
+    // setup logging target
     Logging::setUiConsole(ui->plainTextConsole);
 
-    sourcesDataMapper->setModel(sourcesModel);
-
-    QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
     QObject::connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
     QObject::connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
-
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
     QObject::connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex); // updates internal model
-
     QObject::connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
     QObject::connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
     QObject::connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
     QObject::connect(ui->lineEditSystemdUnit, &QLineEdit::textChanged, this, &MainWindow::onSystemdUnitChanged);
     QObject::connect(this, &MainWindow::modelUpdated, this, &MainWindow::onModelUpdated);
-
     // 'PleaseQuit' signal bound to application quit
     QObject::connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
     // 'Exit' action bount to 'PleaseQuit' signal
     QObject::connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     // consoleProcess events
-    //QObject::connect(&consoleProcess, &QProcess::started, this, &MainWindow::consoleProcessStarted );
-    //QObject::connect(&consoleProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::consoleProcessDataAvail);
     QObject::connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
-
-    //QObject::connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
     QObject::connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
-
     QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
 
     ui->lineEditSystemdUnit->setVisible(false);
     ui->pushButtonSelectDevice->setVisible(false);
 
-    session.defaultBrowseBackupDirectory = Lb::homeDirectory();
-
     Lb::setupDirs();
     activeBackup = new BackupModel();
 
-    session.recentBackupNames.append("music2"); // manually initialize it for now. Later it will be loaded from file upon startup.
-
-    // determine backup task to load
-    QString taskId;
-    // Try to load from command parameters
-    // TODO
-    // otherwise...
-    // show newtask dialog, retrieve name, create task file and show
-    NewBackupTaskDialog dialog(this, NewBackupTaskDialog::Wizard);
-    if ( dialog.exec() == QDialog::Accepted) {
-        qDebug() << "[debug] dialog returned: " << dialog.result.id;
-        taskId = dialog.result.id;
-    } else {
-        emit PleaseQuit();
-    }
-
-    // ok, we have a valid task id. Let's load it...
-    openTask(taskId);
-
-    //ui->statusbar->showMessage("Ready");
+    if (!taskName.isEmpty())
+        openTask(taskName);
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
@@ -135,19 +107,26 @@ void MainWindow::closeEvent (QCloseEvent *event)
     }
 }
 
-void MainWindow::openTask(QString taskId) {
-    // ok, we have a valid task id. Let's load it...
-    BackupModel persisted;
-    if (Tasks::loadTask(taskId,persisted)) {
-        *activeBackup = persisted;
-        activeBackup->backupDetails.tmp.taskId = taskId;
-        initUIControls(*activeBackup);
-        state.modelCopy = *activeBackup;
-    } else {
-        qCritical() << "[critical] error loading task " << taskId;
-        //ui->statusbar->showMessage(QString("Error opening '%1' task").arg(taskId));
-        // TODO show wizard again or exit program?
+
+bool MainWindow::openTask(QString taskId) {
+    if (!taskId.isEmpty())
+    {
+        BackupModel persisted;
+        if (Tasks::loadTask(taskId,persisted)) {
+            *activeBackup = persisted;
+            activeBackup->backupDetails.tmp.taskId = taskId;
+            initUIControls(*activeBackup);
+            state.modelCopy = *activeBackup;
+            this->taskName = taskId;
+            ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageAll));
+            return true;
+        } else {
+            qCritical() << "[critical] error loading task " << taskId;
+        }
     }
+
+    this->taskName.clear();
+    ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageNothing));
 }
 
 
@@ -821,5 +800,24 @@ void MainWindow::on_actionSe_ttings_triggered()
 {
     SettingsDialog dialog(this);
     dialog.exec();
+}
+
+void MainWindow::showEvent(QShowEvent* event)
+{
+    QMainWindow::showEvent(event);
+    QMetaObject::invokeMethod(this, "afterWindowShown", Qt::ConnectionType::QueuedConnection);
+}
+
+void MainWindow::afterWindowShown()
+{
+    if (taskName.isEmpty() && !newBackupTaskDialogShown)
+    {
+        newBackupTaskDialogShown = true;
+        // show newtask dialog, retrieve name, create task file and show
+        NewBackupTaskDialog dialog(this, NewBackupTaskDialog::Wizard);
+        if ( dialog.exec() == QDialog::Accepted) {
+            openTask(dialog.result.id);
+        }
+    }
 }
 
