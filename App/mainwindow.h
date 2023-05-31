@@ -98,7 +98,7 @@ private slots:
 
     void on_actionAbout_triggered();
 
-    void on_toolButtonRun_clicked();
+    void runActiveTask();
 
     void on_pushButtonAdd_clicked();
 

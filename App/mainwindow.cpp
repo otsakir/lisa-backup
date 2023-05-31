@@ -43,20 +43,18 @@ MainWindow::MainWindow(QString taskName, QWidget *parent)
 {
     ui->setupUi(this);
 
-    qInfo() << "Starting Lisa Backup v.xyz...";
-    qInfo() << "Tasks in " << Lb::dataDirectory();
-    qInfo() << "Task scripts in " << Lb::scriptsDirectory();
-    qInfo() << "Application scripts in " << Lb::appScriptsDir();
+    qDebug() << "Tasks in " << Lb::dataDirectory();
+    qDebug() << "Task scripts in " << Lb::scriptsDirectory();
+    qDebug() << "Application scripts in " << Lb::appScriptsDir();
 
     //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
     //qInfo() << "Config locations: " << configLocations;
 
-    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
 
-    qDebug() << "[debug]";
-    qInfo() << "[info]";
-    qWarning() << "[warning]";
-    qCritical() << "[critical]";
+//    qDebug() << "[debug]";
+//    qInfo() << "[info]";
+//    qWarning() << "[warning]";
+//    qCritical() << "[critical]";
 
     // set up models for sources listview
     sourcesModel = new QStandardItemModel(0,2, this);
@@ -86,6 +84,7 @@ MainWindow::MainWindow(QString taskName, QWidget *parent)
     QObject::connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
     QObject::connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
     QObject::connect(ui->pushButtonUpdateTrigger, &QPushButton::clicked, this, &MainWindow::on_pushButtonInstallTrigger_clicked);
+    QObject::connect(ui->toolButtonRun, &QPushButton::clicked, this, &MainWindow::runActiveTask);
 
     ui->lineEditSystemdUnit->setVisible(false);
     ui->pushButtonSelectDevice->setVisible(false);
@@ -99,7 +98,6 @@ MainWindow::MainWindow(QString taskName, QWidget *parent)
 
 void MainWindow::closeEvent (QCloseEvent *event)
 {
-    qInfo() << "closeEvent()";
     if (checkSave() == QMessageBox::Cancel) {
         event->ignore();
     } else {
@@ -658,7 +656,7 @@ void MainWindow::on_actionAbout_triggered()
     }
 }
 
-void MainWindow::on_toolButtonRun_clicked()
+void MainWindow::runActiveTask()
 {
     QSettings settings;
 

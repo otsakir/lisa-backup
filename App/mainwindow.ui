@@ -39,7 +39,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pageAll">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -845,7 +845,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QToolButton" name="toolButtonRun_3">
+           <widget class="QToolButton" name="toolButtonRun">
             <property name="minimumSize">
              <size>
               <width>115</width>
