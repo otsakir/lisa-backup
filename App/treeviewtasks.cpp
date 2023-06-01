@@ -81,22 +81,14 @@ void TreeViewTasks::removeCurrent()
                 return;
             }
         }
-        // The hook was either removed or was chosen not to be removed. Moving on with the rest of the removal steps.
-        if (! Scripting::removeBackupScript(taskId))
-        {
-            qWarning() << "[warning] couldn't remove backup script for task '" << taskId << "'. I'll move on.";
-        }
         // finally, remove the task itself
         Tasks::deleteTask(taskId); // TODO - error handling ? where ?
         // and the entry from the table/tree
         model()->removeRow(current.row());
         if (model()->rowCount() == 0)
             emit currentTaskIs(QString(), QModelIndex());
-
     } else
         return;
-
-
 }
 
 void TreeViewTasks::showEvent(QShowEvent *event)

@@ -23,6 +23,7 @@ HEADERS += \
     core.h \
     logging.h \
     scripting.h \
+    settings.h \
     systemd.h \
     task.h \
     terminal.h \

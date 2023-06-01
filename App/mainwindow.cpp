@@ -44,7 +44,6 @@ MainWindow::MainWindow(QString taskName, QWidget *parent)
     ui->setupUi(this);
 
     qDebug() << "Tasks in " << Lb::dataDirectory();
-    qDebug() << "Task scripts in " << Lb::scriptsDirectory();
     qDebug() << "Application scripts in " << Lb::appScriptsDir();
 
     //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
@@ -281,13 +280,6 @@ void MainWindow::applyChanges() {
     // store model to disk
     QString taskId = activeBackup->backupDetails.tmp.taskId;
     Tasks::saveTask(taskId, persisted);
-
-    // generate backup script file based on the model if applicable
-    if (settings.value("taskrunner/GenerateBashScripts").toInt() == 2) // i.e. checked
-        if (!Scripting::buildBackupScript(taskId, persisted) )
-        {
-            ui->plainTextConsole->appendHtml(QString("<font color='red'>Error generating backup script for task '%1'</font>").arg(taskId));
-        }
 
     state.modelCopy = *activeBackup; // freshen model state
 }
@@ -690,16 +682,7 @@ void MainWindow::runActiveTask()
                 }
                 ui->plainTextConsole->appendHtml(out);
             }
-        } else
-        if ( taskRunner == Settings::Taskrunner::Script)
-        {
-            QString backupScriptFile = Lb::backupScriptFilePath(activeBackup->backupDetails.tmp.taskId);
-            consoleProcess.start("bash", {"-c", backupScriptFile});
-            if (!consoleProcess.waitForStarted(5000)) {
-                ui->plainTextConsole->appendHtml("<strong>Error starting backup script</strong>");
-                return;
-            }
-            ui->plainTextConsole->appendHtml("<strong>----- Launched backup script at " + QDateTime::currentDateTime().toString() + " -----</strong>");
+            ui->plainTextConsole->appendHtml("<strong>----- Task finished at " + QDateTime::currentDateTime().toString() + " -----</strong>");
         }
     }
 }

@@ -25,7 +25,6 @@ HEADERS += \
     multipledirdialog.h \
     mylistview.h \
     newbackuptaskdialog.h \
-    settings.h \
     settingsdialog.h \
     systemdunitdialog.h \
     treeviewtasks.h

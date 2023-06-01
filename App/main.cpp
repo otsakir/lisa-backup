@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
     {
         qInfo() << "Blank settings found. They will get initialized.";
         settings.setValue(Settings::TaskrunnerKey, static_cast<int>(Settings::Taskrunner::Gui));
-        settings.setValue("taskrunner/GenerateBashScripts", 0);
         settings.setValue("taskrunner/ShowConfirmation", 2); // i.e. true
         settings.setValue("initialized",true);
         settings.setValue(Settings::LoglevelKey, static_cast<int>(Settings::Loglevel::Errors));
@@ -73,9 +72,9 @@ int main(int argc, char *argv[])
                         Scripting::buildBackupCommands(persisted, commands);
                         for (QString& command: commands)
                         {
-                            qDebug() << command;
+                            qInfo().noquote() << command;
                             QString out = Terminal::runShellCommand(command);
-                            qDebug() << out;
+                            qInfo().noquote() << out;
                         }
                     }
                 }

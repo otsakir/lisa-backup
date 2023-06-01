@@ -4,9 +4,11 @@
 #include <QProcess>
 #include <QTextStream>
 #include <QDebug>
+#include <QSettings>
 
 #include <utils.h>
 #include <logging.h>
+#include "settings.h"
 
 
 bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate);
@@ -16,7 +18,11 @@ bool generateBackupScript(QString scriptTemplate, QString outfilename, const Bac
 namespace Scripting
 {
 
-bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands) {
+bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands)
+{
+    QSettings settings;
+    Settings::Loglevel loglevel = GET_INT_SETTING(Settings::Loglevel);
+
     for (int i=0; i < appstate.allSourceDetails.size(); i++) {
 
         const SourceDetails& source = appstate.allSourceDetails.at(i);
@@ -24,7 +30,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             //rsync -avzh /sourcedir /destinationdir
             QString command;
             command.reserve(100);
-            command.append("rsync -avzh \"");
+            command.append(loglevel == Settings::Loglevel::All ? "rsync -avzh \"" : "rsync -azh \"");
             command.append(source.sourcePath).append("\" ");
             command.append("\"").append(appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath).append("\"");
 
@@ -77,7 +83,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
                 getparent = true;
             }
 
-            QString find_command("        find ");
+            QString find_command("find ");
             find_command.append(QString("\"%1\"").arg(source.sourcePath)).append(" ");
             if (mindepth != -1)
                 find_command.append("-mindepth ").append(QString::number(mindepth)).append(" ");
@@ -114,73 +120,6 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
     return true;
 }
 
-bool buildBackupScript(QString taskId, const BackupModel& persisted)
-{
-    QString scriptName = Lb::backupScriptFilePath(taskId);
-    return generateBackupScript( QString("%1/template/%2").arg(Lb::appScriptsDir(),"backup.sh.tmpl"), scriptName, persisted);
-}
-
-/**
- * @brief removeBackupScript
- * @param taskId
- * @return true or false
- *
- * Removes the respective backup script for the task. This is not always present. It
- * will return false only if tried to removed an existing file and it failed.
- */
-bool removeBackupScript(QString taskId)
-{
-    QString scriptName = Lb::backupScriptFilePath(taskId);
-    QFile f(scriptName);
-    if (f.exists())
-    {
-        return f.remove();
-    }
-    return true;
-}
-
 
 } // Scripting namespace
 
-bool generateBackupScript(QString scriptTemplate, QString outfilename, const BackupModel& appstate) {
-
-    qInfo() << "[info] Generating " << outfilename << " backup script from " << scriptTemplate;
-
-    // open script template file
-    QFile f(scriptTemplate);
-    if ( ! f.open(QIODevice::ReadOnly | QIODevice::Text) ) {
-        qCritical("[error] script template file '%s' does not exist", qUtf8Printable(scriptTemplate) );
-        return false;
-    }
-
-    // read file content
-    QTextStream s(&f);
-    QString content = s.readAll();
-    f.close();
-
-    // search and replace placeholders with actual content
-    content.replace("$BACKUP_NAME", appstate.backupDetails.tmp.taskId);
-    content.replace("$DEST_PATH", appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath);
-    QVector<QString> commands;
-    Scripting::buildBackupCommands(appstate, commands);
-    QString commandsString;
-    commandsString.reserve(100 * commands.size()); // assume an average of 100 bytes per command
-    for (int i=0; i<commands.size(); i++)
-        commandsString.append(commands.at(i)).append("\n");
-    content.replace("$BACKUP_COMMANDS", commandsString);
-
-    // create executable script
-    //QString outfilename = outputDirectory + "/backup-" + appstate.backupDetails.backupName + ".sh";
-    QFile outf(outfilename);
-    if (! outf.open(QIODevice::WriteOnly | QIODevice::Text))
-        return false;
-    QTextStream outs(&outf);
-    outs << content;
-
-    if (outs.status() != QTextStream::Ok) {
-        return false;
-    }
-
-    outf.setPermissions(QFile::ExeOwner | QFile::ReadOwner | QFile::WriteOwner);
-    return true;
-}

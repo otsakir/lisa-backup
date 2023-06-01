@@ -48,11 +48,6 @@ QString dataDirectory() {
     return QString("%1/.lbackup").arg(homeDirectory());
 }
 
-// holds backup task scripts - /home/{username}/.lbackup/scripts
-QString scriptsDirectory() {
-    return QString("%1/scripts").arg(dataDirectory());
-}
-
 QString configDirectory() {
     QStringList pathlist = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation);
     return pathlist.first();
@@ -102,18 +97,15 @@ QString lastDirInPath(const QString& path)
     return QString(); // nothing matched
 }
 
-QString backupScriptFilePath(const QString& backupName) {
-    return scriptsDirectory() + "/backup-" + backupName + ".sh";
-}
 
 QString windowTitle(const QString& taskFriendlyName) {
     return QString("Lisa Backup - %1").arg(taskFriendlyName);
 }
 
 void setupDirs() {
-    QDir dataDir(scriptsDirectory());
+    QDir dataDir(dataDirectory());
     if (!dataDir.exists())
-        dataDir.mkpath(scriptsDirectory());
+        dataDir.mkpath(dataDirectory());
     assert( dataDir.exists() );
 }
 
