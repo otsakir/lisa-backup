@@ -62,29 +62,41 @@ void TreeViewTasks::removeCurrent()
 
     QString taskId = current.data().toString();
     assert( !taskId.isEmpty() );
-    // first, check if there is a systemd service attached
-    if (Systemd::hookPresent(taskId))
+
+    // ask for user confirmation
+    int ret = QMessageBox::warning(this, QString("Remove task '%1'").arg(taskId),"You're about to remove a backup task.\n Are you sure ?",QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if (ret == QMessageBox::Yes)
     {
-        // ask, the user before starting xterm fuss
-        int ret = QMessageBox::warning(this, "Trigger active",tr("This backup task has an active trigger that should be removed.\n Should it be removed now ?"),QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
-        if (ret == QMessageBox::Yes)
+        // first, check if there is a systemd service attached
+        if (Systemd::hookPresent(taskId))
         {
-            Systemd::removeHook(taskId); // TODO - error handling
-        } else
-        if (ret == QMessageBox::Cancel)
-        {
-            return;
+            // ask, the user before starting xterm fuss
+            ret = QMessageBox::warning(this, "Trigger active","This backup task has an active trigger that should be removed.\n Should it be removed now ?",QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+            if (ret == QMessageBox::Yes)
+            {
+                Systemd::removeHook(taskId); // TODO - error handling
+            } else
+            if (ret == QMessageBox::Cancel)
+            {
+                return;
+            }
         }
-    }
-    // The hook was either removed or was chosen not to be removed. Moving on with the rest of the removal steps.
-    if (! Scripting::removeBackupScript(taskId))
-    {
-        qWarning() << "[warning] couldn't remove backup script for task '" << taskId << "'. I'll move on.";
-    }
-    // finally, remove the task itself
-    Tasks::deleteTask(taskId); // TODO - error handling ? where ?
-    // and the entry from the table/tree
-    model()->removeRow(current.row());
+        // The hook was either removed or was chosen not to be removed. Moving on with the rest of the removal steps.
+        if (! Scripting::removeBackupScript(taskId))
+        {
+            qWarning() << "[warning] couldn't remove backup script for task '" << taskId << "'. I'll move on.";
+        }
+        // finally, remove the task itself
+        Tasks::deleteTask(taskId); // TODO - error handling ? where ?
+        // and the entry from the table/tree
+        model()->removeRow(current.row());
+        if (model()->rowCount() == 0)
+            emit currentTaskIs(QString(), QModelIndex());
+
+    } else
+        return;
+
+
 }
 
 void TreeViewTasks::showEvent(QShowEvent *event)

@@ -148,6 +148,7 @@ void NewBackupTaskDialog::onCurrentTaskIs(QString taskName, const QModelIndex& m
 {
     bool valid = modelIndex.isValid();
     ui->pushButtonOpen->setEnabled(valid);
+    ui->pushButtonOpenInPageOpen->setEnabled(valid);
     ui->pushButtonDeleteInPageOpen->setEnabled(valid);
     selectedTask = taskName;
 }
