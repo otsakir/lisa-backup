@@ -4,5 +4,6 @@
         <file>custom-icons/trash.svg</file>
         <file>custom-icons/file-plus.svg</file>
         <file>custom-icons/chevron-right.svg</file>
+        <file>custom-icons/alert-triangle.svg</file>
     </qresource>
 </RCC>

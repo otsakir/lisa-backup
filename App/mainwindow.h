@@ -52,8 +52,6 @@ private slots:
 
     void on_removeSourceButton_clicked();
 
-    void on_pushButtonSelectDevice_clicked();
-
     void on_comboBoxDepth_currentIndexChanged(int index);
 
     void on_radioButtonAll_toggled(bool checked);
@@ -62,19 +60,13 @@ private slots:
 
     void updatePredicateTypeIndex(int index);
 
-    void on_lineEditSystemdUnit_textChanged(const QString &arg1);
-
     void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
 
-    void on_lineEditDestinationSuffixPath_editingFinished();
-
-    void on_pushButtonChooseDestinationSubdir_clicked();
+    void checkLineEditDestinationSuffixPath();
 
     void on_activeBackupMethodChanged(int backupType);
 
     void on_action_New_triggered();
-
-//    void on_ButtonApply_clicked();
 
     void on_action_Open_triggered();
 
@@ -84,9 +76,9 @@ private slots:
 
     void on_action_Save_triggered();
 
-    void on_pushButtonInstallTrigger_clicked();
+    bool installOrUpdateTrigger();
 
-    void on_pushButtonRemoveTrigger_clicked();
+    bool removeTrigger();
 
     void on_actionDelete_triggered();
 
@@ -139,7 +131,7 @@ private:
     void applyChanges();
     void refreshBasePaths(QString current);
     //void enableMostUI(bool enable);
-    void setupTriggerButtons(const QString& backupName);
+    void setupTriggerButtons();
 
     void consoleProcessStarted();
     void consoleProcessDataAvail();
@@ -150,5 +142,6 @@ private:
 
 private slots:
     void afterWindowShown();
+    void onCheckBoxMountTriggerClicked(int status);
 };
 #endif // MAINWINDOW_H

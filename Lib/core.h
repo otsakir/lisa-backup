@@ -180,12 +180,8 @@ public:
 // application operation state. Things that we don't want to load and check again and again
 class State {
 public:
-    bool backupNamed = false; // is the backup named ? If true, activeBackup->backupName is full and valid
-    bool triggerExists; // is a systemd mount hook service file in place ?
     BackupModel modelCopy; // reflects the state of the application as it is persisted to storage. Helps to see if anything has changed.
-
-    State() : triggerExists(false)
-    {}
+    QString lastSystemdMountUnit; // last unit name we believe is used in the trigger i.e. unit name in a freshly loaded task or unit name used in a trigger just installed
 };
 
 
