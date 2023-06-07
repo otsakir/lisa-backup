@@ -167,7 +167,8 @@ QString randomString(unsigned int size) {
 
 // give it a path where a device is mounted and it will try to return the respective systemd unit it
 bool systemdUnitForMountPath(QString path, QString& systemdUnit) {
-    QString mountUnitsString = Terminal::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'");
+    QString mountUnitsString;
+    Terminal::runShellCommand("systemctl list-units --type=mount | grep 'loaded active mounted' | sed -e 's/^\\s*//' -e 's/\\.mount\\s\\s*loaded active mounted\\s/.mount||/'", &mountUnitsString);
     if (!mountUnitsString.isEmpty()) {
         QStringList lines = mountUnitsString.split("\n", QString::SkipEmptyParts);
         //qInfo() << "lines: " << lines << "\n";

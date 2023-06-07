@@ -7,7 +7,8 @@ namespace Terminal {
 
 int runCommandInTerminal(QString commandLine);
 
-QString runShellCommand(QString commandString);
+int runShellCommand(QString commandString, QString* pout = nullptr);
+
 
 } // Terminal namespace
 

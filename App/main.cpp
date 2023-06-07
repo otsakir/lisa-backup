@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("otsakir");
     QApplication::setApplicationName("Lisa Backup");
 
-    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=false\ndefault.info=true"));
+    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
 
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
 
@@ -73,7 +73,8 @@ int main(int argc, char *argv[])
                         for (QString& command: commands)
                         {
                             qInfo().noquote() << command;
-                            QString out = Terminal::runShellCommand(command);
+                            QString out;
+                            Terminal::runShellCommand(command, &out);
                             qInfo().noquote() << out;
                         }
                     }

@@ -37,14 +37,14 @@ doinstall()
 	echo "Installing '$SERVICE_NAME' systemd backup trigger service for '$SYSTEMD_UNIT' to $SERVICE_FILE."
 	echo "Backup script '$SCRIPT_PATH'  will be run as user $CURRENT_USER:$CURRENT_GROUP."
 
-	while true; do
-	    read -p "Is this you ? [y/n] " yn
-	    case $yn in
-		[Yy]* ) break;;
-		[Nn]* ) exit 2;;
-		* ) echo "Please answer yes or no.";;
-	    esac
-	done
+#	while true; do
+#	    read -p "Is this you ? [y/n] " yn
+#	    case $yn in
+#		[Yy]* ) break;;
+#		[Nn]* ) exit 2;;
+#		* ) echo "Please answer yes or no.";;
+#	    esac
+#	done
 
 	echo "moving on..."
 
@@ -54,11 +54,12 @@ doinstall()
 	# echo ${PIPESTATUS[0]} ${PIPESTATUS[1]} ${PIPESTATUS[2]}
 	if [[ ${PIPESTATUS[0]} -eq 0 && ${PIPESTATUS[1]} -eq 0 && ${PIPESTATUS[2]} -eq 0 ]]
 	then
-		sudo bash -c "cp $TEMP_SERVICE_FILE \"$SERVICE_FILE\""
-		if [[ $? -eq 0 ]]
-		then
-			sudo systemctl enable "$SYSTEMD_SERVICE" && ok=0
-		fi
+		pkexec bash -c "cp $TEMP_SERVICE_FILE \"$SERVICE_FILE\" && systemctl enable \"$SYSTEMD_SERVICE\"" && ok=0
+#		sudo bash -c "cp $TEMP_SERVICE_FILE \"$SERVICE_FILE\""
+#		if [[ $? -eq 0 ]]
+#		then
+#			sudo systemctl enable "$SYSTEMD_SERVICE" && ok=0
+#		fi
 	fi
 	if [[ ok -ne 0 ]] 
 	then
@@ -73,7 +74,8 @@ doremove()
 	SYSTEMD_SERVICE="lbackup-$SERVICE_NAME"
 	SERVICE_FILE="/etc/systemd/system/$SYSTEMD_SERVICE.service"
 	echo "Removing '$SYSTEMD_SERVICE' systemd backup service - $SERVICE_FILE"
-	sudo systemctl disable "$SYSTEMD_SERVICE" && sudo rm "$SERVICE_FILE" && return 0
+	pkexec bash -c "systemctl disable \"$SYSTEMD_SERVICE\" && rm \"$SERVICE_FILE\"" && return 0
+	#sudo systemctl disable "$SYSTEMD_SERVICE" && sudo rm "$SERVICE_FILE" && return 0
 
 	return 1
 }
@@ -95,8 +97,11 @@ case $COMMAND in
 			help 
 			exit 1 
 		fi
-		doremove || (echo "Failed removing backup service" && exit 1)
-
+		doremove 
+		if [ $? -ne 0 ]; then
+			echo "Failed removing backup service" 
+			exit 1
+		fi
 		;;
 	install)
 		shift 1	# get rid of command argument
@@ -130,10 +135,10 @@ case $COMMAND in
 		if doinstall
 		then
 			echo "Successfully installed and enabled '$SYSTEMD_SERVICE' systemd service." 
-			read -p "Press any key to continue" a
+			#read -p "Press any key to continue" a
 			exit 0
 		else
-			read -p "Press any key to continue" a
+			#read -p "Press any key to continue" a
 			exit 1
 		fi
 		;;
@@ -143,6 +148,4 @@ case $COMMAND in
 		;;
 esac
 
-read -p "Press any key to continue" a
-
-
+#read -p "Press any key to continue" a
