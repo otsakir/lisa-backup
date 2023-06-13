@@ -9,6 +9,7 @@
 
 #include <QProcess>
 #include <core.h>
+#include "dbusutils.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -106,6 +107,8 @@ private slots:
 
     void on_actionSe_ttings_triggered();
 
+    void handleMounted(const QString& label, const QString& uuid);
+
 protected:
     virtual void closeEvent (QCloseEvent *event);
 
@@ -119,6 +122,7 @@ private:
     QString taskName;
     bool newBackupTaskDialogShown = false;
     QProcess consoleProcess;
+    DbusUtils dbusUtils;
 
     bool openTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);

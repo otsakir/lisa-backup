@@ -33,8 +33,11 @@
 #include <QTreeView>
 #include <QScroller>
 
+#include "dbusutils.h"
+
 
 //Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
+
 
 MainWindow::MainWindow(QString taskName, QWidget *parent)
     : QMainWindow(parent)
@@ -87,6 +90,10 @@ MainWindow::MainWindow(QString taskName, QWidget *parent)
     connect(ui->toolButtonRun, &QPushButton::clicked, this, &MainWindow::runActiveTask);
     connect(ui->checkBoxOnMountTrigger, &QCheckBox::clicked, this, &MainWindow::onCheckBoxMountTriggerClicked);
     connect(ui->lineEditDestinationSuffixPath, &QLineEdit::editingFinished, this, &MainWindow::checkLineEditDestinationSuffixPath);
+
+    dbusUtils.registerOnMount();
+    connect(&dbusUtils, &DbusUtils::labeledDeviceMounted, this, &MainWindow::handleMounted);
+
 
     Lb::setupDirs();
     activeBackup = new BackupModel();
@@ -808,5 +815,11 @@ void MainWindow::onCheckBoxMountTriggerClicked(int status)
     }
 
     setupTriggerButtons();
+}
+
+// executes when an external storage device is mounted
+void MainWindow::handleMounted(const QString& label, const QString& uuid)
+{
+    qDebug() << "mainWindow: " << "mounted!" << label;
 }
 

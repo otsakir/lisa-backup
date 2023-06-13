@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui dbus
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,7 +17,8 @@ SOURCES += \
     newbackuptaskdialog.cpp \
     settingsdialog.cpp \
     systemdunitdialog.cpp \
-    treeviewtasks.cpp
+    treeviewtasks.cpp \
+    dbusutils.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -27,7 +28,8 @@ HEADERS += \
     newbackuptaskdialog.h \
     settingsdialog.h \
     systemdunitdialog.h \
-    treeviewtasks.h
+    treeviewtasks.h \
+    dbusutils.h
 
 FORMS += \
     aboutdialog.ui \
