@@ -5,7 +5,7 @@
 #include <QMap>
 #include <QVariant>
 #include <QDBusMessage>
-
+#include "core.h"
 
 class DbusUtils : public QObject
 {
@@ -17,6 +17,7 @@ private:
 public:
     void registerOnMount();
     void unregisterOnMount();
+    static bool getMountedDevices(QList<MountedDevice>& mountedDevices);
 
     signals:
     void labeledDeviceMounted(const QString& label, const QString& uuid); // hook this to get notified when a mount point is up

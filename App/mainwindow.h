@@ -5,7 +5,6 @@
 #include <QItemSelection>
 #include <QMainWindow>
 #include <QStandardItemModel>
-#include <systemdunitdialog.h>
 
 #include <QProcess>
 #include <core.h>
@@ -44,7 +43,6 @@ private slots:
     // custom slots
     void on_actionChanged(SourceDetails::ActionType action);
     void onNewBackupName(QString backupName);
-    void onSystemdUnitChanged(QString newUnitName);
     void onModelUpdated(BackupModel::ValueType valueType);
 
     void updateSourceDetailControls(const QModelIndex& current);
@@ -73,13 +71,9 @@ private slots:
 
     void on_pushButtonRefreshBasePaths_clicked();
 
-    void on_comboBoxBasePath_currentIndexChanged(const QString &arg1);
+    void on_comboBoxBasePath_currentIndexChanged(int index);
 
     void on_action_Save_triggered();
-
-    bool installOrUpdateTrigger();
-
-    bool removeTrigger();
 
     void on_actionDelete_triggered();
 
@@ -133,7 +127,7 @@ private:
 
     int checkSave(); // returns QMessageBox::X status or -1
     void applyChanges();
-    void refreshBasePaths(QString current);
+    void refreshBasePaths();
     //void enableMostUI(bool enable);
     void setupTriggerButtons();
 

@@ -32,7 +32,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             command.reserve(100);
             command.append(loglevel == Settings::Loglevel::All ? "rsync -avzh \"" : "rsync -azh \"");
             command.append(source.sourcePath).append("\" ");
-            command.append("\"").append(appstate.backupDetails.destinationBasePath + "/" + appstate.backupDetails.destinationBaseSuffixPath).append("\"");
+            command.append("\"").append("/" + appstate.backupDetails.destinationBaseSuffixPath).append("\"");
 
             commands.append(command);
         } else if (source.backupType == SourceDetails::selective) {
@@ -61,7 +61,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             bool getparent = false; // should 'find' report the matched entry or its parent
             QString name;
             // note the trailing slash after %3 below: it results in creating the source directory under the destination
-            QString destinationRoot = QString("'%1/%2/%3/' ").arg(appstate.backupDetails.destinationBasePath, appstate.backupDetails.destinationBaseSuffixPath, sourcePathLastDir);
+            QString destinationRoot = QString("'/%2/%3/' ").arg(appstate.backupDetails.destinationBaseSuffixPath, sourcePathLastDir);
             if (source.predicateType == SourceDetails::nameMatchesId) {
                 if (source.backupDepth == SourceDetails::directChildren) {
                     maxdepth = 1;

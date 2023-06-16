@@ -47,6 +47,8 @@ namespace Settings
         }
     }
 
+    static QString TriggerGroupKey = "triggers/"; // setting parent/group prefix. Hosts entries like "triggers/backtaskname1"
+
 
 }
 

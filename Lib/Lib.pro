@@ -13,9 +13,9 @@ SOURCES += \
     core.cpp \
     logging.cpp \
     scripting.cpp \
-    systemd.cpp \
     task.cpp \
     terminal.cpp \
+    triggering.cpp \
     utils.cpp
 
 HEADERS += \
@@ -24,9 +24,9 @@ HEADERS += \
     logging.h \
     scripting.h \
     settings.h \
-    systemd.h \
     task.h \
     terminal.h \
+    triggering.h \
     utils.h
 
 # Default rules for deployment.

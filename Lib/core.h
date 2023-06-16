@@ -5,6 +5,30 @@
 #include <QVector>
 
 /*!
+ * \class MountedDevice
+ * \brief Cached information for mounted devices
+ */
+struct MountedDevice
+{
+    QStringList mountPoints;
+    QString label;
+    QString uuid;
+
+    operator QString()
+    {
+        return QString("{mountPoints: (%1), label: %2, uuid: %3}").arg(mountPoints.join(","), label, uuid);
+    }
+
+    void clear()
+    {
+        mountPoints.clear();
+        label.clear();
+        uuid.clear();
+    }
+};
+
+
+/*!
  * \class SourceDetails
  * \brief Holds all details of a backup path.
  *
@@ -104,8 +128,6 @@ struct BackupDetails {
     QString systemdId; // identifier part for the systemd service name
     //QString backupName; // identifier for task resources. systemd service, backup bash script etc.
     QString friendlyName; // user friendly name of the task
-    QString systemdMountUnit; // e.g.  media-username-label
-    QString destinationBasePath; // root directory of the inserted medium when mounted
     QString destinationBaseSuffixPath; // together with 'destinationBasePath' forms the destination directory for the backup
 
     BackupDetails() {}
@@ -115,8 +137,6 @@ struct BackupDetails {
         //backupName = from.backupName;
         tmp = from.tmp;
         friendlyName = from.friendlyName;
-        systemdMountUnit = from.systemdMountUnit;
-        destinationBasePath = from.destinationBasePath;
         destinationBaseSuffixPath = from.destinationBaseSuffixPath;
 
         return *this;
@@ -125,8 +145,6 @@ struct BackupDetails {
     bool operator==(const BackupDetails& other) const {
         return (systemdId == other.systemdId) &&
                 (friendlyName == other.friendlyName) &&
-                (systemdMountUnit == other.systemdMountUnit) &&
-                (destinationBasePath == other.destinationBasePath) &&
                 (destinationBaseSuffixPath == other.destinationBaseSuffixPath);
     }
 
@@ -135,8 +153,6 @@ struct BackupDetails {
         //backupName = from.backupName;
         tmp = from.tmp;
         friendlyName = from.friendlyName;
-        systemdMountUnit = from.systemdMountUnit;
-        destinationBasePath = from.destinationBasePath;
         destinationBaseSuffixPath = from.destinationBaseSuffixPath;
     }
 
@@ -182,6 +198,7 @@ class State {
 public:
     BackupModel modelCopy; // reflects the state of the application as it is persisted to storage. Helps to see if anything has changed.
     QString lastSystemdMountUnit; // last unit name we believe is used in the trigger i.e. unit name in a freshly loaded task or unit name used in a trigger just installed
+    QList<MountedDevice> mountedDevices;
 };
 
 

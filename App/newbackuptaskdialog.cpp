@@ -12,7 +12,6 @@
 #include <core.h>
 #include <utils.h>
 #include <task.h>
-#include <systemd.h>
 #include <terminal.h>
 #include <scripting.h>
 

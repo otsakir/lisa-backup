@@ -16,7 +16,6 @@ SOURCES += \
     mylistview.cpp \
     newbackuptaskdialog.cpp \
     settingsdialog.cpp \
-    systemdunitdialog.cpp \
     treeviewtasks.cpp \
     dbusutils.cpp
 
@@ -27,7 +26,6 @@ HEADERS += \
     mylistview.h \
     newbackuptaskdialog.h \
     settingsdialog.h \
-    systemdunitdialog.h \
     treeviewtasks.h \
     dbusutils.h
 
@@ -36,8 +34,7 @@ FORMS += \
     mainwindow.ui \
     multipledirdialog.ui \
     newbackuptaskdialog.ui \
-    settingsdialog.ui \
-    systemdunitdialog.ui
+    settingsdialog.ui
 
 
 unix:!macx: LIBS += -L$$OUT_PWD/../Lib/ -lLib
