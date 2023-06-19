@@ -17,7 +17,7 @@
 
 #include <QDebug>
 
-#include <QFileDialog>
+//#include <QFileDialog>
 
 #include <QMessageBox>
 #include <QProcess>
@@ -83,14 +83,15 @@ MainWindow::MainWindow(QString taskName, QWidget *parent)
     connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
 
     connect(ui->toolButtonRun, &QPushButton::clicked, this, &MainWindow::runActiveTask);
-    connect(ui->checkBoxOnMountTrigger, &QCheckBox::clicked, this, &MainWindow::onCheckBoxMountTriggerClicked);
+    //connect(ui->checkBoxOnMountTrigger, &QCheckBox::clicked, this, &MainWindow::onCheckBoxMountTriggerClicked);
     connect(ui->lineEditDestinationSuffixPath, &QLineEdit::editingFinished, this, &MainWindow::checkLineEditDestinationSuffixPath);
-    connect(ui->comboBoxBasePath, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_comboBoxBasePath_currentIndexChanged);
+    //connect(ui->comboBoxBasePath, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_comboBoxBasePath_currentIndexChanged);
 
     dbusUtils.registerOnMount();
     connect(&dbusUtils, &DbusUtils::labeledDeviceMounted, this, &MainWindow::handleMounted);
 
-    ui->comboBoxBasePath->setModel(new QStandardItemModel(0,3)); // mountPoint | uuid | label
+    ui->comboBoxBasePath->setModel(new QStandardItemModel(0,4)); // mountPoint | uuid | label
+    ui->comboBoxBasePath->setModelColumn(3); // last column holds the "caption"
 
     Lb::setupDirs();
     activeBackup = new BackupModel();
@@ -247,16 +248,13 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
     else
         emit sourceChanged(QModelIndex()); // list is empty
 
-    refreshBasePaths();
+    QString uuid = Triggering::triggerUuidForTask(backupModel.backupDetails.tmp.taskId);
+    ui->groupBoxTriggering->setChecked(!uuid.isEmpty());
+    refreshBasePaths(uuid);
 
-    ui->checkBoxOnMountTrigger->setChecked(Triggering::triggerExists(backupModel.backupDetails.tmp.taskId));
-
-
-    setupTriggerButtons();
-}
+    //ui->checkBoxOnMountTrigger->setChecked(Triggering::triggerExists(backupModel.backupDetails.tmp.taskId));
 
 
-void MainWindow::setupTriggerButtons() {
 }
 
 
@@ -396,8 +394,19 @@ void MainWindow::on_action_Open_triggered()
     }
 }
 
+
+// add another entry to to comboBoxBasePath
+void MainWindow::appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption)
+{
+    QList<QStandardItem*> rowItems;
+    rowItems << new QStandardItem(mountPath) << new QStandardItem(uuid) << new QStandardItem(label) << new QStandardItem(caption);
+    ui->comboBoxBasePath->blockSignals(true);
+    static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model())->appendRow(rowItems);
+    ui->comboBoxBasePath->blockSignals(false);
+}
+
 // reloads paths for system mounted devices. Adds 'current' if not already in the list
-void MainWindow::refreshBasePaths() {
+void MainWindow::refreshBasePaths(const QString& current) {
     ui->comboBoxBasePath->clear();
     const QVector<QString>& excludedPrefixes = Lb::excludedDevicePathPrefix();
     int indexFound = -1; // assume not found
@@ -422,49 +431,49 @@ void MainWindow::refreshBasePaths() {
         if (skip)
             continue; // this is an excluded device
 
-//        if (!current.isEmpty() && rootPath == current) {
-//            indexFound = i;
-//        }
-        QList<QStandardItem*> rowItems;
-        rowItems << new QStandardItem(rootPath) << new QStandardItem(mountedDevice.uuid) << new QStandardItem(mountedDevice.label);
-        static_cast<QStandardItemModel>(ui->comboBoxBasePath->model()).appendRow(rowItems);
+        if (!current.isEmpty() && current == mountedDevice.uuid) {
+            indexFound = i;
+        }
+
+        QString caption = QString("%1  |  uuid: %2  |  label: %3").arg(rootPath, mountedDevice.uuid, mountedDevice.label.isEmpty() ? "(n/a)" : mountedDevice.label);
+        appendBaseBath(rootPath, mountedDevice.uuid, mountedDevice.label, caption);
         i++;
     }
-//    if (!current.isEmpty()) {
-//        if (indexFound != -1) {
-//            ui->comboBoxBasePath->setCurrentIndex(indexFound);
-//        } else {
-//            ui->comboBoxBasePath->addItem(current);
-//            ui->comboBoxBasePath->setCurrentIndex(i);
-//            // todo - set current index point to this item
-//        }
-//    }
+    if (!current.isEmpty()) {
+        if (indexFound != -1) {
+            ui->comboBoxBasePath->setCurrentIndex(indexFound);
+        } else {
+            appendBaseBath("",current,"","(not mounted currently)");
+            ui->comboBoxBasePath->setCurrentIndex(static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model())->rowCount()-1);
+        }
+    }
 }
 
 void MainWindow::on_pushButtonRefreshBasePaths_clicked()
 {
-    refreshBasePaths();
+    QString uuid = Triggering::triggerUuidForTask(activeBackup->backupDetails.tmp.taskId);
+    refreshBasePaths(uuid);
 }
+
 
 
 void MainWindow::on_comboBoxBasePath_currentIndexChanged(int index)
 {
-    if (ui->checkBoxOnMountTrigger->isChecked())
+    //if (ui->checkBoxOnMountTrigger->isChecked())
+    //{
+
+    if (index >= 0)
     {
-        QList<QStandardItem*> rowItems = static_cast<QStandardItemModel>(ui->comboBoxBasePath->model()).takeRow(index);
+        QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model());
+        QString uuid = model->item(index, 1)->data().toString();
         Triggering::disableMountTrigger(activeBackup->backupDetails.tmp.taskId);
-        Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, rowItems.at(1)->data().toString()); // taskId,uuid
+        Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, uuid); // taskId,uuid
+        Triggering::printTriggers();
+
     }
-
-    // select respective systemd unit
-//    QString systemdUnit;
-//    if ( ! Lb::systemdUnitForMountPath(newPath, systemdUnit) ) {
-//        qWarning() << "[warning] no systemd unit for path " << newPath;
-//    }
-//    ui->toolButtonUpdateTrigger->setVisible(systemdUnit != state.lastSystemdMountUnit);
-
 //    emit ui->lineEditDestinationSuffixPath->editingFinished();
 }
+
 
 
 void MainWindow::on_action_Save_triggered()
@@ -748,7 +757,6 @@ void MainWindow::onCheckBoxMountTriggerClicked(int status)
         Triggering::disableMountTrigger(activeBackup->backupDetails.tmp.taskId);
 
     }
-    setupTriggerButtons();
 }
 
 // executes when an external storage device is mounted
@@ -759,5 +767,11 @@ void MainWindow::handleMounted(const QString& label, const QString& uuid)
     {
         qDebug() << "now, i'm supposed to run backup task" << triggeredTask << "since it was triggered";
     }
+}
+
+
+void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
+{
+
 }
 

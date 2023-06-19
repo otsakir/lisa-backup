@@ -127,9 +127,8 @@ private:
 
     int checkSave(); // returns QMessageBox::X status or -1
     void applyChanges();
-    void refreshBasePaths();
-    //void enableMostUI(bool enable);
-    void setupTriggerButtons();
+    void appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption);
+    void refreshBasePaths(const QString& current);
 
     void consoleProcessStarted();
     void consoleProcessDataAvail();
@@ -141,5 +140,6 @@ private:
 private slots:
     void afterWindowShown();
     void onCheckBoxMountTriggerClicked(int status);
+    void on_pushButtonChooseDestinationSubdir_clicked();
 };
 #endif // MAINWINDOW_H
