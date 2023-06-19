@@ -7,13 +7,13 @@
 #include <QDir>
 #include <QStandardItem>
 #include <QMessageBox>
-#include <treeviewtasks.h>
+#include "treeviewtasks.h"
 
-#include <core.h>
-#include <utils.h>
-#include <task.h>
-#include <terminal.h>
-#include <scripting.h>
+#include "core.h"
+#include "utils.h"
+#include "task.h"
+#include "terminal.h"
+#include "scripting.h"
 
 NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
     QDialog(parent),

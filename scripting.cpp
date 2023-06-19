@@ -1,4 +1,4 @@
-#include <core.h>
+#include "core.h"
 
 #include <QFile>
 #include <QProcess>
@@ -6,8 +6,8 @@
 #include <QDebug>
 #include <QSettings>
 
-#include <utils.h>
-#include <logging.h>
+#include "utils.h"
+#include "logging.h"
 #include "settings.h"
 
 

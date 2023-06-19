@@ -9,7 +9,7 @@
 #include "multipledirdialog.h"
 #include "settings.h"
 
-#include <core.h>
+#include "core.h"
 
 #include "logging.h"
 

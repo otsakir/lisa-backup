@@ -7,7 +7,7 @@
 #include <QStandardItemModel>
 
 #include <QProcess>
-#include <core.h>
+#include "core.h"
 #include "dbusutils.h"
 
 QT_BEGIN_NAMESPACE

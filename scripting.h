@@ -1,7 +1,7 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
-#include <core.h>
+#include "core.h"
 
 namespace Scripting
 {
