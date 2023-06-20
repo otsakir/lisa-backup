@@ -134,6 +134,8 @@ private:
     void consoleProcessDataAvail();
     void consoleProcessFinished(int exitCode);
 
+    void printCombo();
+
     virtual void showEvent(QShowEvent* event) override;
 
 

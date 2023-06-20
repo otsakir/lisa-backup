@@ -395,6 +395,17 @@ void MainWindow::on_action_Open_triggered()
 }
 
 
+void MainWindow::printCombo()
+{
+
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model());
+    for (int j = 0; j<model->rowCount(); j++)
+    {
+        QModelIndex index = model->index(j,0);
+        qDebug() << "item" << j << ":" << index.data().toString();
+    }
+}
+
 // add another entry to to comboBoxBasePath
 void MainWindow::appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption)
 {
@@ -465,7 +476,7 @@ void MainWindow::on_comboBoxBasePath_currentIndexChanged(int index)
     if (index >= 0)
     {
         QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model());
-        QString uuid = model->item(index, 1)->data().toString();
+        QString uuid = model->index(index,1).data().toString(); // columns: mountPath|uuid|label
         Triggering::disableMountTrigger(activeBackup->backupDetails.tmp.taskId);
         Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, uuid); // taskId,uuid
         Triggering::printTriggers();

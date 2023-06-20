@@ -131,7 +131,7 @@ bool DbusUtils::getMountedDevices(QList<MountedDevice>& mountedDevices)
                 mountedDevice.label = blockDevice["org.freedesktop.UDisks2.Block"]["IdLabel"].toString();
                 mountedDevice.uuid = blockDevice["org.freedesktop.UDisks2.Block"]["IdUUID"].toString();
 
-                qDebug() << mountedDevice;
+                //qDebug() << mountedDevice;
                 mountedDevices.append(mountedDevice);
                 //qDebug() << objectPath << ": " << stringList << "|" << "IdLabel:" <<  blockDevice["org.freedesktop.UDisks2.Block"]["IdLabel"] << "|" << blockDevice["org.freedesktop.UDisks2.Block"]["IdUUID"];
             }
