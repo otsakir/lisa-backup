@@ -16,7 +16,7 @@ public:
     {
         QSettings settings;
         QMap<QString, QVariant> taskidToUuid = settings.value("triggersAsUuids").toMap(); // taskid->fs-uuid
-        taskidToUuid.value(taskId, QVariant(uuidPredicate));
+        taskidToUuid[taskId] = uuidPredicate;
         qDebug() << "trigger map (in enable): " << taskidToUuid;
         settings.setValue("triggersAsUuids", QVariant(taskidToUuid));
     }
