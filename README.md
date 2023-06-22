@@ -20,8 +20,8 @@ Make sure Qt5 `gui`, `core` and `widgets` dependencies are available. Qt5 is usu
 
 Next, download [latest lbackup release](https://github.com/otsakir/lbackup/releases/latest) in .tar.gz format, extract and run the installation script:
 
-    wget https://github.com/otsakir/lbackup/releases/download/v0.2.0/lbackup_0.2.0_amd64.tar.gz
-    tar zxvf lbackup_0.2.0_amd64.tar.gz 
+    wget https://github.com/otsakir/lbackup/releases/download/v0.3.0/lbackup_0.3.0_amd64.tar.gz
+    tar zxvf lbackup_0.3.0_amd64.tar.gz 
     cd lbackup/
     sudo ./install.sh 
 
