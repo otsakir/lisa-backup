@@ -143,5 +143,6 @@ private slots:
     void afterWindowShown();
     void onCheckBoxMountTriggerClicked(int status);
     void on_pushButtonChooseDestinationSubdir_clicked();
+    void on_groupBoxTriggering_clicked(bool checked);
 };
 #endif // MAINWINDOW_H

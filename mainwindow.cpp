@@ -249,8 +249,9 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
         emit sourceChanged(QModelIndex()); // list is empty
 
     QString uuid = Triggering::triggerUuidForTask(backupModel.backupDetails.tmp.taskId);
-    ui->groupBoxTriggering->setChecked(!uuid.isEmpty());
     refreshBasePaths(uuid);
+    ui->groupBoxTriggering->setEnabled(ui->comboBoxBasePath->model()->rowCount() > 0);
+    ui->groupBoxTriggering->setChecked(!uuid.isEmpty());
 
     //ui->checkBoxOnMountTrigger->setChecked(Triggering::triggerExists(backupModel.backupDetails.tmp.taskId));
 
@@ -454,7 +455,7 @@ void MainWindow::refreshBasePaths(const QString& current) {
         if (indexFound != -1) {
             ui->comboBoxBasePath->setCurrentIndex(indexFound);
         } else {
-            appendBaseBath("",current,"","(not mounted currently)");
+            appendBaseBath("",current,"",QString("uuid: %1 (not mounted currently)").arg(current));
             ui->comboBoxBasePath->setCurrentIndex(static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model())->rowCount()-1);
         }
     }
@@ -784,5 +785,29 @@ void MainWindow::handleMounted(const QString& label, const QString& uuid)
 void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 {
 
+}
+
+
+void MainWindow::on_groupBoxTriggering_clicked(bool checked)
+{
+    if (checked)
+    {
+        if (!Triggering::triggerExists(activeBackup->backupDetails.tmp.taskId))
+        {
+            QString uuid = static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model())->index(ui->comboBoxBasePath->currentIndex(),1).data().toString();
+            qDebug() << "will now install trigger for uuid" << uuid;
+            Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, uuid);
+        } else
+        {
+            // Nothing to do. We assume that the device entry is already selected from initUIControls
+            // QString uuid = Triggering::triggerUuidForTask(activeBackup->backupDetails.tmp.taskId);
+        }
+    } else
+    {
+        // we assume that there is already a trigger
+        assert(Triggering::triggerExists(activeBackup->backupDetails.tmp.taskId));
+
+        Triggering::disableMountTrigger(activeBackup->backupDetails.tmp.taskId);
+    }
 }
 
