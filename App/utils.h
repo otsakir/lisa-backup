@@ -42,7 +42,6 @@ void runScriptInWindow(QString scriptPath);
 
 QString randomString(unsigned int size);
 
-bool systemdUnitForMountPath(QString path, QString& systemdUnit);
 void bestValidDirectoryMatch(const QString& rawpath, QString& validPath);
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments);
 

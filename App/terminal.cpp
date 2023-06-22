@@ -17,29 +17,24 @@ void startProcess(QProcess& process, const QString& program, const QStringList& 
 void runScriptInWindow(QString scriptPath)
 {
     QProcess process;
-    //process.startDetached("xterm", {"-e", "/home/nando/tmp/s.sh"});
-
-    //QString backupName = "backup1.sh";
-    //QString backupScriptPath = Lb::backupScriptFilePath(backup.backupName);
-
-    //process.startDetached("xterm", {"-e", scriptPath});
     startProcess(process, "xterm", {"-e", scriptPath});
     process.waitForFinished(-1);
 }
 
 // run a bash command and return what's written to stdout
-QString runShellCommand(QString commandString)
+int runShellCommand(QString commandString, QString* pout)
 {
     QProcess process;
-    //process.start("bash", {"-c", "systemctl list-units --type=mount | grep mounted > a"});
-
     //process.start("bash", {"-c", commandString});
+    process.setProcessChannelMode(QProcess::MergedChannels);
     startProcess(process, "bash", {"-c", commandString});
 
     process.waitForFinished(-1);
 
-    QString out = process.readAllStandardOutput();
-    return out;
+    if (pout != nullptr)
+        *pout = process.readAll();
+
+    return process.exitCode();
 }
 
 // return child command status code or -1 in case of other error. 0 for success.
@@ -71,6 +66,7 @@ int runCommandInTerminal(QString commandLine)
     }
     return -1; // error (not the one returned by child process)
 }
+
 
 } // Terminal namespace
 

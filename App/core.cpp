@@ -57,8 +57,6 @@ QDataStream& operator << (QDataStream& s, const BackupDetails& backupDetails) {
     //s << backupDetails.backupName;  // skip this. We treat it separately
     s << backupDetails.friendlyName;
     s << backupDetails.systemdId;
-    s << backupDetails.systemdMountUnit;
-    s << backupDetails.destinationBasePath;
     s << backupDetails.destinationBaseSuffixPath;
     return s;
 }
@@ -67,8 +65,6 @@ QDataStream& operator >> (QDataStream& s, BackupDetails& backupDetails) {
     //s >> backupDetails.backupName; // skip this. We treat it separately
     s >> backupDetails.friendlyName;
     s >> backupDetails.systemdId;
-    s >> backupDetails.systemdMountUnit;
-    s >> backupDetails.destinationBasePath;
     s >> backupDetails.destinationBaseSuffixPath;
     return s;
 }
@@ -82,17 +78,5 @@ QDataStream& operator << (QDataStream& s, const BackupModel& pmodel) {
 QDataStream& operator >> (QDataStream& s, BackupModel& pmodel) {
     s >> pmodel.backupDetails;
     s >> pmodel.allSourceDetails;
-    return s;
-}
-
-QDataStream& operator << (QDataStream& s, const Session& o) {
-    s << o.defaultBrowseBackupDirectory;
-    s << o.recentBackupNames;
-    return s;
-}
-
-QDataStream& operator >> (QDataStream& s, Session& o) {
-    s >> o.defaultBrowseBackupDirectory;
-    s >> o.recentBackupNames;
     return s;
 }

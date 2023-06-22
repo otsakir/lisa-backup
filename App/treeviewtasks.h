@@ -8,6 +8,7 @@ class TreeViewTasks : public QTreeView
     Q_OBJECT
 public:
     TreeViewTasks(QWidget* parent);
+    int taskCount();
 
 public slots:
     void removeCurrent();

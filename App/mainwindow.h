@@ -5,10 +5,10 @@
 #include <QItemSelection>
 #include <QMainWindow>
 #include <QStandardItemModel>
-#include <systemdunitdialog.h>
 
 #include <QProcess>
-#include <core.h>
+#include "core.h"
+#include "dbusutils.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QString taskName, QWidget *parent = nullptr);
     ~MainWindow();
 
 signals:
@@ -43,7 +43,6 @@ private slots:
     // custom slots
     void on_actionChanged(SourceDetails::ActionType action);
     void onNewBackupName(QString backupName);
-    void onSystemdUnitChanged(QString newUnitName);
     void onModelUpdated(BackupModel::ValueType valueType);
 
     void updateSourceDetailControls(const QModelIndex& current);
@@ -51,8 +50,6 @@ private slots:
     SourceDetails* getSelectedSourceDetails();
 
     void on_removeSourceButton_clicked();
-
-    void on_pushButtonSelectDevice_clicked();
 
     void on_comboBoxDepth_currentIndexChanged(int index);
 
@@ -62,31 +59,21 @@ private slots:
 
     void updatePredicateTypeIndex(int index);
 
-    void on_lineEditSystemdUnit_textChanged(const QString &arg1);
-
     void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
 
-    void on_lineEditDestinationSuffixPath_editingFinished();
-
-    void on_pushButtonChooseDestinationSubdir_clicked();
+    void checkLineEditDestinationSuffixPath();
 
     void on_activeBackupMethodChanged(int backupType);
 
     void on_action_New_triggered();
 
-//    void on_ButtonApply_clicked();
-
     void on_action_Open_triggered();
 
     void on_pushButtonRefreshBasePaths_clicked();
 
-    void on_comboBoxBasePath_currentIndexChanged(const QString &arg1);
+    void on_comboBoxBasePath_currentIndexChanged(int index);
 
     void on_action_Save_triggered();
-
-    void on_pushButtonInstallTrigger_clicked();
-
-    void on_pushButtonRemoveTrigger_clicked();
 
     void on_actionDelete_triggered();
 
@@ -98,9 +85,7 @@ private slots:
 
     void on_actionAbout_triggered();
 
-    void on_toolButtonRun_triggered(QAction *arg1);
-
-    void on_toolButtonRun_clicked();
+    void runActiveTask();
 
     void on_pushButtonAdd_clicked();
 
@@ -114,7 +99,9 @@ private slots:
 
     void on_toolButtonSourceDown_clicked();
 
-    void on_actionE_xit_triggered();
+    void on_actionSe_ttings_triggered();
+
+    void handleMounted(const QString& label, const QString& uuid);
 
 protected:
     virtual void closeEvent (QCloseEvent *event);
@@ -125,11 +112,13 @@ private:
     QStandardItemModel* sourcesModel;
     QDataWidgetMapper* sourcesDataMapper;
     BackupModel* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
-    Session session;
     State state; // generic application state. Not part of a backup.
+    QString taskName;
+    bool newBackupTaskDialogShown = false;
     QProcess consoleProcess;
+    DbusUtils dbusUtils;
 
-    void openTask(QString taskId);
+    bool openTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);
     QStandardItem* appendSource(BackupModel::SourceDetailsIndex sourceDetails);
     void collectUIControls(BackupModel& persisted);
@@ -138,12 +127,22 @@ private:
 
     int checkSave(); // returns QMessageBox::X status or -1
     void applyChanges();
-    void refreshBasePaths(QString current);
-    //void enableMostUI(bool enable);
-    void setupTriggerButtons(const QString& backupName);
+    void appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption);
+    void refreshBasePaths(const QString& current);
 
     void consoleProcessStarted();
     void consoleProcessDataAvail();
     void consoleProcessFinished(int exitCode);
+
+    void printCombo();
+
+    virtual void showEvent(QShowEvent* event) override;
+
+
+private slots:
+    void afterWindowShown();
+    void onCheckBoxMountTriggerClicked(int status);
+    void on_pushButtonChooseDestinationSubdir_clicked();
+    void on_groupBoxTriggering_clicked(bool checked);
 };
 #endif // MAINWINDOW_H
