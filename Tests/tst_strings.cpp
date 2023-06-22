@@ -1,7 +1,7 @@
 #include <QtTest/QtTest>
 
-#include "../core.h"
-#include "../utils.h"
+#include "../App/core.h"
+#include "../App/utils.h"
 
 class TestQString: public QObject
 {

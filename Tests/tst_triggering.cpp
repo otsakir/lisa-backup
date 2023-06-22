@@ -1,6 +1,6 @@
 //#include <QtTest/QtTest>
 #include <QTest>
-#include "../triggering.h"
+#include "../App/triggering.h"
 
 
 class TestTriggering: public QObject

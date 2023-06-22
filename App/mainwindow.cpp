@@ -471,16 +471,12 @@ void MainWindow::on_pushButtonRefreshBasePaths_clicked()
 
 void MainWindow::on_comboBoxBasePath_currentIndexChanged(int index)
 {
-    //if (ui->checkBoxOnMountTrigger->isChecked())
-    //{
-
     if (index >= 0)
     {
         QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model());
         QString uuid = model->index(index,1).data().toString(); // columns: mountPath|uuid|label
         Triggering::disableMountTrigger(activeBackup->backupDetails.tmp.taskId);
         Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, uuid); // taskId,uuid
-        Triggering::printTriggers();
 
     }
 //    emit ui->lineEditDestinationSuffixPath->editingFinished();
@@ -795,7 +791,6 @@ void MainWindow::on_groupBoxTriggering_clicked(bool checked)
         if (!Triggering::triggerExists(activeBackup->backupDetails.tmp.taskId))
         {
             QString uuid = static_cast<QStandardItemModel*>(ui->comboBoxBasePath->model())->index(ui->comboBoxBasePath->currentIndex(),1).data().toString();
-            qDebug() << "will now install trigger for uuid" << uuid;
             Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, uuid);
         } else
         {
