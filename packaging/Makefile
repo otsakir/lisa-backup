@@ -8,9 +8,10 @@ default: debian installer
 
 debian:	scripts lbackup.deb doversion 
 
-lbackup/usr/bin/lbackup: ../build/App/App
+lbackup/usr/bin/lbackup: ../build/App/LisaBackup ../build/App/libLisaBackuplib.so
 	mkdir -p lbackup/usr/bin
-	cp ../build/App/App lbackup/usr/bin/lbackup
+	cp ../build/App/LisaBackup lbackup/usr/bin/lbackup
+	cp ../build/App/libLisaBackuplib.so lbackup/usr/bin/libLisaBackuplib.so
 
 scripts:
 	mkdir -p lbackup/usr/share/lbackup
@@ -26,7 +27,8 @@ doversion: lbackup.deb
 installer:
 	rm -rf installer/lbackup
 	[ -d installer/lbackup/scripts ] || mkdir -p installer/lbackup/scripts
-	cp ../build/App/App installer/lbackup/lbackup
+	cp ../build/App/LisaBackup installer/lbackup/lbackup
+	cp ../build/App/libLisaBackuplib.so installer/lbackup/
 	cp ../scripts/installer/*.sh installer/lbackup/
 	cp -r ../scripts/app/* installer/lbackup/scripts
 	cd installer && tar zcvf lbackup_$(LBACKUP_VERSION)_amd64.tar.gz lbackup
