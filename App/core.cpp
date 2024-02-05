@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QFile>
 
+
+
 SourceDetails::SourceDetails() :
     backupType(all),
     backupDepth(directChildren),
@@ -57,7 +59,7 @@ QDataStream& operator << (QDataStream& s, const BackupDetails& backupDetails) {
     //s << backupDetails.backupName;  // skip this. We treat it separately
     s << backupDetails.friendlyName;
     s << backupDetails.systemdId;
-    s << backupDetails.destinationBaseSuffixPath;
+    s << backupDetails.destinationPath;
     return s;
 }
 
@@ -65,7 +67,7 @@ QDataStream& operator >> (QDataStream& s, BackupDetails& backupDetails) {
     //s >> backupDetails.backupName; // skip this. We treat it separately
     s >> backupDetails.friendlyName;
     s >> backupDetails.systemdId;
-    s >> backupDetails.destinationBaseSuffixPath;
+    s >> backupDetails.destinationPath;
     return s;
 }
 
@@ -79,4 +81,25 @@ QDataStream& operator >> (QDataStream& s, BackupModel& pmodel) {
     s >> pmodel.backupDetails;
     s >> pmodel.allSourceDetails;
     return s;
+}
+
+QDataStream &operator<<(QDataStream &out, const MountedDevice &triggerSettingsEntry) {
+    out << triggerSettingsEntry.uuid;
+    out << triggerSettingsEntry.label;
+    out << triggerSettingsEntry.mountPoint;
+
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, MountedDevice &triggerSettingsEntry) {
+    in >> triggerSettingsEntry.uuid;
+    in >> triggerSettingsEntry.label;
+    in >> triggerSettingsEntry.mountPoint;
+    return in;
+}
+
+
+
+void registerQtMetatypes() {
+    qRegisterMetaTypeStreamOperators<MountedDevice>("MountedDevice");
 }

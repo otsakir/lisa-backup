@@ -3,7 +3,7 @@
 #include "ui_settingsdialog.h"
 
 #include <QSettings>
-#include "settings.h"
+#include "../settings.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),

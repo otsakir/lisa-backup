@@ -6,26 +6,49 @@
 
 /*!
  * \class MountedDevice
- * \brief Cached information for mounted devices
+ * \brief Cached information for mounted devices. Also saved in settings 'triggersAsUuids/' per task.
  */
 struct MountedDevice
 {
-    QStringList mountPoints;
+    QString mountPoint;
     QString label;
-    QString uuid;
+    QString uuid; // dbus-provided UUID for mounted disk
+
+    MountedDevice()
+        : mountPoint(""), label(""), uuid("")
+    {}
+
+    MountedDevice(QString uuid)
+        : MountedDevice()
+    {
+        this-> uuid = uuid;
+    }
+
+    MountedDevice(const MountedDevice& other)
+    {
+        this->uuid = other.uuid;
+        this->label = other.label;
+        this->mountPoint = other.mountPoint;
+    }
 
     operator QString()
     {
-        return QString("{mountPoints: (%1), label: %2, uuid: %3}").arg(mountPoints.join(","), label, uuid);
+        return QString("{mountPoint: %1, label: %2, uuid: %3}").arg(mountPoint, label, uuid);
     }
 
     void clear()
     {
-        mountPoints.clear();
+        mountPoint.clear();
         label.clear();
         uuid.clear();
     }
 };
+Q_DECLARE_METATYPE(MountedDevice)
+
+QDataStream &operator<<(QDataStream &out, const MountedDevice &myObj);
+
+QDataStream &operator>>(QDataStream &in, MountedDevice &myObj);
+
 
 
 /*!
@@ -128,7 +151,7 @@ struct BackupDetails {
     QString systemdId; // identifier part for the systemd service name
     //QString backupName; // identifier for task resources. systemd service, backup bash script etc.
     QString friendlyName; // user friendly name of the task
-    QString destinationBaseSuffixPath; // together with 'destinationBasePath' forms the destination directory for the backup
+    QString destinationPath; // absolute path of destination diriectory
 
     BackupDetails() {}
 
@@ -137,7 +160,7 @@ struct BackupDetails {
         //backupName = from.backupName;
         tmp = from.tmp;
         friendlyName = from.friendlyName;
-        destinationBaseSuffixPath = from.destinationBaseSuffixPath;
+        destinationPath = from.destinationPath;
 
         return *this;
     }
@@ -145,7 +168,7 @@ struct BackupDetails {
     bool operator==(const BackupDetails& other) const {
         return (systemdId == other.systemdId) &&
                 (friendlyName == other.friendlyName) &&
-                (destinationBaseSuffixPath == other.destinationBaseSuffixPath);
+                (destinationPath == other.destinationPath);
     }
 
     BackupDetails(const BackupDetails& from) {
@@ -153,14 +176,12 @@ struct BackupDetails {
         //backupName = from.backupName;
         tmp = from.tmp;
         friendlyName = from.friendlyName;
-        destinationBaseSuffixPath = from.destinationBaseSuffixPath;
+        destinationPath = from.destinationPath;
     }
 
 public:
     const QString &getDestinationBasePath() const;
 
-private:
-    Q_PROPERTY(QString destinationBasePath READ getDestinationBasePath CONSTANT)
 };
 
 // Data model used for readind/writing to disk. It doesn't allocate memory.
@@ -200,6 +221,11 @@ public:
     QString lastSystemdMountUnit; // last unit name we believe is used in the trigger i.e. unit name in a freshly loaded task or unit name used in a trigger just installed
     QList<MountedDevice> mountedDevices;
 };
+
+
+
+
+void registerQtMetatypes();
 
 
 #endif // CORE_H

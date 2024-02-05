@@ -558,7 +558,7 @@
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_15">
                      <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_11">
+                      <layout class="QVBoxLayout" name="verticalLayout_Destination">
                        <property name="spacing">
                         <number>6</number>
                        </property>
@@ -598,6 +598,22 @@
                          </item>
                         </layout>
                        </item>
+                       <item>
+                        <widget class="QLabel" name="label_DestinationWarning">
+                         <property name="font">
+                          <font>
+                           <pointsize>9</pointsize>
+                           <kerning>true</kerning>
+                          </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">color:orange;</string>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
                       </layout>
                      </item>
                     </layout>
@@ -625,7 +641,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton">
+               <widget class="QPushButton" name="pushButtonSaveTask">
                 <property name="minimumSize">
                  <size>
                   <width>115</width>
@@ -660,11 +676,14 @@
             </item>
             <item>
              <widget class="QGroupBox" name="groupBoxTriggering">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="title">
                <string>Triggering</string>
               </property>
               <property name="checkable">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_5">
                <item>
@@ -672,17 +691,7 @@
                  <item>
                   <layout class="QVBoxLayout" name="verticalLayout_14">
                    <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_9">
-                     <item>
-                      <widget class="QComboBox" name="comboBoxBasePath">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                      </widget>
-                     </item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_Triggering">
                      <item>
                       <widget class="QPushButton" name="pushButtonRefreshBasePaths">
                        <property name="text">
@@ -691,13 +700,6 @@
                       </widget>
                      </item>
                     </layout>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="labelPlaceholder">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
                    </item>
                   </layout>
                  </item>
@@ -766,12 +768,12 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;Task</string>
+     <string>&amp;Tasks</string>
     </property>
     <addaction name="action_New"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
-    <addaction name="action_Open"/>
+    <addaction name="action_ManageTasks"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -817,9 +819,12 @@
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="action_Open">
+  <action name="action_ManageTasks">
    <property name="text">
-    <string>&amp;Manage tasks</string>
+    <string>&amp;Manage...</string>
+   </property>
+   <property name="iconText">
+    <string>Manage tasks</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
@@ -850,6 +855,11 @@
   <action name="actionSe_ttings">
    <property name="text">
     <string>Se&amp;ttings...</string>
+   </property>
+  </action>
+  <action name="actionShow_trigger_monitor">
+   <property name="text">
+    <string>Trigger monitor...</string>
    </property>
   </action>
  </widget>

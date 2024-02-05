@@ -69,10 +69,14 @@ bool DbusUtils::parseInterfacesAddedSignal(const QString& objectPath, const Inte
     if (objectPath.startsWith("/org/freedesktop/UDisks2/block_devices/"))
     {
         QVariant qvariant = interfaceList["org.freedesktop.UDisks2.Block"]["IdLabel"];
-        label = qvariant.isValid() ? qvariant.toString() : "";
-        qvariant = interfaceList["org.freedesktop.UDisks2.Block"]["IdUUID"];
-        uuid = qvariant.isValid() ? qvariant.toString() : "";
-        return true;
+        if (interfaceList.contains("org.freedesktop.UDisks2.Filesystem"))
+        {
+            label = qvariant.isValid() ? qvariant.toString() : "";
+            qvariant = interfaceList["org.freedesktop.UDisks2.Block"]["IdUUID"];
+            uuid = qvariant.isValid() ? qvariant.toString() : "";
+            if (!uuid.isEmpty())
+                return true;
+        }
     }
     return false;
 }
@@ -121,12 +125,9 @@ bool DbusUtils::getMountedDevices(QList<MountedDevice>& mountedDevices)
             {
                 mountPointsArgument >>  mountPoints;
                 MountPoints::const_iterator mountPoints_i = mountPoints.constBegin();
-                while (mountPoints_i != mountPoints.constEnd())
+                if (mountPoints_i != mountPoints.constEnd())
                 {
-                    QString mountPointString(*mountPoints_i);
-                    mountedDevice.mountPoints.append(mountPointString);
-
-                    mountPoints_i++;
+                    mountedDevice.mountPoint = QString(*mountPoints_i);
                 }
                 mountedDevice.label = blockDevice["org.freedesktop.UDisks2.Block"]["IdLabel"].toString();
                 mountedDevice.uuid = blockDevice["org.freedesktop.UDisks2.Block"]["IdUUID"].toString();

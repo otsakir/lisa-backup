@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>439</width>
+    <width>372</width>
     <height>285</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidgetWizard">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page1wizardStart">
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -97,7 +97,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>### Review existing task
+            <string>### Open existing task
  Alternatively, open one of the existing tasks.</string>
            </property>
            <property name="textFormat">
@@ -291,81 +291,6 @@
            </property>
            <property name="flat">
             <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page3Open">
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <item>
-        <widget class="QLabel" name="label_5">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>18</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Available tasks</string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::MarkdownText</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <property name="topMargin">
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QPushButton" name="pushButtonDeleteInPageOpen">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButtonOpenInPageOpen">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Open</string>
-           </property>
-           <property name="default">
-            <bool>true</bool>
            </property>
           </widget>
          </item>

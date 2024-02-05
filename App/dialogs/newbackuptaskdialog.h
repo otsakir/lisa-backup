@@ -1,13 +1,14 @@
 #ifndef NEWBACKUPTASKDIALOG_H
 #define NEWBACKUPTASKDIALOG_H
 
-#include "treeviewtasks.h"
+#include "../appcontext.h"
 
 #include <QDialog>
 
 namespace Ui {
 class NewBackupTaskDialog;
 }
+class TreeViewTasks;
 
 class NewBackupTaskDialog : public QDialog
 {
@@ -25,7 +26,7 @@ public:
         OpenOnly = 2
     } mode;
 
-    explicit NewBackupTaskDialog(QWidget *parent = nullptr, Mode pMode=Wizard);
+    explicit NewBackupTaskDialog(AppContext* appContext, QWidget *parent = nullptr, Mode pMode=Wizard);
     ~NewBackupTaskDialog();
 
 signals:

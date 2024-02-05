@@ -14,6 +14,15 @@ function(SETUP_TESTS)
        endforeach()
 endfunction()
 
+add_executable(tasks tst_tasks.cpp)
+add_test(NAME Tasks COMMAND Tasks)
+add_custom_command(TARGET tasks
+    POST_BUILD
+    COMMAND rm -rf ./task-repos && cp -r ${CMAKE_CURRENT_SOURCE_DIR}/task-repos .
+)
+target_link_libraries(tasks PRIVATE Qt5::Test LisaBackuplib)
+
+
 SETUP_TESTS(
    triggering
 )

@@ -7,8 +7,7 @@
 #include <QStandardItemModel>
 
 #include <QProcess>
-#include "core.h"
-#include "dbusutils.h"
+#include "../core.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,13 +18,16 @@ struct BackupDetails;
 class BackupModel;
 class SourceDetails;
 class Session;
+class TaskLoader;
+class AppContext;
+class TriggeringComboBox;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QString taskName, QWidget *parent = nullptr);
+    MainWindow(QString taskName, AppContext* appContext,  QWidget *parent = nullptr);
     ~MainWindow();
 
 signals:
@@ -37,6 +39,9 @@ signals:
     void systemdUnitChanged(QString unitName); // raised when the contents of the systemd lineedit control have been modified
     void modelUpdated(BackupModel::ValueType valueType = BackupModel::unset); // any change in the model triggers this
     void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
+    void taskSaved(const QString taskId); // a task was saved to disk; state.modelCopy model has been updated.
+
+    void showTaskManagerTriggered(QString preselectTaskId);
 
 private slots:
 
@@ -51,8 +56,6 @@ private slots:
 
     void on_removeSourceButton_clicked();
 
-    void on_comboBoxDepth_currentIndexChanged(int index);
-
     void on_radioButtonAll_toggled(bool checked);
 
     void on_radioButtonSelective_toggled(bool checked);
@@ -61,17 +64,13 @@ private slots:
 
     void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
 
-    void checkLineEditDestinationSuffixPath();
+    void checkLineEditDestinationSuffixPath(const QString& newText);
 
     void on_activeBackupMethodChanged(int backupType);
 
     void on_action_New_triggered();
 
-    void on_action_Open_triggered();
-
     void on_pushButtonRefreshBasePaths_clicked();
-
-    void on_comboBoxBasePath_currentIndexChanged(int index);
 
     void on_action_Save_triggered();
 
@@ -101,7 +100,12 @@ private slots:
 
     void on_actionSe_ttings_triggered();
 
-    void handleMounted(const QString& label, const QString& uuid);
+    void _triggerEntrySelected(MountedDevice newTriggerEntry);
+
+    void on_comboBoxDepth_currentIndexChanged(int comboIndex);
+
+public slots:
+    void editTask(const QString& taskid);
 
 protected:
     virtual void closeEvent (QCloseEvent *event);
@@ -116,7 +120,11 @@ private:
     QString taskName;
     bool newBackupTaskDialogShown = false;
     QProcess consoleProcess;
-    DbusUtils dbusUtils;
+    TaskLoader* taskLoader;
+    AppContext* appContext;
+
+    TriggeringComboBox* triggeringCombo;
+    //QList<MountedDevice> triggerEntries;
 
     bool openTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);
@@ -128,7 +136,6 @@ private:
     int checkSave(); // returns QMessageBox::X status or -1
     void applyChanges();
     void appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption);
-    void refreshBasePaths(const QString& current);
 
     void consoleProcessStarted();
     void consoleProcessDataAvail();
@@ -141,8 +148,8 @@ private:
 
 private slots:
     void afterWindowShown();
-    void onCheckBoxMountTriggerClicked(int status);
     void on_pushButtonChooseDestinationSubdir_clicked();
-    void on_groupBoxTriggering_clicked(bool checked);
+    void on_pushButtonSaveTask_clicked();
+    void on_action_ManageTasks_triggered();
 };
 #endif // MAINWINDOW_H

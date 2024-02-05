@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "dialogs/mainwindow.h"
 
 
 #include <QApplication>
@@ -14,6 +14,10 @@
 #include "settings.h"
 #include "conf.h"
 #include <QMessageBox>
+#include "utils.h"
+#include "appcontext.h"
+#include "dialogs/taskmanager.h"
+#include "taskrunnermanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,13 +26,18 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName("Lisa Backup");
 
     QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
+    registerQtMetatypes();
 
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
 
 
 
+    AppContext appContext;
+
+
+
     QSettings settings;
-    //settings.setValue("initialized", false);  // remove settings file and uncomment this to start afresh
+    settings.setValue("initialized", false);  // Remove settings file. Uncomment this to start afresh
 
     if ( ! settings.value("initialized", false).toBool())
     {
@@ -37,8 +46,10 @@ int main(int argc, char *argv[])
         settings.setValue("taskrunner/ShowConfirmation", 2); // i.e. true
         settings.setValue("initialized",true);
         settings.setValue(Settings::LoglevelKey, static_cast<int>(Settings::Loglevel::Errors));
+        settings.setValue(Settings::DataDirectoryKey, Lb::dataDirectory());
     }
     settings.setValue("ApplicationFilePath", QApplication::applicationFilePath());
+    qInfo() << "Settings file path:" << settings.fileName();
 
     //parse command line
     QCommandLineParser parser;
@@ -55,14 +66,16 @@ int main(int argc, char *argv[])
     if (parser.isSet(taskOption))
         taskName = parser.value(taskOption);
 
+    TaskLoader taskLoader(Lb::dataDirectory());
+
     if (parser.isSet(runOption))    // "CLI" mode
     {
         if (parser.isSet(taskOption))
         {
             BackupModel persisted;
-            if (Tasks::loadTask(taskName,persisted))
+            if (taskLoader.loadTask(taskName,persisted))
             {
-                if (settings.value("taskrunner/ShowConfirmation").toInt() == 2)
+                if (settings.value(Settings::TaskrunnerConfirmKey).toInt() == 2)
                 {
                     QMessageBox messageBox(QMessageBox::Information, "Lisa Backup", QString("Backup task '%1' triggered. Shall i proceed ?").arg(taskName), QMessageBox::Yes | QMessageBox::Cancel, nullptr,Qt::Dialog);
                     int ret = messageBox.exec();
@@ -93,7 +106,18 @@ int main(int argc, char *argv[])
 
     // "GUI" mode
     QIcon::setThemeName("Papirus");
-    MainWindow w(taskName);
+    TaskRunnerManager taskRunnerManager;
+    appContext.taskRunnerManager = &taskRunnerManager;
+    MainWindow w(taskName, &appContext);
+    TaskManager taskManagerWindow(&appContext);
+
+    // wiring between different windows done here to reduce coupling
+    w.connect(&w, &MainWindow::showTaskManagerTriggered, &taskManagerWindow, &TaskManager::showPreselectedTask);
+    w.connect(&taskManagerWindow, &TaskManager::taskSelectedForEdit, &w, &MainWindow::editTask);
+    w.connect(&taskManagerWindow, &TaskManager::runTask, &taskRunnerManager, &TaskRunnerManager::runTask); // run backup tasks from taskManager
+
+
+    //qDebug() << "delete on close: " << triggerMonitorWindow.testAttribute(Qt::WA_DeleteOnClose);
 
     // center within desktop
     QDesktopWidget *desktop = QApplication::desktop();
@@ -101,5 +125,6 @@ int main(int argc, char *argv[])
     w.move(windowOrigin);
 
     w.show();
+    //triggerMonitorWindow.show();
     return a.exec();
 }

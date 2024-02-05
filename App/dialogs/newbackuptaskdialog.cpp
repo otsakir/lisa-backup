@@ -7,26 +7,21 @@
 #include <QDir>
 #include <QStandardItem>
 #include <QMessageBox>
-#include "treeviewtasks.h"
+#include "components/treeviewtasks.h"
 
-#include "core.h"
-#include "utils.h"
-#include "task.h"
-#include "terminal.h"
-#include "scripting.h"
+#include "../core.h"
+#include "../task.h"
 
-NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
+NewBackupTaskDialog::NewBackupTaskDialog(AppContext* appContext, QWidget *parent, Mode pMode) :
     QDialog(parent),
     ui(new Ui::NewBackupTaskDialog)
 {
     ui->setupUi(this);
 
     ui->pushButtonBackFromCreate->setIcon(QIcon(":/custom-icons/chevron-left.svg"));
-    ui->pushButtonDeleteInPageOpen->setIcon(QIcon(":/custom-icons/trash.svg"));
 
     QObject::connect(this, &NewBackupTaskDialog::wizardStepActivated, this, &NewBackupTaskDialog::on_wizardStepActivated);
     connect(ui->pushButtonOpen, &QPushButton::clicked, this, &NewBackupTaskDialog::on_OpenTask);
-    connect(ui->pushButtonOpenInPageOpen, &QPushButton::clicked, this, &NewBackupTaskDialog::on_OpenTask);
 
     mode = pMode;
 
@@ -46,13 +41,11 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
     emit ui->stackedWidgetWizard->currentChanged(mode);
 
 
-    if (mode == Wizard || mode == OpenOnly)
+    if (mode == Wizard)
     {
-        tasks = new TreeViewTasks(this);
+        tasks = new TreeViewTasks(appContext->getTaskLoader(), appContext->taskRunnerManager, this);
         connect(tasks, &TreeViewTasks::currentTaskIs, this, &NewBackupTaskDialog::onCurrentTaskIs);
         connect(tasks, &TreeViewTasks::doubleClicked,this, &NewBackupTaskDialog::on_OpenTask);
-        connect(ui->pushButtonDeleteInPageOpen, &QPushButton::clicked, tasks, &TreeViewTasks::removeCurrent);
-
     }
 
     ui->pushButtonOpen->setDisabled(true); // nothing selected
@@ -71,11 +64,6 @@ NewBackupTaskDialog::NewBackupTaskDialog(QWidget *parent, Mode pMode) :
 
             }
         }
-    } else if (mode == OpenOnly) {
-        this->setWindowTitle("Manage backup tasks");
-        ui->pushButtonDeleteInPageOpen->setEnabled(tasks->taskCount() > 0);
-        ui->pushButtonOpenInPageOpen->setEnabled(tasks->taskCount() > 0);
-        static_cast<QHBoxLayout*>(ui->page3Open->layout())->insertWidget(1, tasks);
     } else if (mode == CreateOnly) {
         this->setWindowTitle("Start new task");
     } else {
@@ -149,8 +137,6 @@ void NewBackupTaskDialog::onCurrentTaskIs(QString taskName, const QModelIndex& m
 {
     bool valid = modelIndex.isValid();
     ui->pushButtonOpen->setEnabled(valid);
-    ui->pushButtonOpenInPageOpen->setEnabled(valid);
-    ui->pushButtonDeleteInPageOpen->setEnabled(valid);
     selectedTask = taskName;
 }
 

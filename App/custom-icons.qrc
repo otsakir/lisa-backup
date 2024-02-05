@@ -5,5 +5,9 @@
         <file>custom-icons/file-plus.svg</file>
         <file>custom-icons/chevron-right.svg</file>
         <file>custom-icons/alert-triangle.svg</file>
+        <file>custom-icons/link-off.svg</file>
+        <file>custom-icons/play.svg</file>
+        <file>custom-icons/stop.svg</file>
+        <file>custom-icons/script.svg</file>
     </qresource>
 </RCC>
