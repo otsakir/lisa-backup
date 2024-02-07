@@ -9,5 +9,11 @@
         <file>custom-icons/play.svg</file>
         <file>custom-icons/stop.svg</file>
         <file>custom-icons/script.svg</file>
+        <file>custom-icons/save.svg</file>
+        <file>custom-icons/chevron-up.svg</file>
+        <file>custom-icons/chevron-down.svg</file>
+        <file>custom-icons/folder-minus.svg</file>
+        <file>custom-icons/folder-plus.svg</file>
+        <file>custom-icons/refresh.svg</file>
     </qresource>
 </RCC>

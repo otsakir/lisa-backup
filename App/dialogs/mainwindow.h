@@ -86,8 +86,6 @@ private slots:
 
     void runActiveTask();
 
-    void on_pushButtonAdd_clicked();
-
     void on_radioButtonAuto_toggled(bool checked);
 
     void on_lineEditContainsFilename_textEdited(const QString &arg1);
@@ -119,7 +117,6 @@ private:
     State state; // generic application state. Not part of a backup.
     QString taskName;
     bool newBackupTaskDialogShown = false;
-    QProcess consoleProcess;
     TaskLoader* taskLoader;
     AppContext* appContext;
 
@@ -137,10 +134,6 @@ private:
     void applyChanges();
     void appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption);
 
-    void consoleProcessStarted();
-    void consoleProcessDataAvail();
-    void consoleProcessFinished(int exitCode);
-
     void printCombo();
 
     virtual void showEvent(QShowEvent* event) override;
@@ -151,5 +144,6 @@ private slots:
     void on_pushButtonChooseDestinationSubdir_clicked();
     void on_pushButtonSaveTask_clicked();
     void on_action_ManageTasks_triggered();
+    void on_toolButtonAdd_clicked();
 };
 #endif // MAINWINDOW_H

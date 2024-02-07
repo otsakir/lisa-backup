@@ -7,7 +7,6 @@
 #include "../scripting.h"
 #include "../task.h"
 #include "components/multipledirdialog.h"
-#include "../settings.h"
 
 #include "../core.h"
 
@@ -30,6 +29,7 @@
 #include <QFileSystemModel>
 #include <QTreeView>
 #include <QScroller>
+#include <QCloseEvent>
 
 #include "../dbusutils.h"
 #include "../triggering.h"
@@ -70,8 +70,13 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     sourcesDataMapper->setModel(sourcesModel);
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
-    // setup logging target
-    Logging::setUiConsole(ui->plainTextConsole);
+    ui->toolButtonRun->setIcon(QIcon(":/custom-icons/play.svg"));
+    ui->toolButtonSaveTask->setIcon(QIcon(":/custom-icons/save.svg"));
+    ui->toolButtonAdd->setIcon(QIcon(":/custom-icons/folder-plus.svg"));
+    ui->removeSourceButton->setIcon(QIcon(":/custom-icons/folder-minus.svg"));
+    ui->toolButtonSourceUp->setIcon(QIcon(":/custom-icons/chevron-up.svg"));
+    ui->toolButtonSourceDown->setIcon(QIcon(":/custom-icons/chevron-down.svg"));
+
 
     connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
     connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
@@ -85,9 +90,6 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
     // 'Exit' action bount to 'PleaseQuit' signal
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
-    // consoleProcess events
-    connect(&consoleProcess, &QProcess::readyReadStandardError, this, &MainWindow::consoleProcessDataAvail);
-    connect(&consoleProcess, QOverload<int>::of(&QProcess::finished), this, &MainWindow::consoleProcessFinished);
 
     connect(ui->toolButtonRun, &QPushButton::clicked, this, &MainWindow::runActiveTask);
     //connect(ui->checkBoxOnMountTrigger, &QCheckBox::clicked, this, &MainWindow::onCheckBoxMountTriggerClicked);
@@ -472,15 +474,6 @@ void MainWindow::on_actionDelete_triggered()
     }
 }
 
-void MainWindow::consoleProcessDataAvail() {
-    qInfo() << "console process data available!";
-    QString out = consoleProcess.readAllStandardError();
-    ui->plainTextConsole->appendPlainText(out);
-}
-
-void MainWindow::consoleProcessFinished(int exitCode) {
-    ui->plainTextConsole->appendHtml(QString("<strong>----- Backup script finished. Exit code: %1 -----</strong>").arg(exitCode));
-}
 
 // show newtask dialog, get name and id, persist to .task file, reload and populate UI
 void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
@@ -564,64 +557,8 @@ void MainWindow::runActiveTask()
 {
     TaskRunnerManager* taskRunnerHelper = appContext->taskRunnerManager;
     taskRunnerHelper->runTask(taskName, Common::TaskRunnerReason::Manual);
-
-
-    /*
-    QSettings settings;
-
-    Settings::Taskrunner taskRunner = GET_INT_SETTING(Settings::Taskrunner);
-    if (checkSave() != QMessageBox::Cancel) {
-
-        if ( taskRunner == Settings::Taskrunner::Gui)
-        {
-            QVector<QString> commands;
-            Scripting::buildBackupCommands(*activeBackup, commands);
-            qDebug() << commands;
-            ui->plainTextConsole->appendHtml("<strong>----- Started backup task at " + QDateTime::currentDateTime().toString() + " -----</strong>");
-            for (QString& command: commands)
-            {
-                QProcess process;
-                QString out;
-                //Settings::Loglevel loglevel = static_cast<Settings::Loglevel>(settings.value(Settings::LoglevelKey).toInt());
-                Settings::Loglevel loglevel = GET_INT_SETTING(Settings::Loglevel);
-                if (loglevel == Settings::Loglevel::All)
-                {
-                    process.setProcessChannelMode(QProcess::MergedChannels);
-                    process.start("bash", {"-c", command});
-                    process.waitForFinished(-1);
-                    out = process.readAll();
-                } else
-                if (loglevel == Settings::Loglevel::Errors)
-                {
-                    process.start("bash", {"-c", command});
-                    process.waitForFinished(-1);
-                    out = process.readAllStandardError(); // Terminal::runShellCommand(command);
-                }
-                ui->plainTextConsole->appendHtml(out);
-            }
-            ui->plainTextConsole->appendHtml("<strong>----- Task finished at " + QDateTime::currentDateTime().toString() + " -----</strong>");
-        }
-    }
-    */
 }
 
-
-void MainWindow::on_pushButtonAdd_clicked()
-{
-    MultipleDirDialog dialog(this);
-    if ( dialog.exec() == QDialog::Accepted) {
-
-        for (int i=0; i < dialog.selectedPaths.size(); i++)
-        {
-            SourceDetails sourceDetails;
-            sourceDetails.sourcePath = dialog.selectedPaths[i];
-            activeBackup->allSourceDetails.append(sourceDetails);
-            BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
-            ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
-        }
-    }
-
-}
 
 // assumes there is an source item selected
 void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, BackupModel::SourceDetailsIndex sourceIndex2)
@@ -744,5 +681,22 @@ void MainWindow::on_action_ManageTasks_triggered()
 {
     emit showTaskManagerTriggered(this->taskName);
 
+}
+
+
+void MainWindow::on_toolButtonAdd_clicked()
+{
+    MultipleDirDialog dialog(this);
+    if ( dialog.exec() == QDialog::Accepted) {
+
+        for (int i=0; i < dialog.selectedPaths.size(); i++)
+        {
+            SourceDetails sourceDetails;
+            sourceDetails.sourcePath = dialog.selectedPaths[i];
+            activeBackup->allSourceDetails.append(sourceDetails);
+            BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
+            ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
+        }
+    }
 }
 
