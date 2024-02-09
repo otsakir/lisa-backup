@@ -16,7 +16,7 @@
 #include <QMessageBox>
 #include "utils.h"
 #include "appcontext.h"
-#include "dialogs/taskmanager.h"
+#include "dialogs/components/taskmanager.h"
 #include "taskrunnermanager.h"
 
 int main(int argc, char *argv[])
@@ -109,13 +109,6 @@ int main(int argc, char *argv[])
     TaskRunnerManager taskRunnerManager;
     appContext.taskRunnerManager = &taskRunnerManager;
     MainWindow w(taskName, &appContext);
-    TaskManager taskManagerWindow(&appContext);
-
-    // wiring between different windows done here to reduce coupling
-    w.connect(&w, &MainWindow::showTaskManagerTriggered, &taskManagerWindow, &TaskManager::showPreselectedTask);
-    w.connect(&taskManagerWindow, &TaskManager::taskSelectedForEdit, &w, &MainWindow::editTask);
-    w.connect(&taskManagerWindow, &TaskManager::runTask, &taskRunnerManager, &TaskRunnerManager::runTask); // run backup tasks from taskManager
-
 
     //qDebug() << "delete on close: " << triggerMonitorWindow.testAttribute(Qt::WA_DeleteOnClose);
 

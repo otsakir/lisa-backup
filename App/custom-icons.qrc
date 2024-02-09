@@ -15,5 +15,7 @@
         <file>custom-icons/folder-minus.svg</file>
         <file>custom-icons/folder-plus.svg</file>
         <file>custom-icons/refresh.svg</file>
+        <file>custom-icons/edit.svg</file>
+        <file>custom-icons/settings.svg</file>
     </qresource>
 </RCC>

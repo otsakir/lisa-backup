@@ -1,9 +1,10 @@
 #ifndef TRIGGERMONITOR_H
 #define TRIGGERMONITOR_H
 
-#include <QDialog>
-#include "../appcontext.h"
-#include "../common.h"
+#include <QGroupBox>
+#include <QWidget>
+#include "../../appcontext.h"
+#include "../../common.h"
 
 class DbusUtils;
 
@@ -13,7 +14,7 @@ class TaskManager;
 class TreeViewTasks;
 
 
-class TaskManager : public QDialog
+class TaskManager : public QGroupBox
 {
     Q_OBJECT
 
@@ -32,19 +33,23 @@ private:
 
 private slots:
     void handleMounted(const QString& label, const QString& uuid);
-    void refreshView();
     void currentTaskChanged(QString taskid);
+    void selectTask(QString taskid);
 
     void on_pushButtonEditTask_clicked();
     void OnPushButtonRun();
 
 public slots:
+    void editTaskClicked();
     void showPreselectedTask(QString taskid);
+    void refreshView(const QString taskid);
+    void setBoldListEntry(const QString taskid); // make a single entry of the list bold
 
 signals:
     void shown();
     void taskSelectedForEdit(const QString taskid);
     void runTask(const QString taskname, Common::TaskRunnerReason reason, bool show);
+    void newTask();
 
 
 };

@@ -21,6 +21,7 @@ class Session;
 class TaskLoader;
 class AppContext;
 class TriggeringComboBox;
+class TaskManager;
 
 class MainWindow : public QMainWindow
 {
@@ -41,7 +42,7 @@ signals:
     void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
     void taskSaved(const QString taskId); // a task was saved to disk; state.modelCopy model has been updated.
 
-    void showTaskManagerTriggered(QString preselectTaskId);
+    void newTaskCreated(const QString taskId);
 
 private slots:
 
@@ -67,8 +68,6 @@ private slots:
     void checkLineEditDestinationSuffixPath(const QString& newText);
 
     void on_activeBackupMethodChanged(int backupType);
-
-    void on_action_New_triggered();
 
     void on_pushButtonRefreshBasePaths_clicked();
 
@@ -102,6 +101,10 @@ private slots:
 
     void on_comboBoxDepth_currentIndexChanged(int comboIndex);
 
+    void on_action_New_triggered();
+
+    void createNewTask(); // Initiates new task workflow. Asks user for id, validates, creates task file.
+
 public slots:
     void editTask(const QString& taskid);
 
@@ -119,6 +122,7 @@ private:
     bool newBackupTaskDialogShown = false;
     TaskLoader* taskLoader;
     AppContext* appContext;
+    TaskManager* taskManager;
 
     TriggeringComboBox* triggeringCombo;
     //QList<MountedDevice> triggerEntries;
@@ -142,8 +146,8 @@ private:
 private slots:
     void afterWindowShown();
     void on_pushButtonChooseDestinationSubdir_clicked();
-    void on_pushButtonSaveTask_clicked();
-    void on_action_ManageTasks_triggered();
+    //void on_pushButtonSaveTask_clicked();
+    //void on_action_ManageTasks_triggered();
     void on_toolButtonAdd_clicked();
 };
 #endif // MAINWINDOW_H

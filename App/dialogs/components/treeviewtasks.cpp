@@ -17,9 +17,13 @@ TreeViewTasks::TreeViewTasks(TaskLoader* taskLoader, TaskRunnerManager *taskRunn
     taskRunnerHelper(taskRunnerHelper),
     detailsShown(false)
 {
-    QStandardItemModel* model = new QStandardItemModel(0,4,this);
+    model = new QStandardItemModel(0,4,this);
     setModel(model);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    QFont boldFont(this->font());
+    boldFont.setBold(true);
+    this->boldFont = boldFont;
 
     connect(selectionModel(), &QItemSelectionModel::currentRowChanged, this, &TreeViewTasks::onCurrentChanged);
     connect(taskRunnerHelper, &TaskRunnerManager::taskRunnerEvent, this, &TreeViewTasks::onTaskRunnerEvent);
@@ -44,20 +48,19 @@ TreeViewTasks::~TreeViewTasks()
  */
 void TreeViewTasks::populateTasks()
 {
-    QStandardItemModel* dataModel = static_cast<QStandardItemModel*>(model());
-    dataModel->clear();
+    model->clear();
     if (detailsShown)
     {
-        dataModel->setColumnCount(3);
-        dataModel->setHorizontalHeaderItem(0, new QStandardItem("Task"));
-        dataModel->setHorizontalHeaderItem(1, new QStandardItem("Destination"));
-        dataModel->setHorizontalHeaderItem(2, new QStandardItem("Triggering device"));
-        dataModel->setHorizontalHeaderItem(3, new QStandardItem("Status"));
+        model->setColumnCount(3);
+        model->setHorizontalHeaderItem(0, new QStandardItem("Task"));
+        model->setHorizontalHeaderItem(1, new QStandardItem("Destination"));
+        model->setHorizontalHeaderItem(2, new QStandardItem("Triggering device"));
+        model->setHorizontalHeaderItem(3, new QStandardItem("Status"));
     } else
     {
-        dataModel->setColumnCount(1);
+        model->setColumnCount(1);
     }
-    setModel(dataModel);
+    setModel(model);
 
     refresh("");
 }
@@ -65,17 +68,32 @@ void TreeViewTasks::populateTasks()
 // returns -1 if task is not found
 int TreeViewTasks::rowByTaskname(const QString taskname)
 {
-    QStandardItemModel* dataModel = static_cast<QStandardItemModel*>(model());
-
-    for (int irow = 0; irow < dataModel->rowCount(); irow++)
+    for (int irow = 0; irow < model->rowCount(); irow++)
     {
-        QString anyTaskname = dataModel->item(irow, 0)->text();
+        QString anyTaskname = model->item(irow, 0)->text();
         qInfo() << "iterating over task" << anyTaskname;
         if (taskname == anyTaskname)
             return irow;
     }
     return -1;
 
+}
+
+void TreeViewTasks::boldSingleRow(int row)
+{
+    for (int i = 0; i < model->rowCount(); i++)
+    {
+        QModelIndex index = model->index(i, 0);
+        if (i == row)
+            model->setData(index, this->boldFont, Qt::FontRole);
+        else
+            model->setData(index, font(), Qt::FontRole);
+    }
+}
+
+void TreeViewTasks::boldSingleRow(const QString &taskname)
+{
+    boldSingleRow(rowByTaskname(taskname));
 }
 
 /**
@@ -101,8 +119,7 @@ const QString TreeViewTasks::currentTaskId()
  */
 void TreeViewTasks::refresh(const QString& reselectTask)
 {
-    QStandardItemModel* dataModel = static_cast<QStandardItemModel*>(model());
-    dataModel->removeRows(0, model()->rowCount());
+    model->removeRows(0, model->rowCount());
 
     int counter = 0;
     int reselectPosition = -1;
@@ -142,7 +159,7 @@ void TreeViewTasks::refresh(const QString& reselectTask)
             }
             else
                 rowItems << /*new QStandardItem(backupModel.backupDetails.friendlyName) << */ new QStandardItem(taskId);
-            dataModel->appendRow(rowItems);
+            model->appendRow(rowItems);
         } else {
             // TODO - log error
         }
@@ -150,12 +167,12 @@ void TreeViewTasks::refresh(const QString& reselectTask)
     }
 
     if (reselectPosition != -1)
-        this->setCurrentIndex(dataModel->index(reselectPosition,0));
+        this->setCurrentIndex(model->index(reselectPosition,0));
 }
 
 int TreeViewTasks::taskCount()
 {
-    return model()->rowCount();
+    return model->rowCount();
 }
 
 
@@ -182,7 +199,7 @@ void TreeViewTasks::removeCurrent()
         Triggering::disableMountTrigger(taskId);
         Tasks::deleteTask(taskId); // TODO - error handling ? where ?
         // and the entry from the table/tree
-        model()->removeRow(current.row());
+        model->removeRow(current.row());
         refresh("");
     } else
         return;
@@ -195,18 +212,16 @@ void TreeViewTasks::onTaskRunnerEvent(const QString taskname, Common::TaskRunner
         return;
 
     QProcess::ProcessState processState = taskRunner->getScriptProcess().state();
-    QStandardItemModel* dataModel = static_cast<QStandardItemModel*>(model());
     int row = rowByTaskname(taskname);
     if (row != -1)
     {
         QString processStateString = TaskRunnerDialog::processStateToString(processState);
-        dataModel->item(row, 3) -> setText(processStateString);
+        model->item(row, 3) -> setText(processStateString);
     }
 }
 
 void TreeViewTasks::showEvent(QShowEvent *event)
 {
-    QAbstractItemModel* model = this->model();
     if (model->rowCount() > 0)
     {
         const QModelIndex& firstIndex = model->index(0,0);
@@ -216,6 +231,20 @@ void TreeViewTasks::showEvent(QShowEvent *event)
 
     event->accept();
 }
+
+void TreeViewTasks::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    QModelIndex modelIndex = indexAt(event->localPos().toPoint());
+    int row = modelIndex.row();
+    if (row > -1)
+    {
+        qInfo() << "Double clicked at row " << row;
+        boldSingleRow(row);
+        emit taskDoubleClicked(modelIndex.data().toString());
+    }
+}
+
+
 
 void TreeViewTasks::onCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {

@@ -36,6 +36,7 @@
 #include "../appcontext.h"
 #include "components/triggeringcombobox.h"
 #include "../taskrunnermanager.h"
+#include "components/taskmanager.h"
 
 
 
@@ -70,13 +71,19 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     sourcesDataMapper->setModel(sourcesModel);
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
-    ui->toolButtonRun->setIcon(QIcon(":/custom-icons/play.svg"));
+    taskManager = new TaskManager(appContext, this);
+    static_cast<QVBoxLayout*>(ui->tasksWrap->layout())->insertWidget(0, taskManager);
+    connect(taskManager, &TaskManager::taskSelectedForEdit, this, &MainWindow::editTask);
+    connect(taskManager, &TaskManager::runTask, appContext->taskRunnerManager, &TaskRunnerManager::runTask); // run backup tasks from taskManager
+
+//    TaskRunnerManager* taskRunnerHelper = appContext->taskRunnerManager;
+//    taskRunnerHelper->runTask(taskName, Common::TaskRunnerReason::Manual);
+
     ui->toolButtonSaveTask->setIcon(QIcon(":/custom-icons/save.svg"));
     ui->toolButtonAdd->setIcon(QIcon(":/custom-icons/folder-plus.svg"));
     ui->removeSourceButton->setIcon(QIcon(":/custom-icons/folder-minus.svg"));
     ui->toolButtonSourceUp->setIcon(QIcon(":/custom-icons/chevron-up.svg"));
     ui->toolButtonSourceDown->setIcon(QIcon(":/custom-icons/chevron-down.svg"));
-
 
     connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
     connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
@@ -90,14 +97,11 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
     // 'Exit' action bount to 'PleaseQuit' signal
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
-
-    connect(ui->toolButtonRun, &QPushButton::clicked, this, &MainWindow::runActiveTask);
-    //connect(ui->checkBoxOnMountTrigger, &QCheckBox::clicked, this, &MainWindow::onCheckBoxMountTriggerClicked);
-    //connect(ui->lineEditDestinationSuffixPath, &QLineEdit::editingFinished, this, &MainWindow::checkLineEditDestinationSuffixPath);
+    connect(taskManager, &TaskManager::newTask, this, &MainWindow::on_action_New_triggered);
+    connect(this, &MainWindow::newTaskCreated, taskManager, &TaskManager::refreshView);
     connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
+    //connect(taskManager, &TaskManager::taskSelectedForEdit)
     //connect(ui->comboBoxBasePath, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_comboBoxBasePath_currentIndexChanged);
-
-    //connect(ui->action_ManageTasks, &QAction::triggered, this, &MainWindow::showTriggerMonitorClicked);
 
 
     triggeringCombo = new TriggeringComboBox(this);
@@ -134,7 +138,7 @@ bool MainWindow::openTask(QString taskId) {
             initUIControls(*activeBackup);
             state.modelCopy = *activeBackup;
             this->taskName = taskId;
-            ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageAll));
+            //ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageAll));
             return true;
         } else {
             qCritical() << "[critical] error loading task " << taskId;
@@ -142,7 +146,7 @@ bool MainWindow::openTask(QString taskId) {
     }
 
     this->taskName.clear();
-    ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageNothing));
+    //ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageNothing));
 }
 
 
@@ -389,10 +393,16 @@ void MainWindow::checkLineEditDestinationSuffixPath(const QString& newText)
 void MainWindow::on_action_New_triggered()
 {
     if (checkSave() != QMessageBox::Cancel) {
-        NewBackupTaskDialog dialog(appContext, this, NewBackupTaskDialog::CreateOnly);
-        if ( dialog.exec() == QDialog::Accepted) {
-            openTask(dialog.result.id);
-        }
+        createNewTask();
+    }
+}
+
+void MainWindow::createNewTask()
+{
+    NewBackupTaskDialog dialog(appContext, this, NewBackupTaskDialog::CreateOnly);
+    if ( dialog.exec() == QDialog::Accepted) {
+        // task has been created
+        emit newTaskCreated(dialog.result.id);
     }
 }
 
@@ -423,7 +433,10 @@ void MainWindow::editTask(const QString& taskid)
     if (checkSave() != QMessageBox::Cancel) {
         //NewBackupTaskDialog dialog(appContext, this, NewBackupTaskDialog::OpenOnly);
         //if (dialog.exec() == QDialog::Accepted) {
-        openTask(taskid);
+        if (openTask(taskid))
+        {
+            ui->labelTaskHeading->setText(QString("[%1]").arg(taskid));
+        }
         //}
     }
 }
@@ -671,17 +684,11 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 }
 
 
-void MainWindow::on_pushButtonSaveTask_clicked()
-{
-    applyChanges();
-}
+//void MainWindow::on_pushButtonSaveTask_clicked()
+//{
+//    applyChanges();
+//}
 
-
-void MainWindow::on_action_ManageTasks_triggered()
-{
-    emit showTaskManagerTriggered(this->taskName);
-
-}
 
 
 void MainWindow::on_toolButtonAdd_clicked()

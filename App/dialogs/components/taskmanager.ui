@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>TaskManager</class>
- <widget class="QDialog" name="TaskManager">
+ <widget class="QGroupBox" name="TaskManager">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>524</width>
-    <height>491</height>
+    <width>460</width>
+    <height>516</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Task Manager</string>
+   <string>GroupBox</string>
+  </property>
+  <property name="title">
+   <string>Tasks</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -32,6 +35,24 @@
         </widget>
        </item>
        <item>
+        <widget class="QToolButton" name="toolButtonNewTask">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/custom-icons/file-plus.svg</normalon>
+          </iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -45,10 +66,10 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonEditTask">
+        <widget class="QToolButton" name="toolButtonEditTask">
          <property name="minimumSize">
           <size>
-           <width>0</width>
+           <width>32</width>
            <height>32</height>
           </size>
          </property>
@@ -58,10 +79,10 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonRun">
+        <widget class="QToolButton" name="toolButtonRun">
          <property name="minimumSize">
           <size>
-           <width>0</width>
+           <width>32</width>
            <height>32</height>
           </size>
          </property>
