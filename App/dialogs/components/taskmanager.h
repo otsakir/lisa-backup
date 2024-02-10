@@ -20,6 +20,7 @@ class TaskManager : public QGroupBox
 
 public:
     explicit TaskManager(AppContext* appContext, QWidget *parent = nullptr);
+    int taskCount();
     ~TaskManager();
 
     virtual void showEvent(QShowEvent *e);
@@ -47,7 +48,7 @@ public slots:
 
 signals:
     void shown();
-    void taskSelectedForEdit(const QString taskid);
+    void taskSelectedForEdit(const QString taskid); // user wants to edit task 'taskid'
     void runTask(const QString taskname, Common::TaskRunnerReason reason, bool show);
     void newTask();
 

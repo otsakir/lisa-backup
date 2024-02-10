@@ -49,6 +49,11 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
     Triggering::printTriggers();
 }
 
+int TaskManager::taskCount()
+{
+    return taskview->taskCount();
+}
+
 TaskManager::~TaskManager()
 {
     delete taskview;

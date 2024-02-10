@@ -99,6 +99,7 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     connect(taskManager, &TaskManager::newTask, this, &MainWindow::on_action_New_triggered);
     connect(this, &MainWindow::newTaskCreated, taskManager, &TaskManager::refreshView);
+    connect(this, &MainWindow::newTaskCreated, this, &MainWindow::editTask);
     connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
     //connect(taskManager, &TaskManager::taskSelectedForEdit)
     //connect(ui->comboBoxBasePath, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_comboBoxBasePath_currentIndexChanged);
@@ -111,6 +112,8 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
 
     Lb::setupDirs();
     activeBackup = new BackupModel();
+
+    qInfo() << "Task count: " << taskManager->taskCount();
 
     if (!taskName.isEmpty())
         openTask(taskName);
@@ -659,13 +662,13 @@ void MainWindow::showEvent(QShowEvent* event)
 
 void MainWindow::afterWindowShown()
 {
-    if (taskName.isEmpty() && !newBackupTaskDialogShown)
+    if (taskManager->taskCount() == 0)
     {
         newBackupTaskDialogShown = true;
         // show newtask dialog, retrieve name, create task file and show
         NewBackupTaskDialog dialog(appContext, this, NewBackupTaskDialog::Wizard);
         if ( dialog.exec() == QDialog::Accepted) {
-            openTask(dialog.result.id);
+            emit newTaskCreated(dialog.result.id);
         }
     }
 }
