@@ -201,6 +201,7 @@ void TreeViewTasks::removeCurrent()
         // and the entry from the table/tree
         model->removeRow(current.row());
         refresh("");
+        emit taskRemoved(taskId);
     } else
         return;
 }

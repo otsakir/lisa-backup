@@ -28,6 +28,7 @@ public slots:
 signals:
     void currentTaskIs(QString taskName, const QModelIndex& modelIndex);  // taskName is empty string if there is no current at all. This also first at the start.
     void taskDoubleClicked(const QString taskname);
+    void taskRemoved(const QString taskname);
 
 protected:
     void showEvent(QShowEvent *event) override;

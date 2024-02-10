@@ -41,6 +41,7 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
     connect(ui->toolButtonNewTask, &QToolButton::clicked, this, &TaskManager::newTask);
     connect(taskview, &TreeViewTasks::taskDoubleClicked, this, &TaskManager::taskSelectedForEdit);
     connect(ui->toolButtonEditTask, &QToolButton::clicked, this, &TaskManager::editTaskClicked);
+    connect(taskview, &TreeViewTasks::taskRemoved, this, &TaskManager::taskRemoved);
 
 //    TaskRunnerManager* taskRunnerHelper = appContext->taskRunnerManager;
 //    taskRunnerHelper->runTask(taskName, Common::TaskRunnerReason::Manual);
@@ -100,18 +101,9 @@ void TaskManager::refreshView(const QString taskid)
 
 void TaskManager::setBoldListEntry(const QString taskid)
 {
-
+    taskview->boldSingleRow(taskid);
 }
 
-
-void TaskManager::on_pushButtonEditTask_clicked()
-{
-    QString taskid = taskview->currentTaskId();
-    if (!taskid.isEmpty())
-    {
-        emit taskSelectedForEdit(taskid);
-    }
-}
 
 void TaskManager::OnPushButtonRun()
 {

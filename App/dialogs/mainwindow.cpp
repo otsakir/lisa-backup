@@ -101,8 +101,12 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     connect(this, &MainWindow::newTaskCreated, taskManager, &TaskManager::refreshView);
     connect(this, &MainWindow::newTaskCreated, this, &MainWindow::editTask);
     connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
-    //connect(taskManager, &TaskManager::taskSelectedForEdit)
     //connect(ui->comboBoxBasePath, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_comboBoxBasePath_currentIndexChanged);
+    connect(taskManager, &TaskManager::taskRemoved, [this](const QString taskid){
+        qInfo() << "task " << taskid << " removed";
+        if (this->taskName == taskid)
+            ui->stackedWidget->setCurrentIndex(1); // hide "edit task" controls and show user message
+    });
 
 
     triggeringCombo = new TriggeringComboBox(this);
@@ -438,7 +442,9 @@ void MainWindow::editTask(const QString& taskid)
         //if (dialog.exec() == QDialog::Accepted) {
         if (openTask(taskid))
         {
+            ui->stackedWidget->setCurrentIndex(0);
             ui->labelTaskHeading->setText(QString("[%1]").arg(taskid));
+            taskManager->setBoldListEntry(taskid);
         }
         //}
     }

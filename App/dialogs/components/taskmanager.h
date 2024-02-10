@@ -36,8 +36,6 @@ private slots:
     void handleMounted(const QString& label, const QString& uuid);
     void currentTaskChanged(QString taskid);
     void selectTask(QString taskid);
-
-    void on_pushButtonEditTask_clicked();
     void OnPushButtonRun();
 
 public slots:
@@ -48,9 +46,10 @@ public slots:
 
 signals:
     void shown();
-    void taskSelectedForEdit(const QString taskid); // user wants to edit task 'taskid'
+    void taskSelectedForEdit(const QString taskid); // user wants to edit task 'taskid'. In case there is no task at all, 'taskid' is the empty string
     void runTask(const QString taskname, Common::TaskRunnerReason reason, bool show);
     void newTask();
+    void taskRemoved(const QString taskid);
 
 
 };
