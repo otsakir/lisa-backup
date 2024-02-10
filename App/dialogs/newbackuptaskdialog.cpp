@@ -21,7 +21,6 @@ NewBackupTaskDialog::NewBackupTaskDialog(AppContext* appContext, QWidget *parent
     ui->pushButtonBackFromCreate->setIcon(QIcon(":/custom-icons/chevron-left.svg"));
 
     QObject::connect(this, &NewBackupTaskDialog::wizardStepActivated, this, &NewBackupTaskDialog::on_wizardStepActivated);
-    connect(ui->pushButtonOpen, &QPushButton::clicked, this, &NewBackupTaskDialog::on_OpenTask);
 
     mode = pMode;
 
@@ -35,24 +34,13 @@ NewBackupTaskDialog::NewBackupTaskDialog(AppContext* appContext, QWidget *parent
     ui->pushButtonCancelFromCreate->setVisible(mode != Wizard);
     ui->pushButtonBackFromCreate->setVisible(mode == Wizard);
 
-    ui->pushButtonOpen->setDisabled(true); // nothing selected
-
     emit ui->lineEditId->textChanged(ui->lineEditId->text()); // initialize state
     emit ui->stackedWidgetWizard->currentChanged(mode);
 
 
-    if (mode == Wizard)
-    {
-        tasks = new TreeViewTasks(appContext->getTaskLoader(), appContext->taskRunnerManager, this);
-        connect(tasks, &TreeViewTasks::currentTaskIs, this, &NewBackupTaskDialog::onCurrentTaskIs);
-        connect(tasks, &TreeViewTasks::doubleClicked,this, &NewBackupTaskDialog::on_OpenTask);
-    }
-
-    ui->pushButtonOpen->setDisabled(true); // nothing selected
-
     if (mode == Wizard) {
         this->setWindowTitle("Welcome to Lisa Backup!");
-        static_cast<QHBoxLayout*>(ui->verticalLayoutExistingTasks->layout())->insertWidget(1, tasks);
+/*        static_cast<QHBoxLayout*>(ui->verticalLayoutExistingTasks->layout())->insertWidget(1, tasks);
         // disable "re-open task"-specific controls if there are not old tasks
         if (tasks->taskCount() <= 0)
         {
@@ -64,6 +52,7 @@ NewBackupTaskDialog::NewBackupTaskDialog(AppContext* appContext, QWidget *parent
 
             }
         }
+        */
     } else if (mode == CreateOnly) {
         this->setWindowTitle("Start new task");
     } else {
@@ -136,7 +125,7 @@ void NewBackupTaskDialog::on_pushButtonCancelFromCreate_clicked()
 void NewBackupTaskDialog::onCurrentTaskIs(QString taskName, const QModelIndex& modelIndex)
 {
     bool valid = modelIndex.isValid();
-    ui->pushButtonOpen->setEnabled(valid);
+    //ui->pushButtonOpen->setEnabled(valid);
     selectedTask = taskName;
 }
 

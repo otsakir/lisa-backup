@@ -56,7 +56,6 @@ private:
     QString getSelectedTaskId();
 
     QString selectedTask;
-    TreeViewTasks* tasks = nullptr;
 };
 
 #endif // NEWBACKUPTASKDIALOG_H
