@@ -26,8 +26,8 @@ public slots:
     void onTaskRunnerEvent(const QString taskname, Common::TaskRunnerEventType eventType);
 
 signals:
-    void currentTaskIs(QString taskName, const QModelIndex& modelIndex);  // taskName is empty string if there is no current at all. This also first at the start.
-    void taskDoubleClicked(const QString taskname);
+    void taskGotCurrent(QString taskid);
+    void taskHighlighted(const QString taskname);
     void taskRemoved(const QString taskname);
 
 protected:

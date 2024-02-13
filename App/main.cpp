@@ -9,14 +9,11 @@
 #include <QDesktopWidget>
 #include <QLoggingCategory>
 #include "task.h"
-#include "terminal.h"
-#include "scripting.h"
 #include "settings.h"
 #include "conf.h"
 #include <QMessageBox>
 #include "utils.h"
 #include "appcontext.h"
-#include "dialogs/components/taskmanager.h"
 #include "taskrunnermanager.h"
 
 int main(int argc, char *argv[])
@@ -30,12 +27,7 @@ int main(int argc, char *argv[])
 
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
 
-
-
     AppContext appContext;
-
-
-
     QSettings settings;
     settings.setValue("initialized", false);  // Remove settings file. Uncomment this to start afresh
 
@@ -52,22 +44,23 @@ int main(int argc, char *argv[])
     qInfo() << "Settings file path:" << settings.fileName();
 
     //parse command line
-    QCommandLineParser parser;
-    parser.addHelpOption();
-    parser.addVersionOption();
-    QCommandLineOption runOption(QStringList() << "r" << "run", "Run the specified task");
-    parser.addOption(runOption);
-    QCommandLineOption taskOption(QStringList() << "t" << "task", "Choose a task", "task name");
-    parser.addOption(taskOption);
+//    QCommandLineParser parser;
+//    parser.addHelpOption();
+//    parser.addVersionOption();
+//    QCommandLineOption runOption(QStringList() << "r" << "run", "Run the specified task");
+//    parser.addOption(runOption);
+//    QCommandLineOption taskOption(QStringList() << "t" << "task", "Choose a task", "task name");
+//    parser.addOption(taskOption);
 
-    parser.process(a);
+//    parser.process(a);
 
     QString taskName;
-    if (parser.isSet(taskOption))
-        taskName = parser.value(taskOption);
+//    if (parser.isSet(taskOption))
+//        taskName = parser.value(taskOption);
 
     TaskLoader taskLoader(Lb::dataDirectory());
 
+    /*
     if (parser.isSet(runOption))    // "CLI" mode
     {
         if (parser.isSet(taskOption))
@@ -103,6 +96,7 @@ int main(int argc, char *argv[])
             exit(0);
         }
     }
+    */
 
     // "GUI" mode
     QIcon::setThemeName("Papirus");

@@ -35,13 +35,14 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
     taskview->showDetails(true);
     static_cast<QVBoxLayout*>(ui->verticalLayoutTasksContainer->layout())->insertWidget(0, taskview);
 
-    connect(taskview, &TreeViewTasks::currentTaskIs,this, &TaskManager::currentTaskChanged);
+    //connect(taskview, &TreeViewTasks::currentTaskIs,this, &TaskManager::currentTaskChanged);
     connect(ui->pushButtonDeleteTask, &QPushButton::clicked, this, &TaskManager::removeCurrentTask);
     connect(ui->toolButtonRun, &QPushButton::clicked, this, &TaskManager::OnPushButtonRun);
     connect(ui->toolButtonNewTask, &QToolButton::clicked, this, &TaskManager::newTask);
-    connect(taskview, &TreeViewTasks::taskDoubleClicked, this, &TaskManager::taskSelectedForEdit);
+    connect(taskview, &TreeViewTasks::taskHighlighted, this, &TaskManager::editTask);
     connect(ui->toolButtonEditTask, &QToolButton::clicked, this, &TaskManager::editTaskClicked);
     connect(taskview, &TreeViewTasks::taskRemoved, this, &TaskManager::taskRemoved);
+    connect(taskview, &TreeViewTasks::taskGotCurrent, this, &TaskManager::setButtonState);
 
 //    TaskRunnerManager* taskRunnerHelper = appContext->taskRunnerManager;
 //    taskRunnerHelper->runTask(taskName, Common::TaskRunnerReason::Manual);
@@ -121,13 +122,14 @@ void TaskManager::editTaskClicked()
     const QString& taskid = taskview->currentTaskId();
     assert(!taskid.isEmpty());
     taskview->boldSingleRow(taskid);
-    emit taskSelectedForEdit(taskid);
+    emit editTask(taskid);
 }
 
-void TaskManager::currentTaskChanged(QString taskid)
+void TaskManager::setButtonState(QString taskid)
 {
     ui->toolButtonEditTask->setEnabled(!taskid.isEmpty());
-    qInfo() << "current task changed";
+    ui->pushButtonDeleteTask->setEnabled(!taskid.isEmpty());
+    ui->toolButtonRun->setEnabled(!taskid.isEmpty());
 }
 
 void TaskManager::selectTask(QString taskid)

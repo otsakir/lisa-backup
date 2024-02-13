@@ -241,7 +241,7 @@ void TreeViewTasks::mouseDoubleClickEvent(QMouseEvent *event)
     {
         qInfo() << "Double clicked at row " << row;
         boldSingleRow(row);
-        emit taskDoubleClicked(modelIndex.data().toString());
+        emit taskHighlighted(modelIndex.data().toString());
     }
 }
 
@@ -251,6 +251,12 @@ void TreeViewTasks::onCurrentChanged(const QModelIndex &current, const QModelInd
 {
     if (current.isValid())
     {
-        emit currentTaskIs(current.data().toString(), current);
+        qInfo() << "onCurrentChanged:" << current.siblingAtColumn(0).data().toString();
+        emit taskGotCurrent(current.siblingAtColumn(0).data().toString());
+    } else
+    {
+        qInfo() << "onCurrentChanged:" << "invalid";
+        emit taskGotCurrent("");
     }
+
 }

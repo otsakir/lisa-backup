@@ -73,11 +73,8 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
 
     taskManager = new TaskManager(appContext, this);
     static_cast<QVBoxLayout*>(ui->tasksWrap->layout())->insertWidget(0, taskManager);
-    connect(taskManager, &TaskManager::taskSelectedForEdit, this, &MainWindow::editTask);
+    connect(taskManager, &TaskManager::editTask, this, &MainWindow::editTask);
     connect(taskManager, &TaskManager::runTask, appContext->taskRunnerManager, &TaskRunnerManager::runTask); // run backup tasks from taskManager
-
-//    TaskRunnerManager* taskRunnerHelper = appContext->taskRunnerManager;
-//    taskRunnerHelper->runTask(taskName, Common::TaskRunnerReason::Manual);
 
     ui->toolButtonSaveTask->setIcon(QIcon(":/custom-icons/save.svg"));
     ui->toolButtonAdd->setIcon(QIcon(":/custom-icons/folder-plus.svg"));
@@ -121,6 +118,8 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
 
     if (!taskName.isEmpty())
         openTask(taskName);
+    else
+        ui->stackedWidget->setCurrentIndex(1);
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
