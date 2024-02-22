@@ -46,11 +46,13 @@ namespace Settings
         }
     }
 
-    static QString DataDirectoryKey = "loader/datadir";
-    static QString TaskrunnerConfirmKey = "taskrunner/ShowConfirmation";
+    struct Keys {
+        inline static QString DataDirectory = "loader/datadir";
+        inline static QString TaskrunnerConfirm = "taskrunner/ShowConfirmation";
+        inline static QString TaskrunnerShowDialog = "taskrunner/ShowDialog";
 
-    static QString TriggerGroupKey = "triggers/"; // group prefix. Hosts entries like "triggers/backtaskname1"
-
+        inline static QString TriggerGroup = "triggers/"; // group prefix. Hosts entries like "triggers/backtaskname1"
+    };
 }
 
 

@@ -64,7 +64,7 @@ bool TaskRunnerDialog::setTask(const QString taskname)
     setWindowTitle(QString("Task Runner - %1").arg(taskname));
 
     QSettings settings;
-    const QString datadir = settings.value(Settings::DataDirectoryKey).toString();
+    const QString datadir = settings.value(Settings::Keys::DataDirectory).toString();
     assert(!datadir.isEmpty());
     TaskLoader loader(datadir);
 
@@ -86,7 +86,7 @@ bool TaskRunnerDialog::setTask(const QString taskname)
         {
             stream << command << Qt::endl;
         }
-        stream << "sleep 7" << Qt::endl; // pause for a while to simulate long running backup tasks
+        stream << "sleep 3" << Qt::endl; // pause for a while to simulate long running backup tasks
 
         backupScript.close();
     }
@@ -138,7 +138,7 @@ const QString TaskRunnerDialog::getTaskName() const
 
 void TaskRunnerDialog::stopRunningTask()
 {
-    logAppendText("Manually stopping backup task...");
+    logAppendError("Manually stopping backup task...", true);
     scriptProcess.terminate();
 }
 
@@ -168,10 +168,10 @@ void TaskRunnerDialog::OnProcessStarted()
     switch (reasonStarted)
     {
         case Common::TaskRunnerReason::Manual:
-            ui->textEditLog->append(QString("Manually starting backup task %1 at %2").arg(taskName).arg(QDateTime::currentDateTime().toString()));
+            logAppendText(QString("Manually starting backup task %1 at %2").arg(taskName).arg(QDateTime::currentDateTime().toString()), true);
         break;
         case Common::TaskRunnerReason::Triggered:
-            ui->textEditLog->append(QString("Triggered backup task %1 at %2").arg(taskName).arg(QDateTime::currentDateTime().toString()));
+            logAppendText(QString("Triggered backup task %1 at %2").arg(taskName).arg(QDateTime::currentDateTime().toString()), true);
         break;
     }
     this->animatedButtonRun->animation->start();
@@ -179,11 +179,11 @@ void TaskRunnerDialog::OnProcessStarted()
 
 void TaskRunnerDialog::OnProcessFinished(int exitcode, QProcess::ExitStatus exitstatus)
 {
-    logAppendText(QString("Task %1 finished").arg(taskName).append(errorsOccured ? " with errors." : "."  ));
+    logAppendText(QString("Task %1 finished").arg(taskName).append(errorsOccured ? " with errors." : "."  ), true);
     this->animatedButtonRun->animation->stop();
     // by default, keep dialog open only in case of errors
-    if (!errorsOccured)
-        this->close();
+    //if (!errorsOccured)
+    //    this->close();
 }
 
 void TaskRunnerDialog::OnErrorOccurred(QProcess::ProcessError error)
@@ -221,17 +221,31 @@ void TaskRunnerDialog::markError()
     errorsOccured = true;
 }
 
-void TaskRunnerDialog::logAppendText(const QString text)
+void TaskRunnerDialog::logAppendText(const QString text, bool bold)
 {
     ui->textEditLog->setTextColor(cachedLoggingColor);
-    ui->textEditLog->append(text);
+    if (bold)
+    {
+        int oldWeight = ui->textEditLog->fontWeight();
+        ui->textEditLog->setFontWeight(QFont::Bold);
+        ui->textEditLog->append(text);
+        ui->textEditLog->setFontWeight(oldWeight);
+    } else
+        ui->textEditLog->append(text);
 
 }
 
-void TaskRunnerDialog::logAppendError(const QString text)
+void TaskRunnerDialog::logAppendError(const QString text, bool bold)
 {
     ui->textEditLog->setTextColor(QColor("red"));
-    ui->textEditLog->append(text);
+    if (bold)
+    {
+        int oldWeight = ui->textEditLog->fontWeight();
+        ui->textEditLog->setFontWeight(QFont::Bold);
+        ui->textEditLog->append(text);
+        ui->textEditLog->setFontWeight(oldWeight);
+    } else
+        ui->textEditLog->append(text);
 }
 
 

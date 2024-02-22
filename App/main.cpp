@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         settings.setValue("taskrunner/ShowConfirmation", 2); // i.e. true
         settings.setValue("initialized",true);
         settings.setValue(Settings::LoglevelKey, static_cast<int>(Settings::Loglevel::Errors));
-        settings.setValue(Settings::DataDirectoryKey, Lb::dataDirectory());
+        settings.setValue(Settings::Keys::DataDirectory, Lb::dataDirectory());
     }
     settings.setValue("ApplicationFilePath", QApplication::applicationFilePath());
     qInfo() << "Settings file path:" << settings.fileName();

@@ -77,7 +77,7 @@ void TaskManager::handleMounted(const QString& label, const QString& uuid)
     QStringList tasks;
     Triggering::tasksForUuid(uuid, tasks);
     foreach( QString task, tasks) {
-        if (settings.value(Settings::TaskrunnerConfirmKey).toInt() == 2)
+        if (settings.value(Settings::Keys::TaskrunnerConfirm).toInt() == 2)
         {
             QMessageBox messageBox(QMessageBox::Information, "Lisa Backup", QString("Backup task '%1' triggered. Shall i proceed ?").arg(task), QMessageBox::Yes | QMessageBox::Cancel, nullptr,Qt::Dialog);
             int ret = messageBox.exec();
@@ -108,10 +108,13 @@ void TaskManager::setBoldListEntry(const QString taskid)
 
 void TaskManager::OnPushButtonRun()
 {
+    QSettings settings;
+
     QString taskid = taskview->currentTaskId();
     if (!taskid.isEmpty())
     {
-        emit runTask(taskid, Common::TaskRunnerReason::Manual, true);
+        bool show = (settings.value(Settings::Keys::TaskrunnerShowDialog).toInt() == 2);
+        emit runTask(taskid, Common::TaskRunnerReason::Manual, show);
         //hide();
     }
 

@@ -59,8 +59,8 @@ private:
 
     QToolButtonAnimated* animatedButtonRun;
 
-    void logAppendText(const QString text);
-    void logAppendError(const QString text);
+    void logAppendText(const QString text, bool bold = false);
+    void logAppendError(const QString text, bool bold = false);
 };
 
 

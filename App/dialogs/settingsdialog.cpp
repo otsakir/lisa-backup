@@ -11,9 +11,13 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->checkBoxShowConfirmation->setChecked(settings.value("taskrunner/ShowConfirmation").toInt());
+    ui->checkBoxShowConfirmation->setChecked(settings.value(Settings::Keys::TaskrunnerConfirm).toInt());
     connect(ui->checkBoxShowConfirmation, &QCheckBox::stateChanged, [this] (const int value){
-        this->settings.setValue("taskrunner/ShowConfirmation", value);
+        this->settings.setValue(Settings::Keys::TaskrunnerConfirm, value);
+    });
+    ui->checkBoxShowRunnerPopup->setChecked(settings.value(Settings::Keys::TaskrunnerShowDialog).toInt());
+    connect(ui->checkBoxShowRunnerPopup, &QCheckBox::stateChanged, [this] (const int value){
+        this->settings.setValue(Settings::Keys::TaskrunnerShowDialog, value);
     });
 
     // comboBoxLogging

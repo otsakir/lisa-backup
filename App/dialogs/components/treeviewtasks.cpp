@@ -54,8 +54,8 @@ void TreeViewTasks::populateTasks()
         model->setColumnCount(3);
         model->setHorizontalHeaderItem(0, new QStandardItem("Task"));
         model->setHorizontalHeaderItem(1, new QStandardItem("Destination"));
-        model->setHorizontalHeaderItem(2, new QStandardItem("Triggering device"));
-        model->setHorizontalHeaderItem(3, new QStandardItem("Status"));
+        model->setHorizontalHeaderItem(2, new QStandardItem("Status"));
+        model->setHorizontalHeaderItem(3, new QStandardItem("Triggering device"));
     } else
     {
         model->setColumnCount(1);
@@ -110,7 +110,7 @@ const QString TreeViewTasks::currentTaskId()
 {
     if (currentIndex().isValid())
     {
-        return currentIndex().data().toString();
+        return currentIndex().siblingAtColumn(0).data().toString();
     } else
         return "";
 }
@@ -158,8 +158,8 @@ void TreeViewTasks::refresh(const QString& reselectTask)
                 }
                 rowItems << new QStandardItem(taskId)
                          << new QStandardItem(backupModel.backupDetails.destinationPath)
-                         << new QStandardItem(triggerEntry.uuid)
-                         << new QStandardItem(runningState);
+                         << new QStandardItem(runningState)
+                         << new QStandardItem(triggerEntry.uuid);
 
             }
             else
@@ -228,7 +228,7 @@ void TreeViewTasks::onTaskRunnerEvent(const QString taskname, Common::TaskRunner
     if (row != -1)
     {
         QString processStateString = TaskRunnerDialog::processStateToString(processState);
-        model->item(row, 3) -> setText(processStateString);
+        model->item(row, 2) -> setText(processStateString);
     }
 }
 
