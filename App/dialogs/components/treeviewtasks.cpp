@@ -252,7 +252,7 @@ void TreeViewTasks::mouseDoubleClickEvent(QMouseEvent *event)
     {
         qInfo() << "Double clicked at row " << row;
         boldSingleRow(row);
-        emit taskHighlighted(modelIndex.data().toString());
+        emit taskHighlighted(modelIndex.siblingAtColumn(0).data().toString());
     }
 }
 
