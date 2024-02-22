@@ -44,6 +44,7 @@ private:
     TaskRunnerManager* taskRunnerHelper;
     bool detailsShown;
     QFont boldFont;
+    QString highlightedTask;
 };
 
 #endif // TREEVIEWTASKS_H

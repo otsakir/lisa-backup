@@ -40,12 +40,18 @@
       </property>
       <widget class="QWidget" name="tasksWrap" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
         <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
          <number>0</number>
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="widget_2" native="true">
+      <widget class="QWidget" name="editorWrap" native="true">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -65,10 +71,13 @@
         <property name="topMargin">
          <number>0</number>
         </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QStackedWidget" name="stackedWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pageEdit">
            <layout class="QVBoxLayout" name="verticalLayout_17">
@@ -741,10 +750,10 @@ font-size: 15px;
           <widget class="QWidget" name="pageNone">
            <layout class="QVBoxLayout" name="verticalLayout_19">
             <property name="topMargin">
-             <number>15</number>
+             <number>9</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>9</number>
             </property>
             <item>
              <widget class="QGroupBox" name="groupBox">

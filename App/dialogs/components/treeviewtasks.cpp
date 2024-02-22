@@ -85,7 +85,11 @@ void TreeViewTasks::boldSingleRow(int row)
     {
         QModelIndex index = model->index(i, 0);
         if (i == row)
+        {
             model->setData(index, this->boldFont, Qt::FontRole);
+            this->highlightedTask = model->data(index).toString();
+            qInfo() << "Highlighted task: " << this->highlightedTask;
+        }
         else
             model->setData(index, font(), Qt::FontRole);
     }
@@ -156,10 +160,15 @@ void TreeViewTasks::refresh(const QString& reselectTask)
                          << new QStandardItem(backupModel.backupDetails.destinationPath)
                          << new QStandardItem(triggerEntry.uuid)
                          << new QStandardItem(runningState);
+
             }
             else
                 rowItems << /*new QStandardItem(backupModel.backupDetails.friendlyName) << */ new QStandardItem(taskId);
             model->appendRow(rowItems);
+            if (taskId == highlightedTask && model->rowCount() > 0)
+            {
+                boldSingleRow(model->rowCount()-1);
+            }
         } else {
             // TODO - log error
         }
@@ -200,6 +209,8 @@ void TreeViewTasks::removeCurrent()
         Tasks::deleteTask(taskId); // TODO - error handling ? where ?
         // and the entry from the table/tree
         model->removeRow(current.row());
+        if (taskId == highlightedTask)
+            highlightedTask = "";
         refresh("");
         emit taskRemoved(taskId);
     } else
