@@ -15,7 +15,7 @@ TreeViewTasks::TreeViewTasks(TaskLoader* taskLoader, TaskRunnerManager *taskRunn
     : QTreeView(parent),
     taskLoader(taskLoader),
     taskRunnerHelper(taskRunnerHelper),
-    detailsShown(false)
+    detailsShown(true)
 {
     model = new QStandardItemModel(0,4,this);
     setModel(model);
@@ -29,8 +29,7 @@ TreeViewTasks::TreeViewTasks(TaskLoader* taskLoader, TaskRunnerManager *taskRunn
     connect(taskRunnerHelper, &TaskRunnerManager::taskRunnerEvent, this, &TreeViewTasks::onTaskRunnerEvent);
 
     setIndentation(0);
-    setHeaderHidden(true);
-
+    setHeaderHidden( !detailsShown);
     populateTasks();
 }
 
@@ -71,7 +70,6 @@ int TreeViewTasks::rowByTaskname(const QString taskname)
     for (int irow = 0; irow < model->rowCount(); irow++)
     {
         QString anyTaskname = model->item(irow, 0)->text();
-        qInfo() << "iterating over task" << anyTaskname;
         if (taskname == anyTaskname)
             return irow;
     }
@@ -88,7 +86,6 @@ void TreeViewTasks::boldSingleRow(int row)
         {
             model->setData(index, this->boldFont, Qt::FontRole);
             this->highlightedTask = model->data(index).toString();
-            qInfo() << "Highlighted task: " << this->highlightedTask;
         }
         else
             model->setData(index, font(), Qt::FontRole);
@@ -187,9 +184,12 @@ int TreeViewTasks::taskCount()
 
 void TreeViewTasks::showDetails(bool show)
 {
-    detailsShown = show;
-    setHeaderHidden( !detailsShown);
-    populateTasks();
+    if (show != detailsShown)
+    {
+        detailsShown = show;
+        setHeaderHidden( !detailsShown);
+        populateTasks();
+    }
 }
 
 
@@ -250,7 +250,6 @@ void TreeViewTasks::mouseDoubleClickEvent(QMouseEvent *event)
     int row = modelIndex.row();
     if (row > -1)
     {
-        qInfo() << "Double clicked at row " << row;
         boldSingleRow(row);
         emit taskHighlighted(modelIndex.siblingAtColumn(0).data().toString());
     }
@@ -262,12 +261,10 @@ void TreeViewTasks::onCurrentChanged(const QModelIndex &current, const QModelInd
 {
     if (current.isValid())
     {
-        qInfo() << "onCurrentChanged:" << current.siblingAtColumn(0).data().toString();
         emit taskGotCurrent(current.siblingAtColumn(0).data().toString());
     } else
     {
-        qInfo() << "onCurrentChanged:" << "invalid";
-        emit taskGotCurrent("");
+        emit taskGotCurrent(""); // invalid
     }
 
 }

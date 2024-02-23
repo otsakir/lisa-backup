@@ -28,7 +28,7 @@ public:
     void stopRunningTask();
     const QProcess& getScriptProcess();
 
-    void closeEvent(QCloseEvent *event) override;
+    void hideEvent(QHideEvent* event) override;
 
     static const QString processStateToString(QProcess::ProcessState state);
 

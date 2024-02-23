@@ -25,9 +25,6 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
 
     dbusUtils->registerOnMount();
     connect(dbusUtils, &DbusUtils::labeledDeviceMounted, this, &TaskManager::handleMounted);
-    connect(this, &TaskManager::shown, this, [this] () {
-        this->refreshView("");
-    });
 
     taskview = new TreeViewTasks(appContext->getTaskLoader(), appContext->taskRunnerManager, this);
     taskview->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -35,7 +32,6 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
     taskview->showDetails(true);
     static_cast<QVBoxLayout*>(ui->verticalLayoutTasksContainer->layout())->insertWidget(0, taskview);
 
-    //connect(taskview, &TreeViewTasks::currentTaskIs,this, &TaskManager::currentTaskChanged);
     connect(ui->pushButtonDeleteTask, &QPushButton::clicked, this, &TaskManager::removeCurrentTask);
     connect(ui->toolButtonRun, &QPushButton::clicked, this, &TaskManager::OnPushButtonRun);
     connect(ui->toolButtonNewTask, &QToolButton::clicked, this, &TaskManager::newTask);
@@ -43,10 +39,6 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
     connect(ui->toolButtonEditTask, &QToolButton::clicked, this, &TaskManager::editTaskClicked);
     connect(taskview, &TreeViewTasks::taskRemoved, this, &TaskManager::taskRemoved);
     connect(taskview, &TreeViewTasks::taskGotCurrent, this, &TaskManager::setButtonState);
-
-//    TaskRunnerManager* taskRunnerHelper = appContext->taskRunnerManager;
-//    taskRunnerHelper->runTask(taskName, Common::TaskRunnerReason::Manual);
-
 
     Triggering::printTriggers();
 }
@@ -63,12 +55,6 @@ TaskManager::~TaskManager()
     delete dbusUtils;
     delete ui;
 }
-
-void TaskManager::showEvent(QShowEvent *e)
-{
-    emit shown();
-}
-
 
 // executes when an external storage device is mounted
 void TaskManager::handleMounted(const QString& label, const QString& uuid)
@@ -115,7 +101,6 @@ void TaskManager::OnPushButtonRun()
     {
         bool show = (settings.value(Settings::Keys::TaskrunnerShowDialog).toInt() == 2);
         emit runTask(taskid, Common::TaskRunnerReason::Manual, show);
-        //hide();
     }
 
 }

@@ -69,8 +69,6 @@ private slots:
 
     void on_activeBackupMethodChanged(int backupType);
 
-    void on_pushButtonRefreshBasePaths_clicked();
-
     void on_action_Save_triggered();
 
     void on_actionDelete_triggered();

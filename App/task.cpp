@@ -14,7 +14,7 @@ TaskLoader::TaskLoader(QString path)
 
 void TaskLoader::refresh()
 {
-    qDebug() << "refreshing tasks";
+    qDebug() << "Refreshing tasks";
 
     taskInfo.clear();
     QDir taskDir(taskPath);
@@ -45,7 +45,7 @@ bool TaskLoader::loadTask(const QString taskId, BackupModel& persisted)
 
     QString backupFilename = QString("%1/%2.task").arg(taskPath, taskId);
 
-    qDebug() << "[debug] loading task file: " << backupFilename;
+    qDebug() << "Loading task file: " << backupFilename;
     QFile ifile(backupFilename);
     if (ifile.open(QIODevice::ReadOnly)) {
         QDataStream istream(&ifile);
@@ -117,7 +117,7 @@ void saveTask(const QString taskId, const BackupModel& persisted)
 {
 
     QString dataFilePath = Lb::taskFilePathFromName(taskId);
-    qInfo() << "data file path: " << dataFilePath;
+    qInfo() << "Saving task file: " << dataFilePath;
     QFile file(dataFilePath);
     file.open(QIODevice::WriteOnly);
     QDataStream stream(&file);
@@ -136,6 +136,7 @@ void saveTask(const QString taskId, const BackupModel& persisted)
 bool deleteTask(const QString taskId)
 {
     QString dataFilePath = Lb::taskFilePathFromName(taskId);
+    qInfo() << "Removing task file: " << dataFilePath;
     QFile file(dataFilePath);
 
     return file.remove();

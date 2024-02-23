@@ -53,8 +53,7 @@ TaskRunnerDialog::TaskRunnerDialog(QWidget *parent) :
 TaskRunnerDialog::~TaskRunnerDialog()
 {
     delete ui;
-
-    qInfo() << "In TaskRunnerDialog desctructor";
+    qDebug() << "In TaskRunnerDialog desctructor for " << taskName;
 }
 
 
@@ -77,7 +76,7 @@ bool TaskRunnerDialog::setTask(const QString taskname)
     commands.clear();
     Scripting::buildBackupCommands(backupModel, commands);
 
-    // store commands to temporary file
+    // actually create temporary file and store commands into it
     if (backupScript.open())
     {
         qDebug() << "Created temporary script file " << backupScript.fileName();
@@ -147,14 +146,12 @@ const QProcess &TaskRunnerDialog::getScriptProcess()
     return scriptProcess;
 }
 
-void TaskRunnerDialog::closeEvent(QCloseEvent *event)
+void TaskRunnerDialog::hideEvent(QHideEvent *event)
 {
     event->accept();
+    if ( !isVisible() && scriptProcess.state() == QProcess::NotRunning)
+        emit taskDialogNotNeeded(taskName); // this goes to a queued connection to remove the dialog if done. Using direct connection fails.
 
-    if (scriptProcess.state() == QProcess::NotRunning)
-    {
-        emit taskDialogNotNeeded(taskName);
-    }
 }
 
 const QString TaskRunnerDialog::processStateToString(QProcess::ProcessState state)

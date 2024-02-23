@@ -2,6 +2,7 @@
 
 #include "dialogs/taskrunnerdialog.h"
 
+// factory
 TaskRunnerDialog *TaskRunnerManager::newRunner(const QString taskname, bool show)
 {
     assert(!taskRunners.contains(taskname));
@@ -13,7 +14,7 @@ TaskRunnerDialog *TaskRunnerManager::newRunner(const QString taskname, bool show
         return nullptr;
     }
 
-    connect(taskRunner, &TaskRunnerDialog::taskDialogNotNeeded, this, &TaskRunnerManager::removeRunner);
+    connect(taskRunner, &TaskRunnerDialog::taskDialogNotNeeded, this, &TaskRunnerManager::removeRunner, Qt::QueuedConnection); // note, this is QueuedConnection to allow sender of signal to settle before removing the runner dialog
     connect(taskRunner, &TaskRunnerDialog::taskStateChanged, this, &TaskRunnerManager::OnChildTaskStateChanged);
 
     taskRunners.insert(taskname, taskRunner);
@@ -30,6 +31,13 @@ TaskRunnerDialog *TaskRunnerManager::getRunner(const QString taskname)
 void TaskRunnerManager::OnChildTaskStateChanged(const QString taskname, QProcess::ProcessState state)
 {
     emit taskRunnerEvent(taskname, Common::ProcessStateChanged);
+    TaskRunnerDialog* runnerDialog = getRunner(taskname);
+    if ( runnerDialog != nullptr )
+    {
+        if (state == QProcess::NotRunning && runnerDialog -> isHidden())
+            removeRunner(taskname);
+    }
+
 }
 
 void TaskRunnerManager::runTask(const QString taskname, Common::TaskRunnerReason reason, bool show)

@@ -53,9 +53,6 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     ui->setupUi(this);
     taskLoader = appContext->getTaskLoader();
 
-    qDebug() << "Tasks in " << Lb::dataDirectory();
-    qDebug() << "Application scripts in " << Lb::appScriptsDir();
-
     //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
     //qInfo() << "Config locations: " << configLocations;
 
@@ -82,6 +79,7 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     ui->toolButtonSourceUp->setIcon(QIcon(":/custom-icons/chevron-up.svg"));
     ui->toolButtonSourceDown->setIcon(QIcon(":/custom-icons/chevron-down.svg"));
 
+    connect(ui->toolButtonSaveTask, &QToolButton::clicked, this, &MainWindow::applyChanges);
     connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
     connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
     connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
@@ -100,7 +98,7 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
     //connect(ui->comboBoxBasePath, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_comboBoxBasePath_currentIndexChanged);
     connect(taskManager, &TaskManager::taskRemoved, [this](const QString taskid){
-        qInfo() << "task " << taskid << " removed";
+        qDebug() << "Task " << taskid << " removed";
         if (this->taskName == taskid)
             ui->stackedWidget->setCurrentIndex(1); // hide "edit task" controls and show user message
     });
@@ -113,8 +111,6 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
 
     Lb::setupDirs();
     activeBackup = new BackupModel();
-
-    qInfo() << "Task count: " << taskManager->taskCount();
 
     if (!taskName.isEmpty())
         openTask(taskName);
@@ -236,12 +232,12 @@ void MainWindow::on_removeSourceButton_clicked()
     const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
     if (!selection.isEmpty()) {
         QModelIndex i = selection.indexes().first();
-        qInfo() << "will remove " << i.data();
+        //qDebug() << "will remove " << i.data();
         BackupModel::SourceDetailsIndex iSourceDetails = i.row();
         sourcesModel->removeRow(i.row());
         activeBackup->allSourceDetails.remove(iSourceDetails);
     } else {
-        qInfo() << "nothing selected";
+        //qDebug() << "nothing selected";
     }
 }
 
@@ -435,28 +431,14 @@ int MainWindow::checkSave() {
 
 void MainWindow::editTask(const QString& taskid)
 {
-    qInfo() << "will now open task " << taskid;
     if (checkSave() != QMessageBox::Cancel) {
-        //NewBackupTaskDialog dialog(appContext, this, NewBackupTaskDialog::OpenOnly);
-        //if (dialog.exec() == QDialog::Accepted) {
         if (openTask(taskid))
         {
             ui->stackedWidget->setCurrentIndex(0);
             ui->labelTaskHeading->setText(QString("[%1]").arg(taskid));
             taskManager->setBoldListEntry(taskid);
         }
-        //}
     }
-}
-
-
-void MainWindow::on_pushButtonRefreshBasePaths_clicked()
-{
-    MountedDevice triggerEntry;
-    Triggering::triggerEntryForTask(activeBackup->backupDetails.tmp.taskId, triggerEntry);
-    QList<MountedDevice> triggerEntries;
-    DbusUtils::getMountedDevices(triggerEntries);
-    triggeringCombo->refresh(triggerEntries, triggerEntry);
 }
 
 

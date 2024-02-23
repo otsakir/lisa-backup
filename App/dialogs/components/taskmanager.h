@@ -23,8 +23,6 @@ public:
     int taskCount();
     ~TaskManager();
 
-    virtual void showEvent(QShowEvent *e);
-
 private:
     Ui::TaskManager *ui;
     DbusUtils* dbusUtils;
@@ -45,7 +43,6 @@ public slots:
     void setBoldListEntry(const QString taskid); // make a single entry of the list bold
 
 signals:
-    void shown();
     void newTask();
     void editTask(const QString taskid); // user wants to edit task 'taskid'. In case there is no task at all, 'taskid' is the empty string
     void runTask(const QString taskname, Common::TaskRunnerReason reason, bool show);

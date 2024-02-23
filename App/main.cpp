@@ -22,10 +22,14 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("otsakir");
     QApplication::setApplicationName("Lisa Backup");
 
-    QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
+    // set log level
+    //QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
+    QLoggingCategory::setFilterRules(QStringLiteral("default.info=true\ndefault.debug=false"));
     registerQtMetatypes();
 
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
+    qDebug() << "Tasks in " << Lb::dataDirectory();
+    qDebug() << "Application scripts in " << Lb::appScriptsDir();
 
     AppContext appContext;
     QSettings settings;
