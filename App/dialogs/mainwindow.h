@@ -5,6 +5,7 @@
 #include <QItemSelection>
 #include <QMainWindow>
 #include <QStandardItemModel>
+#include <QSystemTrayIcon>
 
 #include <QProcess>
 #include "../core.h"
@@ -22,6 +23,7 @@ class TaskLoader;
 class AppContext;
 class TriggeringComboBox;
 class TaskManager;
+class SettingsDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -107,7 +109,7 @@ public slots:
     void editTask(const QString& taskid);
 
 protected:
-    virtual void closeEvent (QCloseEvent *event);
+    virtual void closeEvent (QCloseEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
@@ -121,9 +123,15 @@ private:
     TaskLoader* taskLoader;
     AppContext* appContext;
     TaskManager* taskManager;
+    SettingsDialog* settingsDialog;
 
     TriggeringComboBox* triggeringCombo;
-    //QList<MountedDevice> triggerEntries;
+    // tray icon
+    QAction *restoreAction;
+    QAction *quitAction;
+    QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
+
 
     bool openTask(QString taskId);
     bool loadPersisted(QString backupName, BackupModel& persisted);
@@ -136,16 +144,15 @@ private:
     void applyChanges();
     void appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption);
 
-    void printCombo();
-
     virtual void showEvent(QShowEvent* event) override;
-
+    // tray icon
+    void createTrayIcon();
+    void showTrayIcon(bool show);
+    bool trayIconShown();
 
 private slots:
     void afterWindowShown();
     void on_pushButtonChooseDestinationSubdir_clicked();
-    //void on_pushButtonSaveTask_clicked();
-    //void on_action_ManageTasks_triggered();
     void on_toolButtonAdd_clicked();
 };
 #endif // MAINWINDOW_H

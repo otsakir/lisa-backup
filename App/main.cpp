@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QDesktopWidget>
 #include <QLoggingCategory>
+#include <QSystemTrayIcon>
 #include "task.h"
 #include "settings.h"
 #include "conf.h"
@@ -24,8 +25,13 @@ int main(int argc, char *argv[])
 
     // set log level
     //QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
-    QLoggingCategory::setFilterRules(QStringLiteral("default.info=true\ndefault.debug=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("default.info=true\ndefault.debug=true"));
     registerQtMetatypes();
+
+    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+        QMessageBox::critical(nullptr, QObject::tr("Systray"), QObject::tr("I couldn't detect any system tray on this system."));
+        return 1;
+    }
 
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
     qDebug() << "Tasks in " << Lb::dataDirectory();
@@ -43,6 +49,7 @@ int main(int argc, char *argv[])
         settings.setValue("initialized",true);
         settings.setValue(Settings::LoglevelKey, static_cast<int>(Settings::Loglevel::Errors));
         settings.setValue(Settings::Keys::DataDirectory, Lb::dataDirectory());
+        settings.setValue(Settings::Keys::KeepRunningInTray, 0);
     }
     settings.setValue("ApplicationFilePath", QApplication::applicationFilePath());
     qInfo() << "Settings file path:" << settings.fileName();
@@ -114,6 +121,8 @@ int main(int argc, char *argv[])
     QDesktopWidget *desktop = QApplication::desktop();
     QPoint windowOrigin((desktop->width()-w.width())/2, (desktop->height()-w.height())/2);
     w.move(windowOrigin);
+
+    QApplication::setQuitOnLastWindowClosed(false);
 
     w.show();
     //triggerMonitorWindow.show();

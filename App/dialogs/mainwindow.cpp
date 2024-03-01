@@ -34,6 +34,7 @@
 #include "../dbusutils.h"
 #include "../triggering.h"
 #include "../appcontext.h"
+#include "../settings.h"
 #include "components/triggeringcombobox.h"
 #include "../taskrunnermanager.h"
 #include "components/taskmanager.h"
@@ -48,8 +49,11 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     , ui(new Ui::MainWindow)
     , sourcesDataMapper(new QDataWidgetMapper(this))
     , appContext(appContext)
+    , settingsDialog(new SettingsDialog(this))
 
 {
+    QSettings settings;
+
     ui->setupUi(this);
     taskLoader = appContext->getTaskLoader();
 
@@ -102,7 +106,9 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
         if (this->taskName == taskid)
             ui->stackedWidget->setCurrentIndex(1); // hide "edit task" controls and show user message
     });
-
+    connect(settingsDialog, &SettingsDialog::trayIconUpdate, [this] (bool show) {
+        showTrayIcon(show);
+    });
 
     triggeringCombo = new TriggeringComboBox(this);
     triggeringCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -116,14 +122,31 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
         openTask(taskName);
     else
         ui->stackedWidget->setCurrentIndex(1);
+
+    createTrayIcon();
+    bool initiallyShowTrayIcon = (settings.value(Settings::Keys::KeepRunningInTray).toInt() != 0);
+    showTrayIcon(initiallyShowTrayIcon);
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
 {
-    if (checkSave() == QMessageBox::Cancel) {
+    if (trayIconShown())
+    {
+//        QMessageBox::information(this, tr("Systray"),
+//                                 tr("The program will keep running in the "
+//                                    "system tray. To terminate the program, "
+//                                    "choose <b>Quit</b> in the context menu "
+//                                    "of the system tray entry."));
+        hide();
         event->ignore();
-    } else {
-        event->accept();
+    } else
+    {
+        if (checkSave() == QMessageBox::Cancel) {
+            event->ignore();
+        } else {
+            event->accept();
+            emit QCoreApplication::quit();
+        }
     }
 }
 
@@ -637,8 +660,7 @@ void MainWindow::on_toolButtonSourceDown_clicked()
 
 void MainWindow::on_actionSe_ttings_triggered()
 {
-    SettingsDialog dialog(this);
-    dialog.exec();
+    settingsDialog->exec();
 }
 
 void MainWindow::showEvent(QShowEvent* event)
@@ -674,13 +696,6 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 }
 
 
-//void MainWindow::on_pushButtonSaveTask_clicked()
-//{
-//    applyChanges();
-//}
-
-
-
 void MainWindow::on_toolButtonAdd_clicked()
 {
     MultipleDirDialog dialog(this);
@@ -695,5 +710,35 @@ void MainWindow::on_toolButtonAdd_clicked()
             ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
         }
     }
+}
+
+
+void MainWindow::createTrayIcon()
+{
+    restoreAction = new QAction(tr("&Restore"), this);
+    connect(restoreAction, &QAction::triggered, this, &QWidget::showNormal);
+    quitAction = new QAction(tr("&Quit"), this);
+    connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setContextMenu(trayIconMenu);
+
+}
+
+void MainWindow::showTrayIcon(bool show)
+{
+    trayIcon->setVisible(show);
+}
+
+bool MainWindow::trayIconShown()
+{
+    if (trayIcon) return trayIcon->isVisible();
+
+    return false;
 }
 

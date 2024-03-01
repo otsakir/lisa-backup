@@ -1,5 +1,4 @@
 #include "settingsdialog.h"
-#include "qdebug.h"
 #include "ui_settingsdialog.h"
 
 #include <QSettings>
@@ -18,6 +17,12 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->checkBoxShowRunnerPopup->setChecked(settings.value(Settings::Keys::TaskrunnerShowDialog).toInt());
     connect(ui->checkBoxShowRunnerPopup, &QCheckBox::stateChanged, [this] (const int value){
         this->settings.setValue(Settings::Keys::TaskrunnerShowDialog, value);
+    });
+
+    ui->checkBoxKeepRunningInTray->setChecked(settings.value(Settings::Keys::KeepRunningInTray).toInt());
+    connect(ui->checkBoxKeepRunningInTray, &QCheckBox::stateChanged, [this] (const int value){
+        this->settings.setValue(Settings::Keys::KeepRunningInTray, value);
+        emit trayIconUpdate(value != 0); // 1 or 2 means "shown". 0 means hide.
     });
 
     // comboBoxLogging

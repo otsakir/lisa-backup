@@ -16,7 +16,8 @@ public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
-private slots:
+signals:
+    void trayIconUpdate(bool show); // user updated icon tray show status
 
 private:
     Ui::SettingsDialog *ui;

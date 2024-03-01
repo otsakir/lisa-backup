@@ -50,6 +50,7 @@ namespace Settings
         inline static QString DataDirectory = "loader/datadir";
         inline static QString TaskrunnerConfirm = "taskrunner/ShowConfirmation";
         inline static QString TaskrunnerShowDialog = "taskrunner/ShowDialog";
+        inline static QString KeepRunningInTray = "keepRunningInTray";
 
         inline static QString TriggerGroup = "triggers/"; // group prefix. Hosts entries like "triggers/backtaskname1"
     };
