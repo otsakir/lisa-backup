@@ -4,12 +4,10 @@
 #include "newbackuptaskdialog.h"
 #include "aboutdialog.h"
 #include "../utils.h"
-#include "../scripting.h"
 #include "../task.h"
 #include "components/multipledirdialog.h"
 
 #include "../core.h"
-
 #include "../logging.h"
 
 #include <memory>
@@ -40,14 +38,9 @@
 #include "components/taskmanager.h"
 
 
-
-//Q_DECLARE_METATYPE(std::shared_ptr<SourceDetails>)
-
-
-MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent)
+MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , sourcesDataMapper(new QDataWidgetMapper(this))
     , appContext(appContext)
     , settingsDialog(new SettingsDialog(this))
 
@@ -57,19 +50,10 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     ui->setupUi(this);
     taskLoader = appContext->getTaskLoader();
 
-    //QStringList configLocations = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation);
-    //qInfo() << "Config locations: " << configLocations;
-
-//    qDebug() << "[debug]";
-//    qInfo() << "[info]";
-//    qWarning() << "[warning]";
-//    qCritical() << "[critical]";
-
     // set up models for sources listview
     sourcesModel = new QStandardItemModel(0,2, this);
     ui->sourcesListView->setModel(sourcesModel);
     ui->sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    sourcesDataMapper->setModel(sourcesModel);
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
     taskManager = new TaskManager(appContext, this);
@@ -77,11 +61,7 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     connect(taskManager, &TaskManager::editTask, this, &MainWindow::editTask);
     connect(taskManager, &TaskManager::runTask, appContext->taskRunnerManager, &TaskRunnerManager::runTask); // run backup tasks from taskManager
 
-    ui->toolButtonSaveTask->setIcon(QIcon(":/custom-icons/save.svg"));
-    ui->toolButtonAdd->setIcon(QIcon(":/custom-icons/folder-plus.svg"));
-    ui->removeSourceButton->setIcon(QIcon(":/custom-icons/folder-minus.svg"));
-    ui->toolButtonSourceUp->setIcon(QIcon(":/custom-icons/chevron-up.svg"));
-    ui->toolButtonSourceDown->setIcon(QIcon(":/custom-icons/chevron-down.svg"));
+    initButtonIcons();
 
     connect(ui->toolButtonSaveTask, &QToolButton::clicked, this, &MainWindow::applyChanges);
     connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
@@ -90,21 +70,17 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex); // updates internal model
     connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
     connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
-    connect(this, &MainWindow::newBackupName, this, &MainWindow::onNewBackupName);
     connect(this, &MainWindow::modelUpdated, this, &MainWindow::onModelUpdated);
-    // 'PleaseQuit' signal bound to application quit
-    connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection);
-    // 'Exit' action bount to 'PleaseQuit' signal
+    connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection); // 'PleaseQuit' signal bound to application quit
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     connect(taskManager, &TaskManager::newTask, this, &MainWindow::on_action_New_triggered);
     connect(this, &MainWindow::newTaskCreated, taskManager, &TaskManager::refreshView);
     connect(this, &MainWindow::newTaskCreated, this, &MainWindow::editTask);
     connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
-    //connect(ui->comboBoxBasePath, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_comboBoxBasePath_currentIndexChanged);
     connect(taskManager, &TaskManager::taskRemoved, [this](const QString taskid){
         qDebug() << "Task " << taskid << " removed";
-        if (this->taskName == taskid)
-            ui->stackedWidget->setCurrentIndex(1); // hide "edit task" controls and show user message
+        if (taskName() == taskid)
+            ui->stackedWidget->setCurrentIndex(1); // hide "edit task" controls and show badge with user message
     });
     connect(settingsDialog, &SettingsDialog::trayIconUpdate, [this] (bool show) {
         showTrayIcon(show);
@@ -115,17 +91,19 @@ MainWindow::MainWindow(QString taskName, AppContext* appContext, QWidget *parent
     static_cast<QHBoxLayout*>(ui->horizontalLayout_Triggering->layout())->insertWidget(0, triggeringCombo);
     connect(triggeringCombo, &TriggeringComboBox::triggerEntrySelected, this, &MainWindow::_triggerEntrySelected);
 
-    Lb::setupDirs();
     activeBackup = new BackupModel();
 
-    if (!taskName.isEmpty())
-        openTask(taskName);
-    else
-        ui->stackedWidget->setCurrentIndex(1);
-
+    // init tray icon
     createTrayIcon();
     bool initiallyShowTrayIcon = (settings.value(Settings::Keys::KeepRunningInTray).toInt() != 0);
     showTrayIcon(initiallyShowTrayIcon);
+
+    // if a task was given, open it
+    if (!openingTaskName.isEmpty())
+        openTask(openingTaskName);
+    else
+        ui->stackedWidget->setCurrentIndex(1);
+
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
@@ -145,43 +123,41 @@ void MainWindow::closeEvent (QCloseEvent *event)
             event->ignore();
         } else {
             event->accept();
-            emit QCoreApplication::quit();
+            emit MainWindow::PleaseQuit();
         }
     }
 }
 
+QString MainWindow::taskName()
+{
+    assert(activeBackup != nullptr);
+    return activeBackup -> backupDetails.tmp.taskId;
+}
 
-bool MainWindow::openTask(QString taskId) {
+bool MainWindow::openTask(QString taskId)
+{
     assert(!taskId.isEmpty());
 
-    if (!taskId.isEmpty())
+    BackupModel persisted;
+    if (taskLoader->loadTask(taskId,persisted))
     {
-        BackupModel persisted;
-        if (taskLoader->loadTask(taskId,persisted)) {
-            *activeBackup = persisted;
-            activeBackup->backupDetails.tmp.taskId = taskId;
-            initUIControls(*activeBackup);
-            state.modelCopy = *activeBackup;
-            this->taskName = taskId;
-            //ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageAll));
-            return true;
-        } else {
-            qCritical() << "[critical] error loading task " << taskId;
-        }
+        *activeBackup = persisted;
+        activeBackup->backupDetails.tmp.taskId = taskId;
+        initUIControls(*activeBackup);
+        state.modelCopy = *activeBackup;
+        return true;
     }
 
-    this->taskName.clear();
-    //ui->stackedMain->setCurrentIndex(ui->stackedMain->indexOf(ui->pageNothing));
+    qCritical() << "[critical] error loading task " << taskId;
+    return false;
 }
 
-
-void MainWindow::onNewBackupName(QString backupName) {
-}
 
 void MainWindow::on_activeBackupMethodChanged(int backupType) {
     ui->groupBoxCriteria->setEnabled(backupType != SourceDetails::all);
     ui->groupBoxAction->setEnabled(backupType != SourceDetails::all);
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -579,12 +555,6 @@ void MainWindow::on_actionAbout_triggered()
     }
 }
 
-void MainWindow::runActiveTask()
-{
-    TaskRunnerManager* taskRunnerHelper = appContext->taskRunnerManager;
-    taskRunnerHelper->runTask(taskName, Common::TaskRunnerReason::Manual);
-}
-
 
 // assumes there is an source item selected
 void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, BackupModel::SourceDetailsIndex sourceIndex2)
@@ -740,5 +710,14 @@ bool MainWindow::trayIconShown()
     if (trayIcon) return trayIcon->isVisible();
 
     return false;
+}
+
+void MainWindow::initButtonIcons()
+{
+    ui->toolButtonSaveTask->setIcon(QIcon(":/custom-icons/save.svg"));
+    ui->toolButtonAdd->setIcon(QIcon(":/custom-icons/folder-plus.svg"));
+    ui->removeSourceButton->setIcon(QIcon(":/custom-icons/folder-minus.svg"));
+    ui->toolButtonSourceUp->setIcon(QIcon(":/custom-icons/chevron-up.svg"));
+    ui->toolButtonSourceDown->setIcon(QIcon(":/custom-icons/chevron-down.svg"));
 }
 

@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     qDebug() << "Tasks in " << Lb::dataDirectory();
     qDebug() << "Application scripts in " << Lb::appScriptsDir();
 
+    Lb::setupDirs(); // created directory structure if not there
 
     // default settings
     QSettings settings;

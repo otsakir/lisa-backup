@@ -30,14 +30,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QString taskName, AppContext* appContext,  QWidget *parent = nullptr);
+    MainWindow(QString openingTaskName, AppContext* appContext,  QWidget *parent = nullptr);
     ~MainWindow();
 
 signals:
     void methodChanged(int methodIndex); // raised when the backup method UI control is updated. Helps to chain actions to update the ui state (hide/show other controls etc.)
     void actionChanged(SourceDetails::ActionType action);
-    void newBackupName(QString backupName); // there is a new backup name established!
-    void PleaseQuit();
+    void PleaseQuit(); // graceful quit signal
     void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
     void systemdUnitChanged(QString unitName); // raised when the contents of the systemd lineedit control have been modified
     void modelUpdated(BackupModel::ValueType valueType = BackupModel::unset); // any change in the model triggers this
@@ -50,7 +49,6 @@ private slots:
 
     // custom slots
     void on_actionChanged(SourceDetails::ActionType action);
-    void onNewBackupName(QString backupName);
     void onModelUpdated(BackupModel::ValueType valueType);
 
     void updateSourceDetailControls(const QModelIndex& current);
@@ -83,8 +81,6 @@ private slots:
 
     void on_actionAbout_triggered();
 
-    void runActiveTask();
-
     void on_radioButtonAuto_toggled(bool checked);
 
     void on_lineEditContainsFilename_textEdited(const QString &arg1);
@@ -115,10 +111,8 @@ private:
     Ui::MainWindow *ui;
 
     QStandardItemModel* sourcesModel;
-    QDataWidgetMapper* sourcesDataMapper;
-    BackupModel* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
+    BackupModel* activeBackup = nullptr; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
     State state; // generic application state. Not part of a backup.
-    QString taskName;
     bool newBackupTaskDialogShown = false;
     TaskLoader* taskLoader;
     AppContext* appContext;
@@ -149,6 +143,9 @@ private:
     void createTrayIcon();
     void showTrayIcon(bool show);
     bool trayIconShown();
+
+    void initButtonIcons();
+    QString taskName();
 
 private slots:
     void afterWindowShown();

@@ -278,7 +278,7 @@ font-size: 15px;
                     <number>9</number>
                    </property>
                    <item>
-                    <widget class="QGroupBox" name="groupBox_4">
+                    <widget class="QGroupBox" name="groupBoxMethod">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>10</horstretch>
@@ -587,105 +587,92 @@ font-size: 15px;
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <widget class="QGroupBox" name="groupBoxDestination">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="title">
-                 <string>Destination</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_7">
-                 <property name="spacing">
-                  <number>3</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>11</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>15</number>
-                 </property>
+             <widget class="QGroupBox" name="groupBoxDestination">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Destination</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_15">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_15">
+                  <layout class="QVBoxLayout" name="verticalLayout_15">
                    <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_15">
+                    <layout class="QVBoxLayout" name="verticalLayout_Destination">
+                     <property name="spacing">
+                      <number>6</number>
+                     </property>
                      <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_Destination">
-                       <property name="spacing">
-                        <number>6</number>
-                       </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_6">
                        <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_6">
-                         <item>
-                          <widget class="QLineEdit" name="lineEditDestinationSuffixPath">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string/>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="pushButtonChooseDestinationSubdir">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>40</width>
-                             <height>16777215</height>
-                            </size>
-                           </property>
-                           <property name="text">
-                            <string>...</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_DestinationWarning">
-                         <property name="font">
-                          <font>
-                           <pointsize>9</pointsize>
-                           <kerning>true</kerning>
-                          </font>
-                         </property>
-                         <property name="styleSheet">
-                          <string notr="true">color:orange;</string>
+                        <widget class="QLineEdit" name="lineEditDestinationSuffixPath">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
                          </property>
                          <property name="text">
                           <string/>
                          </property>
                         </widget>
                        </item>
+                       <item>
+                        <widget class="QPushButton" name="pushButtonChooseDestinationSubdir">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>...</string>
+                         </property>
+                        </widget>
+                       </item>
                       </layout>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_DestinationWarning">
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <kerning>true</kerning>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">color:orange;</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>
                   </layout>
                  </item>
                 </layout>
-               </widget>
-              </item>
-             </layout>
+               </item>
+              </layout>
+             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayoutSaveRow">
