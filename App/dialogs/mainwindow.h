@@ -24,6 +24,7 @@ class AppContext;
 class TriggeringComboBox;
 class TaskManager;
 class SettingsDialog;
+class SourceDetailsView;
 
 class MainWindow : public QMainWindow
 {
@@ -34,7 +35,6 @@ public:
     ~MainWindow();
 
 signals:
-    void methodChanged(int methodIndex); // raised when the backup method UI control is updated. Helps to chain actions to update the ui state (hide/show other controls etc.)
     void actionChanged(SourceDetails::ActionType action);
     void PleaseQuit(); // graceful quit signal
     void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
@@ -48,26 +48,13 @@ signals:
 private slots:
 
     // custom slots
-    void on_actionChanged(SourceDetails::ActionType action);
     void onModelUpdated(BackupModel::ValueType valueType);
 
-    void updateSourceDetailControls(const QModelIndex& current);
-
-    SourceDetails* getSelectedSourceDetails();
-
     void on_removeSourceButton_clicked();
-
-    void on_radioButtonAll_toggled(bool checked);
-
-    void on_radioButtonSelective_toggled(bool checked);
-
-    void updatePredicateTypeIndex(int index);
 
     void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
 
     void checkLineEditDestinationSuffixPath(const QString& newText);
-
-    void on_activeBackupMethodChanged(int backupType);
 
     void on_action_Save_triggered();
 
@@ -75,17 +62,7 @@ private slots:
 
     void newBackupTaskFromDialog(qint32 dialogMode);
 
-    void on_radioButtonRsync_toggled(bool checked);
-
-    void on_radioButtonGitBundle_toggled(bool checked);
-
     void on_actionAbout_triggered();
-
-    void on_radioButtonAuto_toggled(bool checked);
-
-    void on_lineEditContainsFilename_textEdited(const QString &arg1);
-
-    void on_lineEditNameMatches_textEdited(const QString &arg1);
 
     void on_toolButtonSourceUp_clicked();
 
@@ -94,8 +71,6 @@ private slots:
     void on_actionSe_ttings_triggered();
 
     void _triggerEntrySelected(MountedDevice newTriggerEntry);
-
-    void on_comboBoxDepth_currentIndexChanged(int comboIndex);
 
     void on_action_New_triggered();
 
@@ -120,6 +95,8 @@ private:
     SettingsDialog* settingsDialog;
 
     TriggeringComboBox* triggeringCombo;
+    SourceDetailsView* sourceDetails;
+
     // tray icon
     QAction *restoreAction;
     QAction *quitAction;

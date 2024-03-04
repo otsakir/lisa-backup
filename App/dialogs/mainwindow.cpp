@@ -3,19 +3,9 @@
 #include "settingsdialog.h"
 #include "newbackuptaskdialog.h"
 #include "aboutdialog.h"
-#include "../utils.h"
-#include "../task.h"
-#include "components/multipledirdialog.h"
-
-#include "../core.h"
-#include "../logging.h"
-
-#include <memory>
 
 #include <QDebug>
-
 #include <QFileDialog>
-
 #include <QMessageBox>
 #include <QProcess>
 #include <QStandardPaths>
@@ -29,13 +19,19 @@
 #include <QScroller>
 #include <QCloseEvent>
 
+#include "../utils.h"
+#include "../task.h"
+#include "../core.h"
+#include "../logging.h"
 #include "../dbusutils.h"
 #include "../triggering.h"
 #include "../appcontext.h"
 #include "../settings.h"
-#include "components/triggeringcombobox.h"
 #include "../taskrunnermanager.h"
+#include "components/triggeringcombobox.h"
 #include "components/taskmanager.h"
+#include <components/sourcedetailsview.h>
+#include "components/multipledirdialog.h"
 
 
 MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget *parent)
@@ -65,11 +61,17 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
 
     connect(ui->toolButtonSaveTask, &QToolButton::clicked, this, &MainWindow::applyChanges);
     connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
-    connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetailControls);
-    connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), ui->stackedWidgetPredicate, &QStackedWidget::setCurrentIndex);
-    connect(ui->comboBoxPredicate, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::updatePredicateTypeIndex); // updates internal model
-    connect(this, &MainWindow::methodChanged, this, &MainWindow::on_activeBackupMethodChanged);
-    connect(this, &MainWindow::actionChanged, this, &MainWindow::on_actionChanged);
+    connect(this, &MainWindow::sourceChanged, [this] (QModelIndex rowIndex) {
+        if (rowIndex.isValid())
+        {
+            int row = rowIndex.row();
+            QString sourcePath = rowIndex.data().toString();
+            SourceDetails* pDetails = &activeBackup->allSourceDetails[row];
+            sourceDetails->setDetails(pDetails);
+            return;
+        }
+        sourceDetails->setDetails(nullptr);
+    });
     connect(this, &MainWindow::modelUpdated, this, &MainWindow::onModelUpdated);
     connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection); // 'PleaseQuit' signal bound to application quit
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
@@ -91,6 +93,9 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     static_cast<QHBoxLayout*>(ui->horizontalLayout_Triggering->layout())->insertWidget(0, triggeringCombo);
     connect(triggeringCombo, &TriggeringComboBox::triggerEntrySelected, this, &MainWindow::_triggerEntrySelected);
 
+    sourceDetails = new SourceDetailsView(this);
+    ui->splitterSources->insertWidget(1, sourceDetails);
+
     activeBackup = new BackupModel();
 
     // init tray icon
@@ -103,6 +108,8 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
         openTask(openingTaskName);
     else
         ui->stackedWidget->setCurrentIndex(1);
+
+
 
 }
 
@@ -153,12 +160,6 @@ bool MainWindow::openTask(QString taskId)
 }
 
 
-void MainWindow::on_activeBackupMethodChanged(int backupType) {
-    ui->groupBoxCriteria->setEnabled(backupType != SourceDetails::all);
-    ui->groupBoxAction->setEnabled(backupType != SourceDetails::all);
-}
-
-
 MainWindow::~MainWindow()
 {
     delete activeBackup;
@@ -185,46 +186,6 @@ QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceD
     return modelItem;
 }
 
-/**
- * When a source list item is clicked, populate UI (the right hand side of it) with sources details
- * param rowIndex: Points to the first item of the selected row or is an empty (invalid) index
- *
- */
-void MainWindow::updateSourceDetailControls(const QModelIndex& rowIndex) {
-    ui->widgetSourceDetails->setDisabled(!rowIndex.isValid());
-    //QVariant
-    if (rowIndex.isValid()) {
-        int row = rowIndex.row();
-        QString sourcePath = rowIndex.data().toString();
-        SourceDetails* pDetails = &activeBackup->allSourceDetails[row];
-
-        //SourceDetails* pDetails = &activeBackup->allSourceDetails[rowIndex.siblingAtColumn(1).data(Qt::UserRole+1).value<BackupModel::SourceDetailsIndex>()];
-        ui->comboBoxDepth->setCurrentIndex(pDetails->backupDepth);
-        if (pDetails->backupType == SourceDetails::all) {
-            ui->radioButtonAll->setChecked(true);
-            emit methodChanged(SourceDetails::all);
-        }
-        else if (pDetails->backupType == SourceDetails::selective) {
-            ui->radioButtonSelective->setChecked(true);
-            emit methodChanged(SourceDetails::selective);
-        }
-        ui->radioButtonRsync->setChecked(pDetails->actionType == SourceDetails::rsync);
-        ui->radioButtonGitBundle->setChecked(pDetails->actionType == SourceDetails::gitBundle);
-        ui->radioButtonAuto->setChecked(pDetails->actionType == SourceDetails::automatic);
-        emit actionChanged(pDetails->actionType);
-
-        ui->lineEditContainsFilename->setText(pDetails->containsFilename);
-        ui->lineEditNameMatches->setText(pDetails->nameMatches);
-
-        // update UI field contentand trigger changes to dependent fields
-        ui->comboBoxPredicate->setCurrentIndex(pDetails->predicateType);
-        emit ui->comboBoxPredicate->currentIndexChanged(pDetails->predicateType);
-
-        //ui->widgetSourceDetails->setHidden(false);
-    } else {
-        //ui->widgetSourceDetails->setHidden(true);
-    }
-}
 
 void MainWindow::on_removeSourceButton_clicked()
 {
@@ -263,7 +224,11 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
         lastSourceAdded = appendSource(i);
     }
     if (lastSourceAdded)
-        ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(lastSourceAdded), QItemSelectionModel::ClearAndSelect);
+    {
+        QModelIndex index = sourcesModel->indexFromItem(lastSourceAdded);
+        ui->sourcesListView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+        emit sourceChanged(index);
+    }
     else
         emit sourceChanged(QModelIndex()); // list is empty
 
@@ -297,62 +262,6 @@ void MainWindow::applyChanges() {
 
 }
 
-SourceDetails* MainWindow::getSelectedSourceDetails() {
-    QModelIndex sourcesModelIndex = ui->sourcesListView->selectionModel()->currentIndex();
-    if (sourcesModelIndex.isValid()) {
-        SourceDetails* sourcep = &activeBackup->allSourceDetails[sourcesModelIndex.row()];
-        return sourcep;
-    }
-    else
-        return 0;
-}
-
-void MainWindow::on_comboBoxDepth_currentIndexChanged(int comboIndex)
-{
-    SourceDetails* sourcep = getSelectedSourceDetails();
-    if (sourcep)
-        sourcep->backupDepth = (SourceDetails::BackupDepth) comboIndex;
-    else
-        qWarning() << "No valid source model available";
-}
-
-
-void MainWindow::on_radioButtonAll_toggled(bool checked)
-{
-    if (checked) {
-        SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep && sourcep->backupType != SourceDetails::all) {
-                sourcep->backupType = SourceDetails::all;
-                emit modelUpdated(BackupModel::ValueType::backupType);
-        }
-
-        emit methodChanged(SourceDetails::BackupType::all);
-    }
-}
-
-
-void MainWindow::on_radioButtonSelective_toggled(bool checked)
-{
-    if (checked) {
-        SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep && sourcep->backupType != SourceDetails::selective ) {
-            sourcep->backupType = SourceDetails::selective;
-            emit modelUpdated(BackupModel::ValueType::backupType);
-        }
-
-        emit methodChanged(SourceDetails::BackupType::selective);
-    }
-
-
-}
-
-// update internal model
-void MainWindow::updatePredicateTypeIndex(int index)
-{
-    SourceDetails* sourcep = getSelectedSourceDetails();
-    if (sourcep)
-        sourcep->predicateType = (SourceDetails::PredicateType) index;
-}
 
 void MainWindow::on_lineEditDestinationSuffixPath_textChanged(const QString &arg1)
 {
@@ -503,45 +412,6 @@ void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
 }
 
 
-void MainWindow::on_radioButtonRsync_toggled(bool checked)
-{
-    if (checked) {
-        SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep)
-            sourcep->actionType = SourceDetails::rsync;
-
-        emit actionChanged(SourceDetails::rsync);
-    }
-}
-
-
-void MainWindow::on_radioButtonGitBundle_toggled(bool checked)
-{
-    if (checked) {
-        SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep)
-            sourcep->actionType = SourceDetails::gitBundle;
-
-        emit actionChanged(SourceDetails::gitBundle);
-    }
-}
-
-void MainWindow::on_radioButtonAuto_toggled(bool checked)
-{
-    if (checked) {
-        SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep)
-            sourcep->actionType = SourceDetails::automatic;
-
-        emit actionChanged(SourceDetails::automatic);
-    }
-}
-
-// higher-level handler. Model (getSelectedSourceDetails()) is assumed to contain the updated value
-void MainWindow::on_actionChanged(SourceDetails::ActionType action) {
-    // TODO
-}
-
 void MainWindow::onModelUpdated(BackupModel::ValueType valueType) {
     qDebug() << "[debug] model updated";
 }
@@ -582,23 +452,6 @@ void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, Backu
     QModelIndex newCurrent = ui->sourcesListView->model()->index(toIndex,0);
     ui->sourcesListView->selectionModel()->select( newCurrent, QItemSelectionModel::Select );
     emit sourceChanged(newCurrent);
-}
-
-
-void MainWindow::on_lineEditContainsFilename_textEdited(const QString &newText)
-{
-    SourceDetails* sourcep = getSelectedSourceDetails();
-    if (sourcep)
-        sourcep->containsFilename = newText;
-}
-
-
-void MainWindow::on_lineEditNameMatches_textEdited(const QString &newText)
-{
-    SourceDetails* sourcep = getSelectedSourceDetails();
-    if (sourcep)
-        sourcep->nameMatches = newText;
-
 }
 
 
