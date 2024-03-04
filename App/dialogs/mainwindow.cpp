@@ -72,7 +72,6 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
         }
         sourceDetails->setDetails(nullptr);
     });
-    connect(this, &MainWindow::modelUpdated, this, &MainWindow::onModelUpdated);
     connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection); // 'PleaseQuit' signal bound to application quit
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     connect(taskManager, &TaskManager::newTask, this, &MainWindow::on_action_New_triggered);
@@ -87,6 +86,7 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     connect(settingsDialog, &SettingsDialog::trayIconUpdate, [this] (bool show) {
         showTrayIcon(show);
     });
+    connect(this, &MainWindow::dirtyChanged, this, &MainWindow::onDirtyChanged);
 
     triggeringCombo = new TriggeringComboBox(this);
     triggeringCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -95,6 +95,9 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
 
     sourceDetails = new SourceDetailsView(this);
     ui->splitterSources->insertWidget(1, sourceDetails);
+    connect(sourceDetails, &SourceDetailsView::gotDirty, this, &MainWindow::onModelUpdated);
+
+
 
     activeBackup = new BackupModel();
 
@@ -108,20 +111,12 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
         openTask(openingTaskName);
     else
         ui->stackedWidget->setCurrentIndex(1);
-
-
-
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
 {
     if (trayIconShown())
     {
-//        QMessageBox::information(this, tr("Systray"),
-//                                 tr("The program will keep running in the "
-//                                    "system tray. To terminate the program, "
-//                                    "choose <b>Quit</b> in the context menu "
-//                                    "of the system tray entry."));
         hide();
         event->ignore();
     } else
@@ -168,6 +163,26 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::onModelUpdated()
+{
+    if (!dirty)
+    {
+        dirty = true;
+        emit dirtyChanged(true);
+    }
+}
+
+void MainWindow::onDirtyChanged(bool isdirty)
+{
+    QString title = this->windowTitle();
+    if (isdirty)
+        title.append("*");
+    else
+        title = title.replace("*", "");
+    this->setWindowTitle(title);
+    ui->toolButtonSaveTask->setEnabled(isdirty);
+}
+
 // appends a 'backup source' to the list on the left
 // Note, sourceDetails memory will be automatically released
 QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceDetails) {
@@ -176,9 +191,7 @@ QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceD
 
     QVariant var;
     var.setValue( iSourceDetails );
-
     itemList << modelItem;
-
     sourcesModel->appendRow(itemList);
     // select new item in the list view
     QItemSelectionModel* selModel = ui->sourcesListView->selectionModel();
@@ -196,8 +209,6 @@ void MainWindow::on_removeSourceButton_clicked()
         BackupModel::SourceDetailsIndex iSourceDetails = i.row();
         sourcesModel->removeRow(i.row());
         activeBackup->allSourceDetails.remove(iSourceDetails);
-    } else {
-        //qDebug() << "nothing selected";
     }
 }
 
@@ -238,6 +249,10 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
     MountedDevice taskTriggerEntry; // triggering entry for the current task
     Triggering::triggerEntryForTask(backupModel.backupDetails.tmp.taskId, taskTriggerEntry);
     triggeringCombo->refresh(availableTriggerEntries, taskTriggerEntry);
+
+    dirty = false;
+    emit dirtyChanged(false);
+
 }
 
 /**
@@ -259,6 +274,8 @@ void MainWindow::applyChanges() {
 
     state.modelCopy = *activeBackup; // freshen model state
     emit taskSaved(taskId);
+    dirty = false;
+    emit dirtyChanged(false);
 
 }
 
@@ -325,9 +342,11 @@ void MainWindow::createNewTask()
  * @return QMessageBox::X status or -1 if no dialog was presented
  */
 int MainWindow::checkSave() {
-    // if ther ehave been any unsaved changed in the model, ask for saving first
-    if (! (state.modelCopy == (*activeBackup))) {
-        int ret = QMessageBox::warning(this, "Unsaved changes",tr("The backup task has been modified.\nDo you want to save your changes first?"),QMessageBox::Save | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Save);
+
+    //if (! (state.modelCopy == (*activeBackup)))
+    if (dirty)  // if there have been any unsaved changed in the model, ask for saving first
+    {
+        int ret = QMessageBox::warning(this, "Unsaved changes",tr("The backup task has been modified.\nDo you want to save your changes first?"),QMessageBox::Save | QMessageBox::No, QMessageBox::Save);
         if (ret == QMessageBox::Save) {
             applyChanges();
         }
@@ -367,25 +386,6 @@ void MainWindow::on_action_Save_triggered()
 }
 
 
-void MainWindow::on_actionDelete_triggered()
-{
-    int ret = QMessageBox::warning(this, tr("Lisa Backup"),
-                                   tr("You are about to delete your backup task!"),
-                                   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
-
-    if (ret == QMessageBox::Cancel)
-        return;
-
-    if (ret == QMessageBox::Ok) {
-        // Lb::removeBackupFiles() // removes systemd .service file, backup data file and backup scropt
-        // clear backup task state - activeBackup
-        // inform UI
-
-
-    }
-}
-
-
 // show newtask dialog, get name and id, persist to .task file, reload and populate UI
 void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
 {
@@ -409,11 +409,6 @@ void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
             }
         }
     }
-}
-
-
-void MainWindow::onModelUpdated(BackupModel::ValueType valueType) {
-    qDebug() << "[debug] model updated";
 }
 
 
@@ -452,6 +447,7 @@ void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, Backu
     QModelIndex newCurrent = ui->sourcesListView->model()->index(toIndex,0);
     ui->sourcesListView->selectionModel()->select( newCurrent, QItemSelectionModel::Select );
     emit sourceChanged(newCurrent);
+    onModelUpdated();
 }
 
 
@@ -519,7 +515,7 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 }
 
 
-void MainWindow::on_toolButtonAdd_clicked()
+void MainWindow::askUserAndAddSources()
 {
     MultipleDirDialog dialog(this);
     if ( dialog.exec() == QDialog::Accepted) {
@@ -532,6 +528,8 @@ void MainWindow::on_toolButtonAdd_clicked()
             BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
             ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
         }
+        if (dialog.selectedPaths.size() > 0)
+            onModelUpdated();
     }
 }
 

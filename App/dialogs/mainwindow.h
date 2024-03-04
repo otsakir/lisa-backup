@@ -39,7 +39,7 @@ signals:
     void PleaseQuit(); // graceful quit signal
     void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
     void systemdUnitChanged(QString unitName); // raised when the contents of the systemd lineedit control have been modified
-    void modelUpdated(BackupModel::ValueType valueType = BackupModel::unset); // any change in the model triggers this
+    void dirtyChanged(bool isdirty); // "dirty" status of model changed
     void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
     void taskSaved(const QString taskId); // a task was saved to disk; state.modelCopy model has been updated.
 
@@ -47,8 +47,9 @@ signals:
 
 private slots:
 
-    // custom slots
-    void onModelUpdated(BackupModel::ValueType valueType);
+    void onModelUpdated(); // any change in the model of the selected task will trigger this
+
+    void onDirtyChanged(bool isdirty);
 
     void on_removeSourceButton_clicked();
 
@@ -57,8 +58,6 @@ private slots:
     void checkLineEditDestinationSuffixPath(const QString& newText);
 
     void on_action_Save_triggered();
-
-    void on_actionDelete_triggered();
 
     void newBackupTaskFromDialog(qint32 dialogMode);
 
@@ -89,6 +88,8 @@ private:
     BackupModel* activeBackup = nullptr; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
     State state; // generic application state. Not part of a backup.
     bool newBackupTaskDialogShown = false;
+    bool dirty = false;
+
     TaskLoader* taskLoader;
     AppContext* appContext;
     TaskManager* taskManager;
@@ -127,6 +128,6 @@ private:
 private slots:
     void afterWindowShown();
     void on_pushButtonChooseDestinationSubdir_clicked();
-    void on_toolButtonAdd_clicked();
+    void askUserAndAddSources();
 };
 #endif // MAINWINDOW_H

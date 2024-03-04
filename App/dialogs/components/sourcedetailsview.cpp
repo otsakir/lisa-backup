@@ -52,6 +52,12 @@ void SourceDetailsView::signalWiring()
         this->sourceDetails->predicateType = (SourceDetails::PredicateType) index;
     });
     connect(this, &SourceDetailsView::methodChanged, this, &SourceDetailsView::on_methodChanged);
+
+    connect(this, &SourceDetailsView::methodChanged, this, &SourceDetailsView::checkSignalDirty);
+    connect(this, &SourceDetailsView::actionChanged, this, &SourceDetailsView::checkSignalDirty);
+    connect(this, &SourceDetailsView::backupDepthChanged, this, &SourceDetailsView::checkSignalDirty);
+    connect(this, &SourceDetailsView::containsFilenameChanged, this, &SourceDetailsView::checkSignalDirty);
+    connect(this, &SourceDetailsView::nameMatchedChanged, this, &SourceDetailsView::checkSignalDirty);
 }
 
 
@@ -71,6 +77,7 @@ void SourceDetailsView::setDetails(SourceDetails *details)
             initControls();
         }
     }
+    dirty = false;
 }
 
 
@@ -80,20 +87,19 @@ void SourceDetailsView::setDetails(SourceDetails *details)
  *
  */
 void SourceDetailsView::initControls() {
+    const bool wasBlocked = this->blockSignals(true); // no signals out
+
     ui->comboBoxDepth->setCurrentIndex(sourceDetails->backupDepth);
     if (sourceDetails->backupType == SourceDetails::all) {
         ui->radioButtonAll->setChecked(true);
-        //emit methodChanged(SourceDetails::all);
     }
     else if (sourceDetails->backupType == SourceDetails::selective) {
         ui->radioButtonSelective->setChecked(true);
-        //emit methodChanged(SourceDetails::selective);
     }
 
     ui->radioButtonRsync->setChecked(sourceDetails->actionType == SourceDetails::rsync);
     ui->radioButtonGitBundle->setChecked(sourceDetails->actionType == SourceDetails::gitBundle);
     ui->radioButtonAuto->setChecked(sourceDetails->actionType == SourceDetails::automatic);
-    //emit actionChanged(sourceDetails->actionType);
 
     ui->lineEditContainsFilename->setText(sourceDetails->containsFilename);
     ui->lineEditNameMatches->setText(sourceDetails->nameMatches);
@@ -101,26 +107,9 @@ void SourceDetailsView::initControls() {
     ui->comboBoxPredicate->setCurrentIndex(sourceDetails->predicateType);
     ui->stackedWidgetPredicate->setCurrentIndex(sourceDetails->predicateType);
 
-    //ui->widgetSourceDetails->setHidden(false);
-
+    this->blockSignals(wasBlocked);
 }
 
-
-
-/*
-void MainWindow::on_radioButtonAll_toggled(bool checked)
-{
-    if (checked) {
-        SourceDetails* sourcep = getSelectedSourceDetails();
-        if (sourcep && sourcep->backupType != SourceDetails::all) {
-                sourcep->backupType = SourceDetails::all;
-                emit modelUpdated(BackupModel::ValueType::backupType);
-        }
-
-        emit methodChanged(SourceDetails::BackupType::all);
-    }
-}
-*/
 
 void SourceDetailsView::on_methodChanged(SourceDetails::BackupType method)
 {
@@ -128,6 +117,16 @@ void SourceDetailsView::on_methodChanged(SourceDetails::BackupType method)
 
     ui->groupBoxCriteria->setEnabled(method != SourceDetails::all);
     ui->groupBoxAction->setEnabled(method != SourceDetails::all);
+}
+
+
+void SourceDetailsView::checkSignalDirty()
+{
+    if (!dirty)
+    {
+        dirty = true;
+        emit gotDirty();
+    }
 }
 
 
