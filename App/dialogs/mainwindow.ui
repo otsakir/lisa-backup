@@ -165,7 +165,7 @@ font-size: 15px;
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QToolButton" name="toolButtonAdd">
+                       <widget class="QToolButton" name="toolButtonAddSource">
                         <property name="minimumSize">
                          <size>
                           <width>32</width>
@@ -178,7 +178,7 @@ font-size: 15px;
                        </widget>
                       </item>
                       <item>
-                       <widget class="QToolButton" name="removeSourceButton">
+                       <widget class="QToolButton" name="toolButtonRemoveSource">
                         <property name="minimumSize">
                          <size>
                           <width>32</width>
@@ -480,7 +480,7 @@ font-size: 15px;
      <string>&amp;Tasks</string>
     </property>
     <addaction name="action_New"/>
-    <addaction name="action_Save"/>
+    <addaction name="actionSave"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -494,7 +494,7 @@ font-size: 15px;
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="actionSe_ttings"/>
+    <addaction name="actionSettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -538,7 +538,7 @@ font-size: 15px;
     <string>Ctrl+M</string>
    </property>
   </action>
-  <action name="action_Save">
+  <action name="actionSave">
    <property name="icon">
     <iconset>
      <normalon>:/custom-icons/save.svg</normalon>
@@ -561,7 +561,7 @@ font-size: 15px;
     <string>E&amp;xit</string>
    </property>
   </action>
-  <action name="actionSe_ttings">
+  <action name="actionSettings">
    <property name="icon">
     <iconset>
      <normalon>:/custom-icons/settings.svg</normalon>

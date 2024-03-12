@@ -24,6 +24,9 @@ namespace Settings
                 return "Everything";
             case Loglevel::Errors:
                 return "Errors only";
+            default:
+                Q_ASSERT_X(false, "toCaption()", "No name has been defined for this Loglevel enum");
+                return "";
         }
     }
 
@@ -43,6 +46,9 @@ namespace Settings
                 return "GUI";
             case Taskrunner::Script:
                 return "Bash scripts (insecure)";
+            default:
+                Q_ASSERT_X(false, "toCaption()", "No name has been defined for this Taskrunner enum");
+                return "";
         }
     }
 

@@ -80,6 +80,11 @@ void SourceDetailsView::setDetails(SourceDetails *details)
     dirty = false;
 }
 
+void SourceDetailsView::clearDirty()
+{
+    dirty = false;
+}
+
 
 /**
  * When a source list item is clicked, populate UI (the right hand side of it) with sources details

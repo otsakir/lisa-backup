@@ -19,6 +19,7 @@ public:
 
 public slots:
     void setDetails(SourceDetails* details); // call when data model changes. Pass nullptr is there is no data.
+    void clearDirty(); // clear dirty status. Call when state has been persisted in parent
 
 signals:
     void gotDirty(); // data model changed since initialization (setDetails())

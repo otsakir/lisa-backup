@@ -45,6 +45,8 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
 
     ui->setupUi(this);
     taskLoader = appContext->getTaskLoader();
+    initButtonIcons();
+    trivialWiring();
 
     // set up models for sources listview
     sourcesModel = new QStandardItemModel(0,2, this);
@@ -52,41 +54,30 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     ui->sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
 
+    // Task Manager - create component and do wiring
     taskManager = new TaskManager(appContext, this);
     static_cast<QVBoxLayout*>(ui->tasksWrap->layout())->insertWidget(0, taskManager);
     connect(taskManager, &TaskManager::editTask, this, &MainWindow::editTask);
     connect(taskManager, &TaskManager::runTask, appContext->taskRunnerManager, &TaskRunnerManager::runTask); // run backup tasks from taskManager
-
-    initButtonIcons();
-
-    connect(ui->toolButtonSaveTask, &QToolButton::clicked, this, &MainWindow::applyChanges);
-    connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
-    connect(this, &MainWindow::sourceChanged, [this] (QModelIndex rowIndex) {
-        if (rowIndex.isValid())
-        {
-            int row = rowIndex.row();
-            QString sourcePath = rowIndex.data().toString();
-            SourceDetails* pDetails = &activeBackup->allSourceDetails[row];
-            sourceDetails->setDetails(pDetails);
-            return;
-        }
-        sourceDetails->setDetails(nullptr);
-    });
-    connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection); // 'PleaseQuit' signal bound to application quit
-    connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     connect(taskManager, &TaskManager::newTask, this, &MainWindow::on_action_New_triggered);
     connect(this, &MainWindow::newTaskCreated, taskManager, &TaskManager::refreshView);
-    connect(this, &MainWindow::newTaskCreated, this, &MainWindow::editTask);
-    connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
     connect(taskManager, &TaskManager::taskRemoved, [this](const QString taskid){
         qDebug() << "Task " << taskid << " removed";
         if (taskName() == taskid)
             ui->stackedWidget->setCurrentIndex(1); // hide "edit task" controls and show badge with user message
     });
+
+    connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
+    connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetails);
+    connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection); // 'PleaseQuit' signal bound to application quit
+    connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
+    connect(this, &MainWindow::newTaskCreated, this, &MainWindow::editTask);
+    connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
     connect(settingsDialog, &SettingsDialog::trayIconUpdate, [this] (bool show) {
         showTrayIcon(show);
     });
-    connect(this, &MainWindow::dirtyChanged, this, &MainWindow::onDirtyChanged);
+    connect(this, &MainWindow::gotClean, this, &MainWindow::onDirtyChanged);
+    connect(this, &MainWindow::gotDirty, this, &MainWindow::onDirtyChanged);
 
     triggeringCombo = new TriggeringComboBox(this);
     triggeringCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -96,8 +87,9 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     sourceDetails = new SourceDetailsView(this);
     ui->splitterSources->insertWidget(1, sourceDetails);
     connect(sourceDetails, &SourceDetailsView::gotDirty, this, &MainWindow::onModelUpdated);
-
-
+    connect(this, &MainWindow::gotClean, sourceDetails, &SourceDetailsView::clearDirty);
+    connect(ui->sourcesListView->model(), &QAbstractItemModel::rowsInserted, this, &MainWindow::onModelUpdated);
+    connect(ui->sourcesListView->model(), &QAbstractItemModel::rowsRemoved, this, &MainWindow::onModelUpdated);
 
     activeBackup = new BackupModel();
 
@@ -168,7 +160,7 @@ void MainWindow::onModelUpdated()
     if (!dirty)
     {
         dirty = true;
-        emit dirtyChanged(true);
+        emit gotDirty(dirty);
     }
 }
 
@@ -199,8 +191,22 @@ QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceD
     return modelItem;
 }
 
+// when a different source list item is selected, update the source details view
+void MainWindow::updateSourceDetails(QModelIndex rowIndex)
+{
+    if (rowIndex.isValid())
+    {
+        int row = rowIndex.row();
+        QString sourcePath = rowIndex.data().toString();
+        SourceDetails* pDetails = &activeBackup->allSourceDetails[row];
+        sourceDetails->setDetails(pDetails);
+        return;
+    }
+    sourceDetails->setDetails(nullptr);
+}
 
-void MainWindow::on_removeSourceButton_clicked()
+
+void MainWindow::removeSelectedSourceFromList()
 {
     const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
     if (!selection.isEmpty()) {
@@ -251,7 +257,7 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
     triggeringCombo->refresh(availableTriggerEntries, taskTriggerEntry);
 
     dirty = false;
-    emit dirtyChanged(false);
+    emit gotClean(dirty);
 
 }
 
@@ -275,7 +281,7 @@ void MainWindow::applyChanges() {
     state.modelCopy = *activeBackup; // freshen model state
     emit taskSaved(taskId);
     dirty = false;
-    emit dirtyChanged(false);
+    emit gotClean(dirty);
 
 }
 
@@ -320,11 +326,11 @@ void MainWindow::checkLineEditDestinationSuffixPath(const QString& newText)
 void MainWindow::on_action_New_triggered()
 {
     if (checkSave() != QMessageBox::Cancel) {
-        createNewTask();
+        createNewTaskDialog();
     }
 }
 
-void MainWindow::createNewTask()
+void MainWindow::createNewTaskDialog()
 {
     NewBackupTaskDialog dialog(appContext, this, NewBackupTaskDialog::CreateOnly);
     if ( dialog.exec() == QDialog::Accepted) {
@@ -380,44 +386,10 @@ void MainWindow::_triggerEntrySelected(MountedDevice newTriggerEntry)
 }
 
 
-void MainWindow::on_action_Save_triggered()
-{
-    applyChanges();
-}
-
-
-// show newtask dialog, get name and id, persist to .task file, reload and populate UI
-void MainWindow::newBackupTaskFromDialog(qint32 dialogMode)
-{
-    QString stringResult;
-    NewBackupTaskDialog dialog(appContext, this, (NewBackupTaskDialog::Mode) dialogMode);
-    if ( dialog.exec() == QDialog::Accepted) {
-        qInfo() << "dialog returned: " << dialog.result.name << " - " << dialog.result.id;
-
-        if (checkSave() != QMessageBox::Cancel) {
-            // store to task file
-            BackupModel model;
-            model.backupDetails.friendlyName = dialog.result.name;
-            Tasks::saveTask(dialog.result.id, model);
-
-            // reload task file and init UI
-            BackupModel persisted;
-            if (taskLoader->loadTask(dialog.result.id,persisted)) {
-                *activeBackup = persisted;
-                activeBackup->backupDetails.tmp.taskId = dialog.result.id;
-                initUIControls(*activeBackup);
-            }
-        }
-    }
-}
-
-
-void MainWindow::on_actionAbout_triggered()
+void MainWindow::showAboutDialog()
 {
     AboutDialog dialog(this);
-    if ( dialog.exec() == QDialog::Accepted) {
-    } else {
-    }
+    dialog.exec();
 }
 
 
@@ -447,11 +419,10 @@ void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, Backu
     QModelIndex newCurrent = ui->sourcesListView->model()->index(toIndex,0);
     ui->sourcesListView->selectionModel()->select( newCurrent, QItemSelectionModel::Select );
     emit sourceChanged(newCurrent);
-    onModelUpdated();
 }
 
 
-void MainWindow::on_toolButtonSourceUp_clicked()
+void MainWindow::moveSourceItemUp()
 {
     const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
     if (!selection.isEmpty()) {
@@ -464,7 +435,7 @@ void MainWindow::on_toolButtonSourceUp_clicked()
 }
 
 
-void MainWindow::on_toolButtonSourceDown_clicked()
+void MainWindow::moveSourceItemDown()
 {
     const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
     if (!selection.isEmpty()) {
@@ -477,7 +448,7 @@ void MainWindow::on_toolButtonSourceDown_clicked()
 }
 
 
-void MainWindow::on_actionSe_ttings_triggered()
+void MainWindow::showSettingsDialog()
 {
     settingsDialog->exec();
 }
@@ -528,8 +499,6 @@ void MainWindow::askUserAndAddSources()
             BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
             ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
         }
-        if (dialog.selectedPaths.size() > 0)
-            onModelUpdated();
     }
 }
 
@@ -566,9 +535,21 @@ bool MainWindow::trayIconShown()
 void MainWindow::initButtonIcons()
 {
     ui->toolButtonSaveTask->setIcon(QIcon(":/custom-icons/save.svg"));
-    ui->toolButtonAdd->setIcon(QIcon(":/custom-icons/folder-plus.svg"));
-    ui->removeSourceButton->setIcon(QIcon(":/custom-icons/folder-minus.svg"));
+    ui->toolButtonAddSource->setIcon(QIcon(":/custom-icons/folder-plus.svg"));
+    ui->toolButtonRemoveSource->setIcon(QIcon(":/custom-icons/folder-minus.svg"));
     ui->toolButtonSourceUp->setIcon(QIcon(":/custom-icons/chevron-up.svg"));
     ui->toolButtonSourceDown->setIcon(QIcon(":/custom-icons/chevron-down.svg"));
+}
+
+void MainWindow::trivialWiring()
+{
+    connect(ui->toolButtonSaveTask, &QToolButton::clicked, this, &MainWindow::applyChanges);
+    connect(ui->toolButtonAddSource, &QToolButton::clicked, this, &MainWindow::askUserAndAddSources);
+    connect(ui->toolButtonRemoveSource, &QToolButton::clicked, this, &MainWindow::removeSelectedSourceFromList);
+    connect(ui->toolButtonSourceUp, &QToolButton::clicked, this, &MainWindow::moveSourceItemUp);
+    connect(ui->toolButtonSourceDown, &QToolButton::clicked, this, &MainWindow::moveSourceItemDown);
+    connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
+    connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
+    connect(ui->actionSave, &QAction::triggered, this, &MainWindow::applyChanges);
 }
 

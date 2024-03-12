@@ -35,11 +35,9 @@ public:
     ~MainWindow();
 
 signals:
-    void actionChanged(SourceDetails::ActionType action);
     void PleaseQuit(); // graceful quit signal
-    void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
-    void systemdUnitChanged(QString unitName); // raised when the contents of the systemd lineedit control have been modified
-    void dirtyChanged(bool isdirty); // "dirty" status of model changed
+    void gotDirty(bool dirty);
+    void gotClean(bool dirty);
     void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
     void taskSaved(const QString taskId); // a task was saved to disk; state.modelCopy model has been updated.
 
@@ -48,32 +46,25 @@ signals:
 private slots:
 
     void onModelUpdated(); // any change in the model of the selected task will trigger this
-
     void onDirtyChanged(bool isdirty);
 
-    void on_removeSourceButton_clicked();
+    void removeSelectedSourceFromList();
+    void updateSourceDetails(QModelIndex rowIndex);
+    void moveSourceItemUp();
+    void moveSourceItemDown();
 
     void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
 
     void checkLineEditDestinationSuffixPath(const QString& newText);
 
-    void on_action_Save_triggered();
-
-    void newBackupTaskFromDialog(qint32 dialogMode);
-
-    void on_actionAbout_triggered();
-
-    void on_toolButtonSourceUp_clicked();
-
-    void on_toolButtonSourceDown_clicked();
-
-    void on_actionSe_ttings_triggered();
+    void showAboutDialog();
+    void showSettingsDialog();
+    void createNewTaskDialog(); // Initiates new task workflow. Asks user for id, validates, creates task file.
 
     void _triggerEntrySelected(MountedDevice newTriggerEntry);
 
     void on_action_New_triggered();
 
-    void createNewTask(); // Initiates new task workflow. Asks user for id, validates, creates task file.
 
 public slots:
     void editTask(const QString& taskid);
@@ -123,6 +114,8 @@ private:
     bool trayIconShown();
 
     void initButtonIcons();
+    void trivialWiring();
+
     QString taskName();
 
 private slots:
