@@ -1,6 +1,5 @@
 #include "treeviewtasks.h"
 
-#include <QDir>
 #include <QStandardItem>
 #include <QShowEvent>
 #include <QMessageBox>

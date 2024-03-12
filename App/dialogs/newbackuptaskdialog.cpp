@@ -7,7 +7,6 @@
 #include <QDir>
 #include <QStandardItem>
 #include <QMessageBox>
-#include "components/treeviewtasks.h"
 
 #include "../core.h"
 #include "../task.h"
@@ -40,19 +39,6 @@ NewBackupTaskDialog::NewBackupTaskDialog(AppContext* appContext, QWidget *parent
 
     if (mode == Wizard) {
         this->setWindowTitle("Welcome to Lisa Backup!");
-/*        static_cast<QHBoxLayout*>(ui->verticalLayoutExistingTasks->layout())->insertWidget(1, tasks);
-        // disable "re-open task"-specific controls if there are not old tasks
-        if (tasks->taskCount() <= 0)
-        {
-            for (int i=0; i < ui->verticalLayoutExistingTasks->count(); i++)
-            {
-                QWidget* childWidget = ui->verticalLayoutExistingTasks->itemAt(i)->widget();
-                if (childWidget != nullptr)
-                    childWidget->setEnabled(false);
-
-            }
-        }
-        */
     } else if (mode == CreateOnly) {
         this->setWindowTitle("Start new task");
     } else {
@@ -125,7 +111,6 @@ void NewBackupTaskDialog::on_pushButtonCancelFromCreate_clicked()
 void NewBackupTaskDialog::onCurrentTaskIs(QString taskName, const QModelIndex& modelIndex)
 {
     bool valid = modelIndex.isValid();
-    //ui->pushButtonOpen->setEnabled(valid);
     selectedTask = taskName;
 }
 

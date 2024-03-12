@@ -2,7 +2,6 @@
 
 #include <QFile>
 #include <QProcess>
-#include <QTextStream>
 #include <QDebug>
 #include <QSettings>
 

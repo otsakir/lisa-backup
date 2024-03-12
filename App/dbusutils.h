@@ -1,7 +1,6 @@
 #ifndef DBUSUTILS_H
 #define DBUSUTILS_H
 
-#include <QString>
 #include <QMap>
 #include <QVariant>
 #include <QDBusMessage>

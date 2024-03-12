@@ -2,9 +2,6 @@
 #include "ui_sourcedetailsview.h"
 
 
-#include <QFileInfo>
-
-
 SourceDetailsView::SourceDetailsView(QWidget *parent) :
     ui(new Ui::SourceDetailsView)
 {

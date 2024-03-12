@@ -1,12 +1,12 @@
 #ifndef TREEVIEWTASKS_H
 #define TREEVIEWTASKS_H
 
-#include <QStandardItem>
 #include <QTreeView>
 #include "../common.h"
 
 class TaskLoader;
 class TaskRunnerManager;
+class QStandardItemModel;
 
 class TreeViewTasks : public QTreeView
 {

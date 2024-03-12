@@ -2,7 +2,6 @@
 #define TASKRUNNERMANAGER_H
 
 #include <QObject>
-#include <QList>
 #include <QMap>
 #include <QProcess>
 

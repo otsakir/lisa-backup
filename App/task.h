@@ -1,7 +1,6 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <QWidget>
 #include "core.h"
 
 class TaskLoader

@@ -5,7 +5,6 @@
 
 namespace Logging {
 
-
     void setUiConsole(void* newUiConsole);
     void logToUiConsole(QString message);
 

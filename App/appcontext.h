@@ -1,8 +1,6 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
 
-#include <QVector>
-
 class TaskLoader;
 class TaskManager;
 class TaskRunnerManager;

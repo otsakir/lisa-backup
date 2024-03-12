@@ -1,5 +1,4 @@
 #include "taskmanager.h"
-#include "qevent.h"
 #include "ui_taskmanager.h"
 
 #include "../dbusutils.h"
@@ -10,6 +9,8 @@
 
 #include <QMessageBox>
 #include <QTimer>
+#include <QSettings>
+#include <QDebug>
 
 
 TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :

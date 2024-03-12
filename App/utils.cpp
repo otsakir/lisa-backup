@@ -1,6 +1,5 @@
 
 #include "utils.h"
-#include "terminal.h"
 #include "conf.h"
 
 #include <QStandardPaths>

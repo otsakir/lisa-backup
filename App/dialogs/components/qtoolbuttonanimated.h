@@ -3,7 +3,7 @@
 
 #include <QToolButton>
 #include <QObject>
-#include <QGraphicsOpacityEffect>
+
 
 
 class QSequentialAnimationGroup;

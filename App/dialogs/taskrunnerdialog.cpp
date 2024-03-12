@@ -1,15 +1,13 @@
 #include "taskrunnerdialog.h"
 #include "ui_taskrunnerdialog.h"
 
-#include <QDebug>
-#include <QSettings>
-#include <QMessageBox>
-#include <QProcess>
-#include <QCloseEvent>
 #include <QMetaEnum>
-#include <QDateTime>
+#include <QSettings>
+#include <QDebug>
 #include <QFileDialog>
 #include <QSequentialAnimationGroup>
+#include <QDateTime>
+#include <QCloseEvent>
 #include "../scripting.h"
 #include "../task.h"
 #include "../settings.h"

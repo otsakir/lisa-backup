@@ -1,11 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QDataWidgetMapper>
-#include <QItemSelection>
 #include <QMainWindow>
-#include <QStandardItemModel>
-#include <QSystemTrayIcon>
+
+
 
 #include <QProcess>
 #include "../core.h"
@@ -25,6 +23,9 @@ class TriggeringComboBox;
 class TaskManager;
 class SettingsDialog;
 class SourceDetailsView;
+class QSystemTrayIcon;
+class QStandardItemModel;
+class QStandardItem;
 
 class MainWindow : public QMainWindow
 {

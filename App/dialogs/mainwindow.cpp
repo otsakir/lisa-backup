@@ -4,20 +4,12 @@
 #include "newbackuptaskdialog.h"
 #include "aboutdialog.h"
 
-#include <QDebug>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QProcess>
-#include <QStandardPaths>
-#include <QStorageInfo>
-#include <QFontDatabase>
-#include <QDateTime>
-#include <QAbstractItemView>
-#include <QLoggingCategory>
-#include <QFileSystemModel>
-#include <QTreeView>
-#include <QScroller>
 #include <QCloseEvent>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QSystemTrayIcon>
+#include <QStandardItemModel>
+#include <QDebug>
 
 #include "../utils.h"
 #include "../task.h"

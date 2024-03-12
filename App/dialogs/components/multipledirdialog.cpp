@@ -1,6 +1,7 @@
 #include "multipledirdialog.h"
 #include "ui_multipledirdialog.h"
-#include <QScreen>
+
+#include <QFileSystemModel>
 
 MultipleDirDialog::MultipleDirDialog(QWidget *parent) :
     QDialog(parent),
