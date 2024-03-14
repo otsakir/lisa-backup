@@ -29,12 +29,6 @@ Start the application from the current directory:
 
     $ ./lbackup 
 
-
-### Preview
-
-If this sounds interesting, check this overview video on youtube:
-
-https://www.youtube.com/watch?v=5hYTa77cXgs
     
 
     
