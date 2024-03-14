@@ -54,7 +54,9 @@ private slots:
     void moveSourceItemUp();
     void moveSourceItemDown();
 
+    // destination path
     void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
+    void openDestinationDirExternal();
 
     void checkLineEditDestinationSuffixPath(const QString& newText);
 

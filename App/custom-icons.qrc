@@ -17,5 +17,6 @@
         <file>custom-icons/refresh.svg</file>
         <file>custom-icons/edit.svg</file>
         <file>custom-icons/settings.svg</file>
+        <file>custom-icons/to-external.svg</file>
     </qresource>
 </RCC>

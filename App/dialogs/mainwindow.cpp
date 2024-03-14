@@ -10,6 +10,7 @@
 #include <QSystemTrayIcon>
 #include <QStandardItemModel>
 #include <QDebug>
+#include <QDesktopServices>
 
 #include "../utils.h"
 #include "../task.h"
@@ -474,7 +475,13 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
     {
         ui->lineEditDestinationSuffixPath->setText(dir);
     }
+}
 
+// opens the closest existing directory to destination path in an external file-manager window
+void MainWindow::openDestinationDirExternal()
+{
+    QFileInfo destinationDir(ui->lineEditDestinationSuffixPath->text());
+    QDesktopServices::openUrl( QUrl::fromLocalFile(destinationDir.path()) ); // path() returns the closest existing path to the destination directory
 }
 
 
@@ -531,6 +538,7 @@ void MainWindow::initButtonIcons()
     ui->toolButtonRemoveSource->setIcon(QIcon(":/custom-icons/folder-minus.svg"));
     ui->toolButtonSourceUp->setIcon(QIcon(":/custom-icons/chevron-up.svg"));
     ui->toolButtonSourceDown->setIcon(QIcon(":/custom-icons/chevron-down.svg"));
+    ui->toolButtonOpenDirExternal->setIcon(QIcon(":/custom-icons/to-external.svg"));
 }
 
 void MainWindow::trivialWiring()
@@ -543,5 +551,6 @@ void MainWindow::trivialWiring()
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::applyChanges);
+    connect(ui->toolButtonOpenDirExternal, &QToolButton::clicked, this, &MainWindow::openDestinationDirExternal);
 }
 
