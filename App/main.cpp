@@ -7,7 +7,6 @@
 #include <QSettings>
 #include <QDesktopWidget>
 #include <QLoggingCategory>
-#include <QSystemTrayIcon>
 #include "task.h"
 #include "settings.h"
 #include "conf.h"
@@ -26,11 +25,6 @@ int main(int argc, char *argv[])
     //QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
     QLoggingCategory::setFilterRules(QStringLiteral("default.info=true\ndefault.debug=true"));
     registerQtMetatypes();
-
-    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-        QMessageBox::critical(nullptr, QObject::tr("Systray"), QObject::tr("I couldn't detect any system tray on this system."));
-        return 1;
-    }
 
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
     qDebug() << "Tasks in " << Lb::dataDirectory();
