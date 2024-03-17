@@ -51,7 +51,8 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     taskManager = new TaskManager(appContext, this);
     static_cast<QVBoxLayout*>(ui->tasksWrap->layout())->insertWidget(0, taskManager);
     connect(taskManager, &TaskManager::editTask, this, &MainWindow::editTask);
-    connect(taskManager, &TaskManager::runTask, appContext->taskRunnerManager, &TaskRunnerManager::runTask); // run backup tasks from taskManager
+    connect(taskManager, &TaskManager::runTask, this, &MainWindow::checkSaveAndRun);
+    // run backup tasks from taskManager
     connect(taskManager, &TaskManager::newTask, this, &MainWindow::on_action_New_triggered);
     connect(this, &MainWindow::newTaskCreated, taskManager, &TaskManager::refreshView);
     connect(taskManager, &TaskManager::taskRemoved, [this](const QString taskid){
@@ -59,13 +60,14 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
         if (taskName() == taskid)
             ui->stackedWidget->setCurrentIndex(1); // hide "edit task" controls and show badge with user message
     });
+    connect(this, &MainWindow::taskNowEdited, taskManager, &TaskManager::taskIsNowEdited);
 
     connect(selectionModel, &QItemSelectionModel::currentRowChanged, this, &MainWindow::sourceChanged);
     connect(this, &MainWindow::sourceChanged, this, &MainWindow::updateSourceDetails);
     connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection); // 'PleaseQuit' signal bound to application quit
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     connect(this, &MainWindow::newTaskCreated, this, &MainWindow::editTask);
-    connect(ui->lineEditDestinationPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
+    connect(ui->lineEditDestinationPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationPath);
     connect(settingsDialog, &SettingsDialog::trayIconUpdate, [this] (bool show) {
         showTrayIcon(show);
     });
@@ -222,9 +224,7 @@ void MainWindow::collectUIControls(BackupModel& persisted) {
 }
 
 void MainWindow::initUIControls(BackupModel& backupModel) {
-    //*activeBackup = persisted.backupDetails;
     this->setWindowTitle( Lb::windowTitle(backupModel.backupDetails.tmp.taskId ));  //friendlyName) );
-    //ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
     ui->lineEditDestinationPath->setText(backupModel.backupDetails.destinationPath);
 
     sourcesModel->clear();
@@ -285,7 +285,7 @@ void MainWindow::updatetDestinationPathModel(const QString &arg1)
     emit onModelUpdated();
 }
 
-void MainWindow::checkLineEditDestinationSuffixPath(const QString& newText)
+void MainWindow::checkLineEditDestinationPath(const QString& newText)
 {
     //QString path = "/" + activeBackup->backupDetails.destinationPath;
     QString path = newText; //ui->lineEditDestinationSuffixPath->text();
@@ -355,6 +355,21 @@ int MainWindow::checkSave() {
     return -1;
 }
 
+void MainWindow::checkSaveAndRun(const QString taskname, Common::TaskRunnerReason reason, bool show)
+{
+    if (taskname == taskName() && dirty) // if task to run is the one that is currently edited
+    {
+        int result = QMessageBox::warning(this, "Unsaved changes", "The backup task has been modified.\nDo you want to save your changes first?", QMessageBox::Save | QMessageBox::No | QMessageBox::Cancel);
+        if  (result == QMessageBox::Save)
+        {
+            applyChanges();
+        } else
+        if (result == QMessageBox::Cancel)
+            return;
+    }
+    appContext->taskRunnerManager->runTask(taskname, reason, show);
+}
+
 
 void MainWindow::editTask(const QString& taskid)
 {
@@ -363,7 +378,8 @@ void MainWindow::editTask(const QString& taskid)
         {
             ui->stackedWidget->setCurrentIndex(0);
             ui->labelTaskHeading->setText(QString("[%1]").arg(taskid));
-            taskManager->setBoldListEntry(taskid);
+            //taskManager->setBoldListEntry(taskid);
+            emit taskNowEdited(taskid);
         }
     }
 }
@@ -376,7 +392,7 @@ void MainWindow::_triggerEntrySelected(MountedDevice newTriggerEntry)
     {
         Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, newTriggerEntry);
     }
-    emit ui->lineEditDestinationPath->textChanged(ui->lineEditDestinationPath->text()); // simulate text change to trigger effect
+    checkLineEditDestinationPath(ui->lineEditDestinationPath->text());
 }
 
 

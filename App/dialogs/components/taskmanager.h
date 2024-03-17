@@ -27,6 +27,7 @@ private:
     Ui::TaskManager *ui;
     DbusUtils* dbusUtils;
     TreeViewTasks* taskview;
+    QString boldTask;
 
     void removeCurrentTask();
 
@@ -40,7 +41,9 @@ public slots:
     void editTaskClicked();
     void showPreselectedTask(QString taskid);
     void refreshView(const QString taskid);
+    void taskIsNowEdited(const QString taskid);
     void setBoldListEntry(const QString taskid); // make a single entry of the list bold
+
 
 signals:
     void newTask();

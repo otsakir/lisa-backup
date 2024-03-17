@@ -81,7 +81,8 @@ void TriggeringComboBox::_currentIndexChanged(int index)
         QVariant variant = model()->data(model()->index(index,0),Qt::UserRole+1);
         MountedDevice triggerEntry = variant.value<MountedDevice>();
         emit triggerEntrySelected(triggerEntry);
-    }
+    } else
+        emit triggerEntrySelected(MountedDevice());
 }
 
 MountedDevice TriggeringComboBox::currentEntry()

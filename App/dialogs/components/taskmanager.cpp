@@ -87,8 +87,15 @@ void TaskManager::refreshView(const QString taskid)
     this->taskview->refresh(taskid);
 }
 
+void TaskManager::taskIsNowEdited(const QString taskid)
+{
+    setBoldListEntry(taskid);
+    setButtonState(taskid);
+}
+
 void TaskManager::setBoldListEntry(const QString taskid)
 {
+    boldTask = taskid;
     taskview->boldSingleRow(taskid);
 }
 
@@ -116,7 +123,7 @@ void TaskManager::editTaskClicked()
 
 void TaskManager::setButtonState(QString taskid)
 {
-    ui->toolButtonEditTask->setEnabled(!taskid.isEmpty());
+    ui->toolButtonEditTask->setEnabled(!taskid.isEmpty() && boldTask != taskid);
     ui->pushButtonDeleteTask->setEnabled(!taskid.isEmpty());
     ui->toolButtonRun->setEnabled(!taskid.isEmpty());
 }

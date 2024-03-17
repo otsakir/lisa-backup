@@ -7,6 +7,7 @@
 
 #include <QProcess>
 #include "../core.h"
+#include "../common.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,6 +42,7 @@ signals:
     void gotClean(bool dirty);
     void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
     void taskSaved(const QString taskId); // a task was saved to disk; state.modelCopy model has been updated.
+    void taskNowEdited(const QString taskId); // when a new task get open in the editor throw this signal
 
     void newTaskCreated(const QString taskId);
 
@@ -58,7 +60,7 @@ private slots:
     void updatetDestinationPathModel(const QString &arg1);
     void openDestinationDirExternal();
 
-    void checkLineEditDestinationSuffixPath(const QString& newText);
+    void checkLineEditDestinationPath(const QString& newText);
 
     void showAboutDialog();
     void showSettingsDialog();
@@ -107,6 +109,7 @@ private:
     void swapSources(BackupModel::SourceDetailsIndex source1, BackupModel::SourceDetailsIndex source2); // change the order two sources
 
     int checkSave(); // returns QMessageBox::X status or -1
+    void checkSaveAndRun(const QString taskname, Common::TaskRunnerReason reason, bool show); // check if task edited before running it
     void applyChanges();
     void appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption);
 
@@ -119,7 +122,7 @@ private:
     void initButtonIcons();
     void trivialWiring();
 
-    QString taskName();
+    QString taskName(); // name of task currently edited or empty string there is none
 
 private slots:
     void afterWindowShown();
