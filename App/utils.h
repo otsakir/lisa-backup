@@ -42,7 +42,7 @@ void runScriptInWindow(QString scriptPath);
 
 QString randomString(unsigned int size);
 
-void bestValidDirectoryMatch(const QString& rawpath, QString& validPath);
+QString bestValidDirectoryMatch(const QString& rawpath);
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments);
 
 }

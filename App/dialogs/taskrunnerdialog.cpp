@@ -83,7 +83,7 @@ bool TaskRunnerDialog::setTask(const QString taskname)
         {
             stream << command << Qt::endl;
         }
-        stream << "sleep 3" << Qt::endl; // pause for a while to simulate long running backup tasks
+        //stream << "sleep 3" << Qt::endl; // pause for a while to simulate long running backup tasks
 
         backupScript.close();
     }

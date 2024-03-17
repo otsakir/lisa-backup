@@ -278,7 +278,7 @@ font-size: 15px;
                      <item>
                       <layout class="QHBoxLayout" name="horizontalLayout_6">
                        <item>
-                        <widget class="QLineEdit" name="lineEditDestinationSuffixPath">
+                        <widget class="QLineEdit" name="lineEditDestinationPath">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                            <horstretch>0</horstretch>

@@ -65,7 +65,7 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     connect(this, &MainWindow::PleaseQuit, QCoreApplication::instance(), QCoreApplication::quit, Qt::QueuedConnection); // 'PleaseQuit' signal bound to application quit
     connect(ui->actionE_xit, &QAction::triggered, this, &MainWindow::PleaseQuit);
     connect(this, &MainWindow::newTaskCreated, this, &MainWindow::editTask);
-    connect(ui->lineEditDestinationSuffixPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
+    connect(ui->lineEditDestinationPath, &QLineEdit::textChanged, this, &MainWindow::checkLineEditDestinationSuffixPath);
     connect(settingsDialog, &SettingsDialog::trayIconUpdate, [this] (bool show) {
         showTrayIcon(show);
     });
@@ -225,7 +225,7 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
     //*activeBackup = persisted.backupDetails;
     this->setWindowTitle( Lb::windowTitle(backupModel.backupDetails.tmp.taskId ));  //friendlyName) );
     //ui->lineEditBackupName->setText(backupModel.backupDetails.backupName);
-    ui->lineEditDestinationSuffixPath->setText(backupModel.backupDetails.destinationPath);
+    ui->lineEditDestinationPath->setText(backupModel.backupDetails.destinationPath);
 
     sourcesModel->clear();
 
@@ -279,9 +279,10 @@ void MainWindow::applyChanges() {
 }
 
 
-void MainWindow::on_lineEditDestinationSuffixPath_textChanged(const QString &arg1)
+void MainWindow::updatetDestinationPathModel(const QString &arg1)
 {
-    activeBackup->backupDetails.destinationPath = ui->lineEditDestinationSuffixPath->text();
+    activeBackup->backupDetails.destinationPath = ui->lineEditDestinationPath->text();
+    emit onModelUpdated();
 }
 
 void MainWindow::checkLineEditDestinationSuffixPath(const QString& newText)
@@ -375,7 +376,7 @@ void MainWindow::_triggerEntrySelected(MountedDevice newTriggerEntry)
     {
         Triggering::enableMountTrigger(activeBackup->backupDetails.tmp.taskId, newTriggerEntry);
     }
-    emit ui->lineEditDestinationSuffixPath->textChanged(ui->lineEditDestinationSuffixPath->text()); // simulate text change to trigger effect
+    emit ui->lineEditDestinationPath->textChanged(ui->lineEditDestinationPath->text()); // simulate text change to trigger effect
 }
 
 
@@ -469,19 +470,21 @@ void MainWindow::afterWindowShown()
 void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 {
     MountedDevice triggerEntry = triggeringCombo->currentEntry();
-    QString dir = QFileDialog::getExistingDirectory(this, "Choose destination directory", triggerEntry.mountPoint.isEmpty() ? "/home" : triggerEntry.mountPoint, QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
+    QString dir = QFileDialog::getExistingDirectory(this, "Choose destination directory", triggerEntry.mountPoint.isEmpty() ?
+                                                        Lb::bestValidDirectoryMatch(ui->lineEditDestinationPath->text()) :
+                                                        triggerEntry.mountPoint, QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
 
     if (!dir.isEmpty())
     {
-        ui->lineEditDestinationSuffixPath->setText(dir);
+        ui->lineEditDestinationPath->setText(dir);
     }
 }
 
 // opens the closest existing directory to destination path in an external file-manager window
 void MainWindow::openDestinationDirExternal()
 {
-    QFileInfo destinationDir(ui->lineEditDestinationSuffixPath->text());
-    QDesktopServices::openUrl( QUrl::fromLocalFile(destinationDir.path()) ); // path() returns the closest existing path to the destination directory
+    QString validPath = Lb::bestValidDirectoryMatch(ui->lineEditDestinationPath->text());
+    QDesktopServices::openUrl( QUrl::fromLocalFile(validPath) ); // path() returns the closest existing path to the destination directory
 }
 
 
@@ -552,5 +555,6 @@ void MainWindow::trivialWiring()
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::applyChanges);
     connect(ui->toolButtonOpenDirExternal, &QToolButton::clicked, this, &MainWindow::openDestinationDirExternal);
+    connect(ui->lineEditDestinationPath, &QLineEdit::textChanged, this, &MainWindow::updatetDestinationPathModel);
 }
 

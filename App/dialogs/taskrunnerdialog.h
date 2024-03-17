@@ -48,11 +48,11 @@ private slots:
 
 private:
     Ui::TaskRunnerDialog *ui;
+    QProcess scriptProcess;
 
     QString taskName;
     QVector<QString> commands;
     QTemporaryFile backupScript{"tempBackupScript-XXXXXX.sh"};
-    QProcess scriptProcess;
     QColor cachedLoggingColor; // default color to log stdout in the UI
     Common::TaskRunnerReason reasonStarted;
     bool errorsOccured;
