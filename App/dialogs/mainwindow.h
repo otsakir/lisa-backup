@@ -128,5 +128,6 @@ private slots:
     void afterWindowShown();
     void on_pushButtonChooseDestinationSubdir_clicked();
     void askUserAndAddSources();
+    void refreshTriggerEntries();
 };
 #endif // MAINWINDOW_H

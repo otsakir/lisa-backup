@@ -398,7 +398,7 @@ font-size: 15px;
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_Triggering">
                      <item>
-                      <widget class="QToolButton" name="toolButtonRefreshBasePaths">
+                      <widget class="QToolButton" name="toolButtonRefreshTriggering">
                        <property name="minimumSize">
                         <size>
                          <width>32</width>

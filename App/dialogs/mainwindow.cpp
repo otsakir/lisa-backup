@@ -499,8 +499,10 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 // opens the closest existing directory to destination path in an external file-manager window
 void MainWindow::openDestinationDirExternal()
 {
-    QString validPath = Lb::bestValidDirectoryMatch(ui->lineEditDestinationPath->text());
-    QDesktopServices::openUrl( QUrl::fromLocalFile(validPath) ); // path() returns the closest existing path to the destination directory
+    MountedDevice triggerEntry = triggeringCombo->currentEntry();
+    QString validPath = triggerEntry.mountPoint.isEmpty() ? Lb::bestValidDirectoryMatch(ui->lineEditDestinationPath->text()) : triggerEntry.mountPoint;
+    QUrl  url = QUrl::fromLocalFile(validPath);
+    QDesktopServices::openUrl( url ); // path() returns the closest existing path to the destination directory
 }
 
 
@@ -520,6 +522,14 @@ void MainWindow::askUserAndAddSources()
     }
 }
 
+void MainWindow::refreshTriggerEntries()
+{
+    MountedDevice triggerEntry;
+    Triggering::triggerEntryForTask(activeBackup->backupDetails.tmp.taskId, triggerEntry);
+    QList<MountedDevice> triggerEntries;
+    DbusUtils::getMountedDevices(triggerEntries);
+    triggeringCombo->refresh(triggerEntries, triggerEntry);
+}
 
 void MainWindow::createTrayIcon()
 {
@@ -572,5 +582,6 @@ void MainWindow::trivialWiring()
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::applyChanges);
     connect(ui->toolButtonOpenDirExternal, &QToolButton::clicked, this, &MainWindow::openDestinationDirExternal);
     connect(ui->lineEditDestinationPath, &QLineEdit::textChanged, this, &MainWindow::updatetDestinationPathModel);
+    connect(ui->toolButtonRefreshTriggering, &QToolButton::clicked, this, &MainWindow::refreshTriggerEntries);
 }
 
