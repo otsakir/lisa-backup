@@ -44,6 +44,12 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
         int value = ui->comboBoxLogging->currentData().toInt();
         this->settings.setValue(Settings::LoglevelKey, value);
     });
+
+    // external file manager command
+    ui->lineEditExternalFileManager->setText(settings.value(Settings::Keys::ExternalFileManagerCommand).toString());
+    connect(ui->lineEditExternalFileManager, &QLineEdit::textEdited, [this] (const QString& newtext) {
+        settings.setValue(Settings::Keys::ExternalFileManagerCommand, newtext);
+    });
 }
 
 SettingsDialog::~SettingsDialog()

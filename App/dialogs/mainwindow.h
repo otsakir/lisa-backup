@@ -123,7 +123,7 @@ private:
     void trivialWiring();
 
     QString taskName(); // name of task currently edited or empty string there is none
-
+    QString suggestDestinationPath(); // suggest a destination path for the backup based on triggering setting and existing path
 private slots:
     void afterWindowShown();
     void on_pushButtonChooseDestinationSubdir_clicked();

@@ -486,9 +486,8 @@ void MainWindow::afterWindowShown()
 void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
 {
     MountedDevice triggerEntry = triggeringCombo->currentEntry();
-    QString dir = QFileDialog::getExistingDirectory(this, "Choose destination directory", triggerEntry.mountPoint.isEmpty() ?
-                                                        Lb::bestValidDirectoryMatch(ui->lineEditDestinationPath->text()) :
-                                                        triggerEntry.mountPoint, QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
+    QString suggestedDestDir = suggestDestinationPath();
+    QString dir = QFileDialog::getExistingDirectory(this, "Choose destination directory", suggestedDestDir, QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
 
     if (!dir.isEmpty())
     {
@@ -496,13 +495,42 @@ void MainWindow::on_pushButtonChooseDestinationSubdir_clicked()
     }
 }
 
+QString MainWindow::suggestDestinationPath         ()
+{
+    MountedDevice triggerEntry = triggeringCombo->currentEntry();
+    QString validPath;
+    QString path;
+    if (triggerEntry.mountPoint.isEmpty())
+        path = ui->lineEditDestinationPath->text();
+    else
+    {
+        if (ui->lineEditDestinationPath->text().startsWith(triggerEntry.mountPoint))
+            path = ui->lineEditDestinationPath->text();
+        else
+            path = triggerEntry.mountPoint;
+    }
+    validPath = Lb::bestValidDirectoryMatch(path);
+
+    return validPath;
+}
+
 // opens the closest existing directory to destination path in an external file-manager window
 void MainWindow::openDestinationDirExternal()
 {
-    MountedDevice triggerEntry = triggeringCombo->currentEntry();
-    QString validPath = triggerEntry.mountPoint.isEmpty() ? Lb::bestValidDirectoryMatch(ui->lineEditDestinationPath->text()) : triggerEntry.mountPoint;
-    QUrl  url = QUrl::fromLocalFile(validPath);
-    QDesktopServices::openUrl( url ); // path() returns the closest existing path to the destination directory
+    QSettings settings;
+    QString validPath = suggestDestinationPath();
+
+    QString commandTemplate = settings.value(Settings::Keys::ExternalFileManagerCommand).toString();
+    if (!commandTemplate.isEmpty())
+    {
+        QString command = commandTemplate.replace("%p", validPath);
+        QProcess process;
+        process.startDetached(command);
+    } else
+    {
+        QUrl  url = QUrl::fromLocalFile(validPath);
+        QDesktopServices::openUrl( url ); // path() returns the closest existing path to the destination directory
+    }
 }
 
 
