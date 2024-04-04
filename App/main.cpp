@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
     qDebug() << "Tasks in " << Lb::dataDirectory();
     qDebug() << "Application scripts in " << Lb::appScriptsDir();
+    qDebug() << "Application directory is " << QCoreApplication::applicationDirPath();
 
     Lb::setupDirs(); // created directory structure if not there
 

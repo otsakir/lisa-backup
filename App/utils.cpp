@@ -7,6 +7,7 @@
 #include <QRandomGenerator>
 #include <QStandardItem>
 #include <QRegularExpression>
+#include <QCoreApplication>
 
 
 #include <QDebug>
@@ -36,9 +37,11 @@ QString appVersion() {
 // usr/share/lbackup/
 QString appScriptsDir() {
 #ifdef QT_DEBUG
-    return "/opt/lbackup";
+    // return "/opt/lbackup";
+    return QString("%1/scripts").arg(QCoreApplication::applicationDirPath());
 #else
-    return "/usr/share/lbackup";
+    //return "/usr/share/lbackup";
+    return QString("$1/scripts").arg(QCoreApplication::applicationDirPath());
 #endif
 }
 

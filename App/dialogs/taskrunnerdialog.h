@@ -56,6 +56,7 @@ private:
     QColor cachedLoggingColor; // default color to log stdout in the UI
     Common::TaskRunnerReason reasonStarted;
     bool errorsOccured;
+    bool logOnlyErrors = true; //
 
     QToolButtonAnimated* animatedButtonRun;
 
