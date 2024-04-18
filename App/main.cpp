@@ -35,12 +35,13 @@ int main(int argc, char *argv[])
 
     // default settings
     QSettings settings;
-    settings.setValue("initialized", false);  // Remove settings file. Uncomment this to start afresh
+    //settings.setValue("initialized", false);  // Remove settings file. Uncomment this to start afresh
     if ( ! settings.value("initialized", false).toBool())
     {
         qInfo() << "Blank settings found. They will get initialized.";
         settings.setValue(Settings::TaskrunnerKey, static_cast<int>(Settings::Taskrunner::Gui));
-        settings.setValue("taskrunner/ShowConfirmation", 2); // i.e. true
+        settings.setValue(Settings::Keys::TaskrunnerConfirm, 2); // i.e. true
+        settings.setValue(Settings::Keys::TaskrunnerShowDialog, 2); // i.e. true
         settings.setValue("initialized",true);
         settings.setValue(Settings::LoglevelKey, static_cast<int>(Settings::Loglevel::Errors));
         settings.setValue(Settings::Keys::DataDirectory, Lb::dataDirectory());

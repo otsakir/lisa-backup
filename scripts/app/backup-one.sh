@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # create a bundle file for a git repository. 
-# example: ./bundle-git-repo.sh /home/nando/Projects/garden /tmp
+# example: ./backup-one.sh /home/nando/Projects/garden /tmp
 # 	   bundles repo to  /tmp/garden.gitbundle file
+
 
 ACTION="rsync"
 
@@ -58,20 +59,19 @@ do
 			fi
 			;;
 		rsync)
-			echo "rsync stuff"
-
+			echo "rsync -avzh  \"$reporoot\" \"$destpath\""
 			rsync -avzh "$reporoot" "$destpath"
 
 			break
 			;;
 		gitbundle)
-			echo "gitbundle stuff"
-			
+
 			bundlefile="$destpath/$reponame".gitbundle
 			cwd=`pwd`
 			echo "creating bundle for '$reporoot' repo into $bundlefile . Repo name: '$reponame'."
 			mkdir -p "$destpath"
 
+			echo "cd \"$reporoot\" && git bundle create \"$bundlefile\""
 			error_out=`cd "$reporoot" 2>&1 > /dev/null && git bundle create "$bundlefile" --all 2>&1 > /dev/null && cd "$cwd" 2>&1 > /dev/null`
 			if [ $? -ne 0 ]; then
 			    echo  "[source '$reporoot'] " $error_out 1>&2

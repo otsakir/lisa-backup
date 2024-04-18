@@ -59,7 +59,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             bool getparent = false; // should 'find' report the matched entry or its parent
             QString name;
             // note the trailing slash after %3 below: it results in creating the source directory under the destination
-            QString destinationRoot = QString("'/%2/%3/' ").arg(appstate.backupDetails.destinationPath, sourcePathLastDir);
+            QString destinationRoot = QString("\"/%2/%3/\" ").arg(appstate.backupDetails.destinationPath, sourcePathLastDir);
             if (source.predicateType == SourceDetails::nameMatchesId) {
                 if (source.backupDepth == SourceDetails::directChildren) {
                     maxdepth = 1;
@@ -88,7 +88,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             if (maxdepth != -1)
                 find_command.append("-maxdepth ").append(QString::number(maxdepth)).append(" ");
             // -name parameter
-            find_command.append(QString("-name '%1' ! -path '*/.*/%2' ").arg(name).arg(name)); // exclude hidden directories from the search predicates
+            find_command.append(QString("-name \"%1\" ! -path \"*/.*/%2\" ").arg(name).arg(name)); // exclude hidden directories from the search predicates
 
 
             // get matched entry or its parent ?
@@ -111,6 +111,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
                 find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a auto %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot));
             }
 
+            //commands.append(QString("echo '%1'").arg(find_command));
             commands.append(find_command);
         }
 

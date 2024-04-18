@@ -41,7 +41,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->comboBoxLogging->setCurrentText(Settings::toCaption(loglevel));
 
     connect(ui->comboBoxLogging, QOverload<int>::of(&QComboBox::currentIndexChanged),[this](int index) {
-        int value = ui->comboBoxLogging->currentData().toInt();
+        int value = this->ui->comboBoxLogging->currentData().toInt();
         this->settings.setValue(Settings::LoglevelKey, value);
     });
 

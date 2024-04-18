@@ -573,7 +573,7 @@ void MainWindow::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
-
+    connect(trayIcon, &QSystemTrayIcon::activated, this, &QWidget::showNormal); // show main window when just clicking on the tray icon
 }
 
 void MainWindow::showTrayIcon(bool show)
