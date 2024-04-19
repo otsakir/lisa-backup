@@ -4,6 +4,9 @@
 class TaskLoader;
 class TaskManager;
 class TaskRunnerManager;
+namespace Common {
+    class GlobalSignals;
+}
 
 class AppContext
 {
@@ -14,6 +17,7 @@ public:
     TaskLoader* getTaskLoader();
     TaskManager* getTriggerMonitorWindow();
     TaskRunnerManager* taskRunnerManager;
+    Common::GlobalSignals* globalSignals;
 
 private:
     TaskLoader* taskLoader;

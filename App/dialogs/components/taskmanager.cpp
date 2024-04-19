@@ -40,6 +40,7 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
     connect(ui->toolButtonEditTask, &QToolButton::clicked, this, &TaskManager::editTaskClicked);
     connect(taskview, &TreeViewTasks::taskRemoved, this, &TaskManager::taskRemoved);
     connect(taskview, &TreeViewTasks::taskGotCurrent, this, &TaskManager::setButtonState);
+    connect(appContext->globalSignals, &Common::GlobalSignals::taskModified, this, &TaskManager::reloadTask);
 
     Triggering::printTriggers();
 }
@@ -97,6 +98,11 @@ void TaskManager::setBoldListEntry(const QString taskid)
 {
     boldTask = taskid;
     taskview->boldSingleRow(taskid);
+}
+
+void TaskManager::reloadTask(const QString taskid)
+{
+    this->taskview->refreshOne(taskid);
 }
 
 

@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <QObject>
 
 namespace Common
 {
@@ -15,6 +16,15 @@ namespace Common
     {
         Triggered,
         Manual
+    };
+
+    // fascilitates wiring of signals between (otherwise) unrelated components
+    class GlobalSignals : public QObject
+    {
+        Q_OBJECT
+        public:
+        signals: void taskModified(const QString taskName); // a task has been saved to disk
+
     };
 
 

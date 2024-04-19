@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
     AppContext appContext;
     TaskRunnerManager taskRunnerManager;
     appContext.taskRunnerManager = &taskRunnerManager;
+    Common::GlobalSignals globalSignals;
+    appContext.globalSignals = &globalSignals;
     MainWindow w(QString(), &appContext);
 
     // center within desktop

@@ -613,5 +613,6 @@ void MainWindow::trivialWiring()
     connect(ui->toolButtonOpenDirExternal, &QToolButton::clicked, this, &MainWindow::openDestinationDirExternal);
     connect(ui->lineEditDestinationPath, &QLineEdit::textChanged, this, &MainWindow::updatetDestinationPathModel);
     connect(ui->toolButtonRefreshTriggering, &QToolButton::clicked, this, &MainWindow::refreshTriggerEntries);
+    connect(this, &MainWindow::taskSaved, appContext->globalSignals, &Common::GlobalSignals::taskModified);
 }
 

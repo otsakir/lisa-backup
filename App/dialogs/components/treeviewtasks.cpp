@@ -111,6 +111,24 @@ const QString TreeViewTasks::currentTaskId()
         return "";
 }
 
+// reload a single task in the list and update destinationPath and triggering uuid
+void TreeViewTasks::refreshOne(const QString& taskid)
+{
+    QList<QStandardItem*> matchedItems = model->findItems(taskid, Qt::MatchExactly, 0);
+    if (matchedItems.length() <= 0)
+        return;
+
+    QStandardItem* firstItem = matchedItems.first();
+    QModelIndex firstIndex = model->indexFromItem(firstItem);
+    BackupModel backupModel;
+    if (taskLoader->loadTask(taskid, backupModel)) {
+        model->setData(firstIndex.siblingAtColumn(1), backupModel.backupDetails.destinationPath);
+        MountedDevice triggerEntry;
+        Triggering::triggerEntryForTask(taskid, triggerEntry);
+        model->setData(firstIndex.siblingAtColumn(3), triggerEntry.uuid);
+    }
+}
+
 /**
  * @brief Reload tasks
  *

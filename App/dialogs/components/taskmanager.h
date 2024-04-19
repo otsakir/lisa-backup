@@ -43,6 +43,7 @@ public slots:
     void refreshView(const QString taskid);
     void taskIsNowEdited(const QString taskid);
     void setBoldListEntry(const QString taskid); // make a single entry of the list bold
+    void reloadTask(const QString taskid);
 
 
 signals:
