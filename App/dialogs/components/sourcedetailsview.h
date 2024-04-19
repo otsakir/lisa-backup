@@ -36,6 +36,7 @@ private:
 private slots:
     // higher level
     void on_methodChanged(SourceDetails::BackupType method);
+    void updateActionType(SourceDetails::ActionType actionType);
     void checkSignalDirty(); // call when there is any change in the data model (sourceDetails)
 
 signals:

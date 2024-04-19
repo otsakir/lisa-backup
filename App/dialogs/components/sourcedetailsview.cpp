@@ -55,6 +55,7 @@ void SourceDetailsView::signalWiring()
     connect(this, &SourceDetailsView::backupDepthChanged, this, &SourceDetailsView::checkSignalDirty);
     connect(this, &SourceDetailsView::containsFilenameChanged, this, &SourceDetailsView::checkSignalDirty);
     connect(this, &SourceDetailsView::nameMatchedChanged, this, &SourceDetailsView::checkSignalDirty);
+    connect(this, &SourceDetailsView::actionChanged, this, &SourceDetailsView::updateActionType);
 }
 
 
@@ -109,6 +110,8 @@ void SourceDetailsView::initControls() {
     ui->comboBoxPredicate->setCurrentIndex(sourceDetails->predicateType);
     ui->stackedWidgetPredicate->setCurrentIndex(sourceDetails->predicateType);
 
+    on_methodChanged(this->sourceDetails->backupType);
+
     this->blockSignals(wasBlocked);
 }
 
@@ -118,7 +121,12 @@ void SourceDetailsView::on_methodChanged(SourceDetails::BackupType method)
     this->sourceDetails->backupType = method;
 
     ui->groupBoxCriteria->setEnabled(method != SourceDetails::all);
-    ui->groupBoxAction->setEnabled(method != SourceDetails::all);
+    //ui->groupBoxAction->setEnabled(method != SourceDetails::all);
+}
+
+void SourceDetailsView::updateActionType(SourceDetails::ActionType actionType)
+{
+    this->sourceDetails->actionType = actionType;
 }
 
 
