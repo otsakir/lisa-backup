@@ -85,6 +85,7 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     connect(this, &MainWindow::gotClean, sourceDetails, &SourceDetailsView::clearDirty);
     connect(ui->sourcesListView->model(), &QAbstractItemModel::rowsInserted, this, &MainWindow::onModelUpdated);
     connect(ui->sourcesListView->model(), &QAbstractItemModel::rowsRemoved, this, &MainWindow::onModelUpdated);
+    connect(ui->labelNoTaskSelected, &QLabel::linkActivated, this, &MainWindow::on_action_New_triggered);
 
     activeBackup = new BackupModel();
 

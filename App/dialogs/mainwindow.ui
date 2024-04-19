@@ -453,8 +453,13 @@ font-size: 15px;
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
-                    <string>Create a new task or select an existing one to edit...</string>
+                    <string>&lt;a href=&quot;create_task&quot;&gt;Create&lt;/a&gt; a new task or select one form the list on the left...</string>
                    </property>
                   </widget>
                  </item>
