@@ -59,7 +59,9 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             bool getparent = false; // should 'find' report the matched entry or its parent
             QString name;
             // note the trailing slash after %3 below: it results in creating the source directory under the destination
-            QString destinationRoot = QString("\"/%2/%3/\" ").arg(appstate.backupDetails.destinationPath, sourcePathLastDir);
+            QString destinationRoot = QString("\"%2/%3/\" ").arg(appstate.backupDetails.destinationPath, sourcePathLastDir);
+            if (!destinationRoot.startsWith("\"/"))
+                destinationRoot.insert(1, '/');
             if (source.predicateType == SourceDetails::nameMatchesId) {
                 if (source.backupDepth == SourceDetails::directChildren) {
                     maxdepth = 1;
