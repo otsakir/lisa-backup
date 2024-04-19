@@ -573,6 +573,7 @@ void MainWindow::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
+    trayIcon->setIcon(QIcon(":/custom-icons/backup-icon.svg"));
     connect(trayIcon, &QSystemTrayIcon::activated, this, &QWidget::showNormal); // show main window when just clicking on the tray icon
 }
 
