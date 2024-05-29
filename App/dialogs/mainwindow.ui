@@ -86,7 +86,7 @@
         <item>
          <widget class="QStackedWidget" name="stackedWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pageEdit">
            <layout class="QVBoxLayout" name="verticalLayout_17">
@@ -459,7 +459,7 @@ font-size: 15px;
                     </font>
                    </property>
                    <property name="text">
-                    <string>&lt;a href=&quot;create_task&quot;&gt;Create&lt;/a&gt; a new task or select one form the list on the left...</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;create_task&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Create&lt;/span&gt;&lt;/a&gt; a new task or select one from the &amp;quot;Tasks&amp;quot; list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>

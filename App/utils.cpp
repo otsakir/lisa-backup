@@ -41,7 +41,7 @@ QString appScriptsDir() {
     return QString("%1/scripts").arg(QCoreApplication::applicationDirPath());
 #else
     //return "/usr/share/lbackup";
-    return QString("$1/scripts").arg(QCoreApplication::applicationDirPath());
+    return QString("%1/scripts").arg(QCoreApplication::applicationDirPath());
 #endif
 }
 
