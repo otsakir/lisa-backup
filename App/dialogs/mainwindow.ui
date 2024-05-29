@@ -86,7 +86,7 @@
         <item>
          <widget class="QStackedWidget" name="stackedWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pageEdit">
            <layout class="QVBoxLayout" name="verticalLayout_17">
@@ -123,7 +123,7 @@ font-size: 15px;
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_9">
                <item>
-                <widget class="QSplitter" name="splitter_2">
+                <widget class="QSplitter" name="splitterSources">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -165,7 +165,7 @@ font-size: 15px;
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QToolButton" name="toolButtonAdd">
+                       <widget class="QToolButton" name="toolButtonAddSource">
                         <property name="minimumSize">
                          <size>
                           <width>32</width>
@@ -178,7 +178,7 @@ font-size: 15px;
                        </widget>
                       </item>
                       <item>
-                       <widget class="QToolButton" name="removeSourceButton">
+                       <widget class="QToolButton" name="toolButtonRemoveSource">
                         <property name="minimumSize">
                          <size>
                           <width>32</width>
@@ -243,449 +243,105 @@ font-size: 15px;
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="widgetSourceDetails" native="true">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <layout class="QVBoxLayout" name="verticalLayout">
-                   <property name="spacing">
-                    <number>4</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>9</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>9</number>
-                   </property>
-                   <item>
-                    <widget class="QGroupBox" name="groupBox_4">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>10</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>66</height>
-                      </size>
-                     </property>
-                     <property name="title">
-                      <string>Method</string>
-                     </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout">
-                      <property name="topMargin">
-                       <number>9</number>
-                      </property>
-                      <item>
-                       <widget class="QRadioButton" name="radioButtonAll">
-                        <property name="text">
-                         <string>All</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QRadioButton" name="radioButtonSelective">
-                        <property name="text">
-                         <string>Selective</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QGroupBox" name="groupBoxCriteria">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="title">
-                      <string>Criteria</string>
-                     </property>
-                     <property name="flat">
-                      <bool>false</bool>
-                     </property>
-                     <property name="checkable">
-                      <bool>false</bool>
-                     </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_10">
-                      <property name="topMargin">
-                       <number>9</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>6</number>
-                      </property>
-                      <item>
-                       <layout class="QVBoxLayout" name="verticalLayout_8">
-                        <item>
-                         <widget class="QLabel" name="label_3">
-                          <property name="text">
-                           <string>Depth</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QComboBox" name="comboBoxDepth">
-                          <item>
-                           <property name="text">
-                            <string>Direct children</string>
-                           </property>
-                          </item>
-                          <item>
-                           <property name="text">
-                            <string>Recursive</string>
-                           </property>
-                          </item>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_3">
-                        <item>
-                         <layout class="QVBoxLayout" name="verticalLayout_9">
-                          <item>
-                           <widget class="QLabel" name="label_4">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="text">
-                             <string>Predicate</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <widget class="QComboBox" name="comboBoxPredicate">
-                            <item>
-                             <property name="text">
-                              <string>Contains file</string>
-                             </property>
-                            </item>
-                            <item>
-                             <property name="text">
-                              <string>Name matches</string>
-                             </property>
-                            </item>
-                           </widget>
-                          </item>
-                          <item>
-                           <spacer name="verticalSpacer">
-                            <property name="orientation">
-                             <enum>Qt::Vertical</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>20</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                         </layout>
-                        </item>
-                        <item>
-                         <widget class="QStackedWidget" name="stackedWidgetPredicate">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                            <horstretch>1</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="currentIndex">
-                           <number>1</number>
-                          </property>
-                          <widget class="QWidget" name="page">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <layout class="QVBoxLayout" name="verticalLayout_12">
-                            <property name="topMargin">
-                             <number>22</number>
-                            </property>
-                            <item>
-                             <widget class="QLineEdit" name="lineEditContainsFilename"/>
-                            </item>
-                            <item>
-                             <spacer name="verticalSpacer_3">
-                              <property name="orientation">
-                               <enum>Qt::Vertical</enum>
-                              </property>
-                              <property name="sizeHint" stdset="0">
-                               <size>
-                                <width>20</width>
-                                <height>0</height>
-                               </size>
-                              </property>
-                             </spacer>
-                            </item>
-                           </layout>
-                          </widget>
-                          <widget class="QWidget" name="page_2">
-                           <layout class="QVBoxLayout" name="verticalLayout_13">
-                            <property name="topMargin">
-                             <number>22</number>
-                            </property>
-                            <item>
-                             <widget class="QLineEdit" name="lineEditNameMatches"/>
-                            </item>
-                            <item>
-                             <spacer name="verticalSpacer_4">
-                              <property name="orientation">
-                               <enum>Qt::Vertical</enum>
-                              </property>
-                              <property name="sizeHint" stdset="0">
-                               <size>
-                                <width>20</width>
-                                <height>0</height>
-                               </size>
-                              </property>
-                             </spacer>
-                            </item>
-                           </layout>
-                          </widget>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QGroupBox" name="groupBoxAction">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="title">
-                      <string>Action</string>
-                     </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_13">
-                      <item>
-                       <widget class="QRadioButton" name="radioButtonRsync">
-                        <property name="text">
-                         <string>rsync</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QRadioButton" name="radioButtonGitBundle">
-                        <property name="text">
-                         <string>git-bundle</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QRadioButton" name="radioButtonAuto">
-                        <property name="text">
-                         <string>auto</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_6">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>0</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="verticalSpacer_2">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeType">
-                      <enum>QSizePolicy::Expanding</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </widget>
                 </widget>
                </item>
               </layout>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <widget class="QGroupBox" name="groupBoxDestination">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="title">
-                 <string>Destination</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_7">
-                 <property name="spacing">
-                  <number>3</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>11</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>15</number>
-                 </property>
+             <widget class="QGroupBox" name="groupBoxDestination">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Destination</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_15">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_15">
+                  <layout class="QVBoxLayout" name="verticalLayout_15">
                    <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_15">
+                    <layout class="QVBoxLayout" name="verticalLayout_Destination">
+                     <property name="spacing">
+                      <number>6</number>
+                     </property>
                      <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_Destination">
-                       <property name="spacing">
-                        <number>6</number>
-                       </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_6">
                        <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_6">
-                         <item>
-                          <widget class="QLineEdit" name="lineEditDestinationSuffixPath">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string/>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="pushButtonChooseDestinationSubdir">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>40</width>
-                             <height>16777215</height>
-                            </size>
-                           </property>
-                           <property name="text">
-                            <string>...</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_DestinationWarning">
-                         <property name="font">
-                          <font>
-                           <pointsize>9</pointsize>
-                           <kerning>true</kerning>
-                          </font>
-                         </property>
-                         <property name="styleSheet">
-                          <string notr="true">color:orange;</string>
+                        <widget class="QLineEdit" name="lineEditDestinationPath">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
                          </property>
                          <property name="text">
                           <string/>
                          </property>
                         </widget>
                        </item>
+                       <item>
+                        <widget class="QPushButton" name="pushButtonChooseDestinationSubdir">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>...</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QToolButton" name="toolButtonOpenDirExternal">
+                         <property name="text">
+                          <string>...</string>
+                         </property>
+                        </widget>
+                       </item>
                       </layout>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_DestinationWarning">
+                       <property name="font">
+                        <font>
+                         <pointsize>9</pointsize>
+                         <kerning>true</kerning>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">color:orange;</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>
                   </layout>
                  </item>
                 </layout>
-               </widget>
-              </item>
-             </layout>
+               </item>
+              </layout>
+             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayoutSaveRow">
@@ -742,7 +398,7 @@ font-size: 15px;
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_Triggering">
                      <item>
-                      <widget class="QToolButton" name="toolButtonRefreshBasePaths">
+                      <widget class="QToolButton" name="toolButtonRefreshTriggering">
                        <property name="minimumSize">
                         <size>
                          <width>32</width>
@@ -797,8 +453,13 @@ font-size: 15px;
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
-                    <string>Create a new task or select an existing one to edit...</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;create_task&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Create&lt;/span&gt;&lt;/a&gt; a new task or select one from the &amp;quot;Tasks&amp;quot; list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
@@ -831,7 +492,7 @@ font-size: 15px;
      <string>&amp;Tasks</string>
     </property>
     <addaction name="action_New"/>
-    <addaction name="action_Save"/>
+    <addaction name="actionSave"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -845,7 +506,7 @@ font-size: 15px;
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="actionSe_ttings"/>
+    <addaction name="actionSettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -889,7 +550,7 @@ font-size: 15px;
     <string>Ctrl+M</string>
    </property>
   </action>
-  <action name="action_Save">
+  <action name="actionSave">
    <property name="icon">
     <iconset>
      <normalon>:/custom-icons/save.svg</normalon>
@@ -912,7 +573,7 @@ font-size: 15px;
     <string>E&amp;xit</string>
    </property>
   </action>
-  <action name="actionSe_ttings">
+  <action name="actionSettings">
    <property name="icon">
     <iconset>
      <normalon>:/custom-icons/settings.svg</normalon>

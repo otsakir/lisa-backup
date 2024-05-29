@@ -2,11 +2,13 @@
 #define MULTIPLEDIRDIALOG_H
 
 #include <QDialog>
-#include <QFileSystemModel>
+
 
 namespace Ui {
 class MultipleDirDialog;
 }
+
+class QFileSystemModel;
 
 class MultipleDirDialog : public QDialog
 {

@@ -102,6 +102,17 @@ public:
         automatic = 2 // let the backup script decide on the fly
     } actionType;
 
+    static const QString toScriptParam(ActionType actionType) // converts ActionType to string to be passed to "backup-one.sh. -a XXX" command
+    {
+        switch (actionType)
+        {
+            case rsync: return "rsync";
+            case gitBundle: return "gitbundle";
+            case automatic: return "auto";
+            default: assert(false);
+        }
+    }
+
     /*!
      * \variable SourceDetails::precicate
      * \brief Applies filtering criteria for subdir selection.

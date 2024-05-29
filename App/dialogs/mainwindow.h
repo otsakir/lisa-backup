@@ -1,14 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QDataWidgetMapper>
-#include <QItemSelection>
 #include <QMainWindow>
-#include <QStandardItemModel>
-#include <QSystemTrayIcon>
+
+
 
 #include <QProcess>
 #include "../core.h"
+#include "../common.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,86 +23,53 @@ class AppContext;
 class TriggeringComboBox;
 class TaskManager;
 class SettingsDialog;
+class SourceDetailsView;
+class QSystemTrayIcon;
+class QStandardItemModel;
+class QStandardItem;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QString taskName, AppContext* appContext,  QWidget *parent = nullptr);
+    MainWindow(QString openingTaskName, AppContext* appContext,  QWidget *parent = nullptr);
     ~MainWindow();
 
 signals:
-    void methodChanged(int methodIndex); // raised when the backup method UI control is updated. Helps to chain actions to update the ui state (hide/show other controls etc.)
-    void actionChanged(SourceDetails::ActionType action);
-    void newBackupName(QString backupName); // there is a new backup name established!
-    void PleaseQuit();
-    void friendlyNameEdited(); // there is new content in activeBackup.backupDetails.friendlyName
-    void systemdUnitChanged(QString unitName); // raised when the contents of the systemd lineedit control have been modified
-    void modelUpdated(BackupModel::ValueType valueType = BackupModel::unset); // any change in the model triggers this
+    void PleaseQuit(); // graceful quit signal
+    void gotDirty(bool dirty);
+    void gotClean(bool dirty);
     void sourceChanged(const QModelIndex &current); //selected backup source changed, got initialized or got zero
     void taskSaved(const QString taskId); // a task was saved to disk; state.modelCopy model has been updated.
+    void taskNowEdited(const QString taskId); // when a new task get open in the editor throw this signal
 
     void newTaskCreated(const QString taskId);
 
 private slots:
 
-    // custom slots
-    void on_actionChanged(SourceDetails::ActionType action);
-    void onNewBackupName(QString backupName);
-    void onModelUpdated(BackupModel::ValueType valueType);
+    void onModelUpdated(); // any change in the model of the selected task will trigger this
+    void onDirtyChanged(bool isdirty);
 
-    void updateSourceDetailControls(const QModelIndex& current);
+    void removeSelectedSourceFromList();
+    void updateSourceDetails(QModelIndex rowIndex);
+    void moveSourceItemUp();
+    void moveSourceItemDown();
 
-    SourceDetails* getSelectedSourceDetails();
+    // destination path
+    void updatetDestinationPathModel(const QString &arg1);
+    void openDestinationDirExternal();
 
-    void on_removeSourceButton_clicked();
+    void checkLineEditDestinationPath(const QString& newText);
 
-    void on_radioButtonAll_toggled(bool checked);
-
-    void on_radioButtonSelective_toggled(bool checked);
-
-    void updatePredicateTypeIndex(int index);
-
-    void on_lineEditDestinationSuffixPath_textChanged(const QString &arg1);
-
-    void checkLineEditDestinationSuffixPath(const QString& newText);
-
-    void on_activeBackupMethodChanged(int backupType);
-
-    void on_action_Save_triggered();
-
-    void on_actionDelete_triggered();
-
-    void newBackupTaskFromDialog(qint32 dialogMode);
-
-    void on_radioButtonRsync_toggled(bool checked);
-
-    void on_radioButtonGitBundle_toggled(bool checked);
-
-    void on_actionAbout_triggered();
-
-    void runActiveTask();
-
-    void on_radioButtonAuto_toggled(bool checked);
-
-    void on_lineEditContainsFilename_textEdited(const QString &arg1);
-
-    void on_lineEditNameMatches_textEdited(const QString &arg1);
-
-    void on_toolButtonSourceUp_clicked();
-
-    void on_toolButtonSourceDown_clicked();
-
-    void on_actionSe_ttings_triggered();
+    void showAboutDialog();
+    void showSettingsDialog();
+    void createNewTaskDialog(); // Initiates new task workflow. Asks user for id, validates, creates task file.
 
     void _triggerEntrySelected(MountedDevice newTriggerEntry);
 
-    void on_comboBoxDepth_currentIndexChanged(int comboIndex);
-
     void on_action_New_triggered();
 
-    void createNewTask(); // Initiates new task workflow. Asks user for id, validates, creates task file.
 
 public slots:
     void editTask(const QString& taskid);
@@ -115,17 +81,19 @@ private:
     Ui::MainWindow *ui;
 
     QStandardItemModel* sourcesModel;
-    QDataWidgetMapper* sourcesDataMapper;
-    BackupModel* activeBackup; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
+    BackupModel* activeBackup = nullptr; // contains additional info about a backup except source stuff (i.e.like path, predicate, type etc.)
     State state; // generic application state. Not part of a backup.
-    QString taskName;
     bool newBackupTaskDialogShown = false;
+    bool dirty = false;
+
     TaskLoader* taskLoader;
     AppContext* appContext;
     TaskManager* taskManager;
     SettingsDialog* settingsDialog;
 
     TriggeringComboBox* triggeringCombo;
+    SourceDetailsView* sourceDetails;
+
     // tray icon
     QAction *restoreAction;
     QAction *quitAction;
@@ -141,6 +109,7 @@ private:
     void swapSources(BackupModel::SourceDetailsIndex source1, BackupModel::SourceDetailsIndex source2); // change the order two sources
 
     int checkSave(); // returns QMessageBox::X status or -1
+    void checkSaveAndRun(const QString taskname, Common::TaskRunnerReason reason, bool show); // check if task edited before running it
     void applyChanges();
     void appendBaseBath(const QString mountPath, const QString uuid, const QString label, const QString caption);
 
@@ -150,9 +119,15 @@ private:
     void showTrayIcon(bool show);
     bool trayIconShown();
 
+    void initButtonIcons();
+    void trivialWiring();
+
+    QString taskName(); // name of task currently edited or empty string there is none
+    QString suggestDestinationPath(); // suggest a destination path for the backup based on triggering setting and existing path
 private slots:
     void afterWindowShown();
     void on_pushButtonChooseDestinationSubdir_clicked();
-    void on_toolButtonAdd_clicked();
+    void askUserAndAddSources();
+    void refreshTriggerEntries();
 };
 #endif // MAINWINDOW_H

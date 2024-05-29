@@ -1,5 +1,4 @@
 #include "taskmanager.h"
-#include "qevent.h"
 #include "ui_taskmanager.h"
 
 #include "../dbusutils.h"
@@ -10,6 +9,8 @@
 
 #include <QMessageBox>
 #include <QTimer>
+#include <QSettings>
+#include <QDebug>
 
 
 TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
@@ -39,6 +40,7 @@ TaskManager::TaskManager(AppContext* appContext, QWidget *parent) :
     connect(ui->toolButtonEditTask, &QToolButton::clicked, this, &TaskManager::editTaskClicked);
     connect(taskview, &TreeViewTasks::taskRemoved, this, &TaskManager::taskRemoved);
     connect(taskview, &TreeViewTasks::taskGotCurrent, this, &TaskManager::setButtonState);
+    connect(appContext->globalSignals, &Common::GlobalSignals::taskModified, this, &TaskManager::reloadTask);
 
     Triggering::printTriggers();
 }
@@ -86,9 +88,21 @@ void TaskManager::refreshView(const QString taskid)
     this->taskview->refresh(taskid);
 }
 
+void TaskManager::taskIsNowEdited(const QString taskid)
+{
+    setBoldListEntry(taskid);
+    setButtonState(taskid);
+}
+
 void TaskManager::setBoldListEntry(const QString taskid)
 {
+    boldTask = taskid;
     taskview->boldSingleRow(taskid);
+}
+
+void TaskManager::reloadTask(const QString taskid)
+{
+    this->taskview->refreshOne(taskid);
 }
 
 
@@ -115,7 +129,7 @@ void TaskManager::editTaskClicked()
 
 void TaskManager::setButtonState(QString taskid)
 {
-    ui->toolButtonEditTask->setEnabled(!taskid.isEmpty());
+    ui->toolButtonEditTask->setEnabled(!taskid.isEmpty() && boldTask != taskid);
     ui->pushButtonDeleteTask->setEnabled(!taskid.isEmpty());
     ui->toolButtonRun->setEnabled(!taskid.isEmpty());
 }

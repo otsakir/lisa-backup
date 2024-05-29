@@ -24,6 +24,9 @@ namespace Settings
                 return "Everything";
             case Loglevel::Errors:
                 return "Errors only";
+            default:
+                Q_ASSERT_X(false, "toCaption()", "No name has been defined for this Loglevel enum");
+                return "";
         }
     }
 
@@ -43,6 +46,9 @@ namespace Settings
                 return "GUI";
             case Taskrunner::Script:
                 return "Bash scripts (insecure)";
+            default:
+                Q_ASSERT_X(false, "toCaption()", "No name has been defined for this Taskrunner enum");
+                return "";
         }
     }
 
@@ -51,6 +57,7 @@ namespace Settings
         inline static QString TaskrunnerConfirm = "taskrunner/ShowConfirmation";
         inline static QString TaskrunnerShowDialog = "taskrunner/ShowDialog";
         inline static QString KeepRunningInTray = "keepRunningInTray";
+        inline static QString ExternalFileManagerCommand = "externalFileManagerCommand";
 
         inline static QString TriggerGroup = "triggers/"; // group prefix. Hosts entries like "triggers/backtaskname1"
     };

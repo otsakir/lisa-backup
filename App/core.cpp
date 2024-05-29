@@ -24,6 +24,7 @@ BackupModel& BackupModel::operator=(const BackupModel& other) {
     backupDetails = other.backupDetails;
     allSourceDetails = other.allSourceDetails;
     allSourceDetails.detach();
+    return *this;
 }
 
 QDataStream& operator<<(QDataStream& s, const SourceDetails& item) {

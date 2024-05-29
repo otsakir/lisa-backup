@@ -13,13 +13,13 @@ QToolButtonAnimated::QToolButtonAnimated(QWidget *parent)
 
     QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
     QPropertyAnimation* fadeoutAnimation = new QPropertyAnimation(opacityEffect, "opacity", this);
-    fadeoutAnimation->setDuration(1000);
+    fadeoutAnimation->setDuration(500);
     fadeoutAnimation->setStartValue(1);
     fadeoutAnimation->setEndValue(0.2);
     fadeoutAnimation->setEasingCurve(QEasingCurve::InQuad);
 
     QPropertyAnimation* fadeinAnimation = new QPropertyAnimation(opacityEffect, "opacity", this);
-    fadeinAnimation->setDuration(1000);
+    fadeinAnimation->setDuration(500);
     fadeinAnimation->setStartValue(0.2);
     fadeinAnimation->setEndValue(1);
     fadeinAnimation->setEasingCurve(QEasingCurve::OutQuad);

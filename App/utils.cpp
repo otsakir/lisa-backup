@@ -1,6 +1,5 @@
 
 #include "utils.h"
-#include "terminal.h"
 #include "conf.h"
 
 #include <QStandardPaths>
@@ -8,6 +7,7 @@
 #include <QRandomGenerator>
 #include <QStandardItem>
 #include <QRegularExpression>
+#include <QCoreApplication>
 
 
 #include <QDebug>
@@ -37,9 +37,11 @@ QString appVersion() {
 // usr/share/lbackup/
 QString appScriptsDir() {
 #ifdef QT_DEBUG
-    return "/opt/lbackup";
+    // return "/opt/lbackup";
+    return QString("%1/scripts").arg(QCoreApplication::applicationDirPath());
 #else
-    return "/usr/share/lbackup";
+    //return "/usr/share/lbackup";
+    return QString("%1/scripts").arg(QCoreApplication::applicationDirPath());
 #endif
 }
 
@@ -181,16 +183,17 @@ QString randomString(unsigned int size) {
  * The trailing slash in the returned value is important. It's present for directories
  * and missing for (valid) files.
  */
-void bestValidDirectoryMatch(const QString& rawpath, QString& validPath) {
+QString bestValidDirectoryMatch(const QString& rawpath) {
+    if (rawpath.trimmed().isEmpty())
+        return QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
+
     QDir startDir(rawpath);
     QString path = startDir.absolutePath(); // remove costructs like "..", "." etc.
-
     QStringList pathParts = path.split("/");
-    validPath.clear();
-    //QString validPath = "";
+    QString validPath;
     validPath.reserve(256);
     foreach (const QString& part, pathParts) {
-        qInfo() << "part: " << part;
+        //qInfo() << "part: " << part;
         if (!part.isEmpty()) {
             QString testpath = validPath + part;
             QFileInfo checkDir(testpath);
@@ -203,6 +206,8 @@ void bestValidDirectoryMatch(const QString& rawpath, QString& validPath) {
         } else
             validPath.append("/");
     }
+
+    return validPath;
 }
 
 

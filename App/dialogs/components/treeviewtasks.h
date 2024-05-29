@@ -1,12 +1,12 @@
 #ifndef TREEVIEWTASKS_H
 #define TREEVIEWTASKS_H
 
-#include <QStandardItem>
 #include <QTreeView>
 #include "../common.h"
 
 class TaskLoader;
 class TaskRunnerManager;
+class QStandardItemModel;
 
 class TreeViewTasks : public QTreeView
 {
@@ -17,6 +17,7 @@ public:
     void showDetails(bool show);
     const QString currentTaskId();
     void refresh(const QString& reselectTask);
+    void refreshOne(const QString &taskid);
     void boldSingleRow(int row);
     void boldSingleRow(const QString& taskname);
     ~TreeViewTasks();
@@ -45,6 +46,7 @@ private:
     bool detailsShown;
     QFont boldFont;
     QString highlightedTask;
+
 };
 
 #endif // TREEVIEWTASKS_H

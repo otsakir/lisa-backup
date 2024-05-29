@@ -1,15 +1,13 @@
 #include "taskrunnerdialog.h"
 #include "ui_taskrunnerdialog.h"
 
-#include <QDebug>
-#include <QSettings>
-#include <QMessageBox>
-#include <QProcess>
-#include <QCloseEvent>
 #include <QMetaEnum>
-#include <QDateTime>
+#include <QSettings>
+#include <QDebug>
 #include <QFileDialog>
 #include <QSequentialAnimationGroup>
+#include <QDateTime>
+#include <QCloseEvent>
 #include "../scripting.h"
 #include "../task.h"
 #include "../settings.h"
@@ -85,7 +83,7 @@ bool TaskRunnerDialog::setTask(const QString taskname)
         {
             stream << command << Qt::endl;
         }
-        stream << "sleep 3" << Qt::endl; // pause for a while to simulate long running backup tasks
+        //stream << "sleep 3" << Qt::endl; // pause for a while to simulate long running backup tasks
 
         backupScript.close();
     }
@@ -96,10 +94,15 @@ bool TaskRunnerDialog::setTask(const QString taskname)
 
 void TaskRunnerDialog::run(Common::TaskRunnerReason reason)
 {
+    QSettings settings;
+    Settings::Loglevel loglevel = GET_INT_SETTING(Settings::Loglevel);
+
     QStringList arguments;
     arguments << backupScript.fileName();
     assert(backupScript.exists());
     reasonStarted = reason;
+    logOnlyErrors = (loglevel == Settings::Loglevel::Errors);
+
     errorsOccured = false;   // being optimistic
     scriptProcess.start("/bin/bash", arguments);
     scriptProcess.waitForStarted();
@@ -198,8 +201,11 @@ void TaskRunnerDialog::OnProcessStatusChanged(QProcess::ProcessState state)
 
 void TaskRunnerDialog::logStandardOut()
 {
-    QString out = QString::fromUtf8(scriptProcess.readAllStandardOutput());
-    logAppendText(out);
+    if (!logOnlyErrors)
+    {
+        QString out = QString::fromUtf8(scriptProcess.readAllStandardOutput());
+        logAppendText(out);
+    }
 }
 
 void TaskRunnerDialog::logStandardError()

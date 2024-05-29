@@ -1,5 +1,6 @@
 //#include <QtTest/QtTest>
 #include <QTest>
+#include <QSettings>
 #include "../App/triggering.h"
 
 #include "../App/core.h"

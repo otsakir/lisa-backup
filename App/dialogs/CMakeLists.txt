@@ -12,6 +12,7 @@ add_library(dialogs
     components/treeviewtasks.cpp components/treeviewtasks.h
     components/qtoolbuttonanimated.h components/qtoolbuttonanimated.cpp
     components/taskmanager.h components/taskmanager.cpp components/taskmanager.ui
+    components/sourcedetailsview.h components/sourcedetailsview.cpp components/sourcedetailsview.ui
 )
 
 

@@ -2,7 +2,6 @@
 
 #include <QFile>
 #include <QProcess>
-#include <QTextStream>
 #include <QDebug>
 #include <QSettings>
 
@@ -26,12 +25,12 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
 
         const SourceDetails& source = appstate.allSourceDetails.at(i);
         if (source.backupType == SourceDetails::all) {
+            QString destinationRoot = QString("%1").arg(appstate.backupDetails.destinationPath);
             //rsync -avzh /sourcedir /destinationdir
             QString command;
             command.reserve(100);
-            command.append(loglevel == Settings::Loglevel::All ? "rsync -avzh \"" : "rsync -azh \"");
-            command.append(source.sourcePath).append("\" ");
             command.append("\"").append("/" + appstate.backupDetails.destinationPath).append("\"");
+            command = QString("%1/backup-one.sh -a %4 \"%2\" \"%3\"").arg(Lb::appScriptsDir()).arg(destinationRoot).arg(source.sourcePath).arg(SourceDetails::toScriptParam(source.actionType));
 
             commands.append(command);
         } else if (source.backupType == SourceDetails::selective) {
@@ -60,7 +59,9 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             bool getparent = false; // should 'find' report the matched entry or its parent
             QString name;
             // note the trailing slash after %3 below: it results in creating the source directory under the destination
-            QString destinationRoot = QString("'/%2/%3/' ").arg(appstate.backupDetails.destinationPath, sourcePathLastDir);
+            QString destinationRoot = QString("\"%2/%3/\" ").arg(appstate.backupDetails.destinationPath, sourcePathLastDir);
+            if (!destinationRoot.startsWith("\"/"))
+                destinationRoot.insert(1, '/');
             if (source.predicateType == SourceDetails::nameMatchesId) {
                 if (source.backupDepth == SourceDetails::directChildren) {
                     maxdepth = 1;
@@ -89,7 +90,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
             if (maxdepth != -1)
                 find_command.append("-maxdepth ").append(QString::number(maxdepth)).append(" ");
             // -name parameter
-            find_command.append(QString("-name '%1' ! -path '*/.*/%2' ").arg(name).arg(name)); // exclude hidden directories from the search predicates
+            find_command.append(QString("-name \"%1\" ! -path \"*/.*/%2\" ").arg(name).arg(name)); // exclude hidden directories from the search predicates
 
 
             // get matched entry or its parent ?
@@ -102,15 +103,7 @@ bool buildBackupCommands(const BackupModel& appstate, QVector<QString>& commands
                 find_command.append("-print0 ");
 
             // action
-            if (source.actionType == SourceDetails::rsync) {
-                //rsync copy
-                find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a rsync %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot));
-            } else if ( source.actionType == SourceDetails::gitBundle) {
-                // git bundle
-                find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a gitbundle %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot));
-            } else if (source.actionType == SourceDetails::automatic) {
-                find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a auto %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot));
-            }
+            find_command.append(QString(" | xargs -0 -I files %1/backup-one.sh -a %3 %2 files").arg(Lb::appScriptsDir()).arg(destinationRoot).arg(SourceDetails::toScriptParam(source.actionType)));
 
             commands.append(find_command);
         }
