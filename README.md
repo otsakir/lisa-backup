@@ -1,33 +1,69 @@
 # Lisa Backup
 
-A QT backup application with on-mount triggering. Aims at ease of use, minimal user effort and pluggable architecture.
+A backup application for the Linux Desktop written in C++/Qt. Aims at ease of use, minimal user effort and, hopefully, pluggable architecture.
 
-Currently on late alpha stage.
+Currently on beta stage.
 
 
-### How it works
+### Usage
 
-Backup operations are called _tasks_. A  task copies files from one or more _sources_ to a single _destination_. Each source has a _method_ that tells whether it should copy everything _(All)_ or apply filtering criteria to the source tree _(Selective)_. The underlying utility that will perform the backup is the _Action_. `rsync` is the preselected action but `git` is also a good option for repositories. `auto` action will try guess which is a better fit per directory matched and use that. _Destination_ is the path where the files will end up into.
+Organize your backup in units called _tasks_. Select a set of _source_ directories for each task and pick a _destination_. Click the "play" button to copy the files. This is the basic use case that rsyncs everything from source to destination. 
 
-Tasks can be executed manually _(Run)_ or triggered automatically when a storage medium is mounted _(Triggering)_.
+For more advanced usage:
 
-Lastly, tasks data is persisted to a .task file which reside under ~/.lbackup. 
+  * Switch to "Selective" `Method` for a smarter way to select which subdirectories to copy from the source. For example, pick only those that follow a specific naming convention or that contain a specific file.
+  * Enable "Triggering". It monitors when new volumes are mounted and performs a backup task when that happens. Combine this with "Keep running in system tray" option from "Settings" for better UX.
+  * Finally, switch between "rsynch" and "git-bundle" Action to control what type of backup operation should be applied to this source directory. For git repositories this may prove more appropriate (though slower).
+
+
+### Internals
+
+Lisa Backup relies on powerfull commandline tools to do the actual work. Namely, `find`, `rsync`, and `git` are used. Make sure you have these available in your system.
+
+Application state constists of \*.task files where most of task-specific information is stored and Qt configuration files that keep the _Settings_ and _Triggering_ preferences. You can find .task files under `~/.lbackup` directory. Note, they are binary. You've been warned :-).
 
 
 ### Installation
 
-Make sure Qt5 `gui`, `core` and `widgets` dependencies are available. Qt5 is usually installed by default in recent linux desktop distros. You'll also need `udisks2` package to enable on-mount trigerring. Note, `rsync`, `find` and  `git` should be available.
+Download [latest lbackup release](https://github.com/otsakir/lisa-backup/releases/latest) in .tar.gz format, extract and execute:
 
-Next, download [latest lbackup release](https://github.com/otsakir/lbackup/releases/latest) in .tar.gz format, extract and run the installation script:
+    $ wget https://github.com/otsakir/lisa-backup/releases/download/v0.4.0/lisa-backup_0.4.0_amd64.tar.gz
+    $ tar zxvf lisa-backup_0.4.0_amd64.tar.gz
+    $ cd lisa-backup/
+    $ ./LisaBackup
 
-    wget https://github.com/otsakir/lbackup/releases/download/v0.3.0/lbackup_0.3.0_amd64.tar.gz
-    tar zxvf lbackup_0.3.0_amd64.tar.gz 
-    cd lbackup/
-    sudo ./install.sh 
+This is a dynamically linked binary and depends on Qt 5. Make sure it is installed on your system. For ubuntu based linux flavors you'll need `libqt5core5q`, `libqt5gui5`, `libqt5widgets5`, `libqt5dbus5` packages. 
 
-Start the application from the current directory:
 
-    $ ./lbackup 
+##### Build from source 
+
+[TBD]
+
+
+### Bugs
+
+Lisa Backup is in beta version and minor bugs are expected be found. Bug reports are greatly appreciated. The best way to communicate such feedback is by creating a github issue with the "bug" label. Thanks in advance!
+
+
+### Contact
+
+Mastodon - @otsakir@fosstodon.org
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
 
