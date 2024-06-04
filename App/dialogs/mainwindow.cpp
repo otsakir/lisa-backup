@@ -27,7 +27,7 @@
 #include "components/multipledirdialog.h"
 
 
-MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget *parent)
+MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* appContext, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , appContext(appContext)
