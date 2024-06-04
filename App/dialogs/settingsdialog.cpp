@@ -21,17 +21,12 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
         this->settings.setValue(Settings::Keys::TaskrunnerShowDialog, value);
     });
 
-    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-        qWarning() << "I couldn't detect any system tray on this system. Minimize-to-tray won't be available.";
-        ui->checkBoxKeepRunningInTray->setEnabled(false);
-    } else
-    {
-        ui->checkBoxKeepRunningInTray->setChecked(settings.value(Settings::Keys::KeepRunningInTray).toInt());
-        connect(ui->checkBoxKeepRunningInTray, &QCheckBox::stateChanged, [this] (const int value){
-            this->settings.setValue(Settings::Keys::KeepRunningInTray, value);
-            emit trayIconUpdate(value != 0); // 1 or 2 means "shown". 0 means hide.
-        });
-    }
+    ui->checkBoxAutoStart->setChecked(settings.value(Settings::Keys::AutoStart).toInt());
+    connect(ui->checkBoxAutoStart, &QCheckBox::stateChanged, [this] (const int value){
+        this->settings.setValue(Settings::Keys::AutoStart, value);
+        emit autoStartUpdate(value != 0);
+
+    });
 
     // comboBoxLogging
     Settings::Loglevel loglevel = GET_INT_SETTING(Settings::Loglevel);
@@ -55,5 +50,28 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 SettingsDialog::~SettingsDialog()
 {
     delete ui;
+}
+
+void SettingsDialog::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent( event );
+
+    // hook up UI checkbox with settings and perform signal wiring (once, guarded)
+    // evaluate ability to use system tray every time the dialog is shown. This helps avoid the issue of misleading isSystemTrayAvailable() result when Desktop boots.
+    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+        qWarning() << "I couldn't detect any system tray on this system. Minimize-to-tray won't be available.";
+        ui->checkBoxKeepRunningInTray->setEnabled(false);
+    } else
+    {
+        ui->checkBoxKeepRunningInTray->setChecked(settings.value(Settings::Keys::KeepRunningInTray).toInt());
+        if (!runInTraySignalConnected)
+        {
+            connect(ui->checkBoxKeepRunningInTray, &QCheckBox::stateChanged, [this] (const int value){
+                this->settings.setValue(Settings::Keys::KeepRunningInTray, value);
+                emit trayIconUpdate(value != 0); // 1 or 2 means "shown". 0 means hide.
+            });
+            runInTraySignalConnected = true;
+        }
+    }
 }
 

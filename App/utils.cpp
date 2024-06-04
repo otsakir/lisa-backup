@@ -45,6 +45,16 @@ QString appScriptsDir() {
 #endif
 }
 
+QString lbBinaryPath()
+{
+    return QString("%1/LisaBackup").arg(QCoreApplication::applicationDirPath());
+}
+
+QString autoStartDesktopFilePath()
+{
+    return QString("%1/.config/autostart/lisa-backup.desktop").arg(homeDirectory());
+}
+
 // /home/{username}/.lbackup
 QString dataDirectory() {
     return QString("%1/.lbackup").arg(homeDirectory());
@@ -208,6 +218,36 @@ QString bestValidDirectoryMatch(const QString& rawpath) {
     }
 
     return validPath;
+}
+
+void createDesktopFile()
+{
+    // set up .desktop file content
+    QString content("[Desktop Entry]\n\
+Comment=Backup application for the Linux Desktop\n\
+Exec=\"LB_BINARY_PATH\" -m\n\
+Name=Lisa Backup\n\
+Type=Application\n\
+Version=0.5\n\
+");
+    content.replace("LB_BINARY_PATH", lbBinaryPath() );
+
+    // save .desktop file
+    QFile desktopFile(autoStartDesktopFilePath());
+    if (desktopFile.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&desktopFile);
+        stream << content;
+        stream.flush();
+        desktopFile.close();
+    }
+
+}
+
+void removeDesktopFile()
+{
+    QFile desktopFile(autoStartDesktopFilePath());
+    desktopFile.remove();
 }
 
 
