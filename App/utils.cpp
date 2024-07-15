@@ -50,6 +50,11 @@ QString lbBinaryPath()
     return QString("%1/LisaBackup").arg(QCoreApplication::applicationDirPath());
 }
 
+QString lbLauncherScriptBinaryPath()
+{
+    return QString("%1/run-LisaBackup.sh").arg(QCoreApplication::applicationDirPath());
+}
+
 QString autoStartDesktopFilePath()
 {
     return QString("%1/.config/autostart/lisa-backup.desktop").arg(homeDirectory());
@@ -230,7 +235,7 @@ Name=Lisa Backup\n\
 Type=Application\n\
 Version=0.5\n\
 ");
-    content.replace("LB_BINARY_PATH", lbBinaryPath() );
+    content.replace("LB_BINARY_PATH", lbLauncherScriptBinaryPath() );
 
     // save .desktop file
     QFile desktopFile(autoStartDesktopFilePath());
