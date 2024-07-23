@@ -13,6 +13,7 @@ set(PROJECT_SOURCES
         custom-icons.qrc
         appcontext.h appcontext.cpp
         taskrunnermanager.h taskrunnermanager.cpp
+        globals.h
 )
 
 add_subdirectory(dialogs)

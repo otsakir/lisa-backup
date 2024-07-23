@@ -16,11 +16,18 @@
 #include "appcontext.h"
 #include "taskrunnermanager.h"
 
+namespace Lb {
+    namespace Globals {
+        QString tasksDirectory; // override tasks directory from "~/.lbackup" to something else
+    }
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setOrganizationName("otsakir");
     QApplication::setApplicationName("Lisa Backup");
+
 
     // set log level
     //QLoggingCategory::setFilterRules(QStringLiteral("default.debug=true\ndefault.info=true"));
@@ -39,6 +46,8 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     QCommandLineOption startMinimizedOption(QStringList() << "m", "Start minimized to system tray");
     parser.addOption(startMinimizedOption);
+    QCommandLineOption taskDirectoryOverrideOption(QStringList() << "d", "Override tasks directory absolute path", "path");
+    parser.addOption(taskDirectoryOverrideOption);
     parser.process(app);
 
     // default settings
@@ -52,13 +61,16 @@ int main(int argc, char *argv[])
         settings.setValue(Settings::Keys::TaskrunnerShowDialog, 2); // i.e. true
         settings.setValue("initialized",true);
         settings.setValue(Settings::LoglevelKey, static_cast<int>(Settings::Loglevel::Errors));
-        settings.setValue(Settings::Keys::DataDirectory, Lb::dataDirectory());
         settings.setValue(Settings::Keys::KeepRunningInTray, 0);
     }
     // explicitly set KeepRunningInTray setting if started minimized
     if (parser.isSet(startMinimizedOption))
     {
         settings.setValue(Settings::Keys::KeepRunningInTray, 1);
+    }
+    if (parser.isSet(taskDirectoryOverrideOption))
+    {
+        Lb::Globals::tasksDirectory = parser.value(taskDirectoryOverrideOption);
     }
     settings.setValue("ApplicationFilePath", QApplication::applicationFilePath());
     qInfo() << "Settings file path:" << settings.fileName();

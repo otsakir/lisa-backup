@@ -6,6 +6,7 @@
 #include <QDebug>
 #include "../settings.h"
 
+
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog)
