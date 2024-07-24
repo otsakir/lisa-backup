@@ -5,7 +5,6 @@ set(PROJECT_SOURCES
         logging.cpp logging.h
         scripting.cpp scripting.h
         task.cpp task.h
-        terminal.cpp terminal.h
         triggering.cpp triggering.h
         utils.cpp utils.h
         conf.h
@@ -14,6 +13,7 @@ set(PROJECT_SOURCES
         custom-icons.qrc
         appcontext.h appcontext.cpp
         taskrunnermanager.h taskrunnermanager.cpp
+        globals.h
 )
 
 add_subdirectory(dialogs)

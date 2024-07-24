@@ -13,6 +13,8 @@
 #include "../settings.h"
 #include "components/qtoolbuttonanimated.h"
 
+#include "../utils.h"
+
 
 
 // helps convert ProcessState enums to string
@@ -60,8 +62,7 @@ bool TaskRunnerDialog::setTask(const QString taskname)
     this->taskName = taskname;
     setWindowTitle(QString("Task Runner - %1").arg(taskname));
 
-    QSettings settings;
-    const QString datadir = settings.value(Settings::Keys::DataDirectory).toString();
+    const QString datadir = Lb::dataDirectory();
     assert(!datadir.isEmpty());
     TaskLoader loader(datadir);
 

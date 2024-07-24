@@ -53,7 +53,6 @@ namespace Settings
     }
 
     struct Keys {
-        inline static QString DataDirectory = "loader/datadir";
         inline static QString TaskrunnerConfirm = "taskrunner/ShowConfirmation";
         inline static QString TaskrunnerShowDialog = "taskrunner/ShowDialog";
         inline static QString KeepRunningInTray = "keepRunningInTray";

@@ -9,12 +9,14 @@
 #include <QRegularExpression>
 #include <QCoreApplication>
 
-
 #include <QDebug>
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
+
+#include "globals.h"
+#include <QDebug>
 
 
 // stands for Lisa-Backup
@@ -62,7 +64,16 @@ QString autoStartDesktopFilePath()
 
 // /home/{username}/.lbackup
 QString dataDirectory() {
-    return QString("%1/.lbackup").arg(homeDirectory());
+    QString tasksDirectory = QString("%1/.lbackup").arg(homeDirectory());
+    if ( !Lb::Globals::tasksDirectory.isEmpty() )
+    {
+        QDir dir(Lb::Globals::tasksDirectory);
+        if (dir.exists())
+            tasksDirectory = Lb::Globals::tasksDirectory;
+        else
+            qWarning() << "Can't use tasks directory override " << Lb::Globals::tasksDirectory << ". Switching to default: " << tasksDirectory;
+    }
+    return tasksDirectory;
 }
 
 QString configDirectory() {
