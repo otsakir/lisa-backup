@@ -5,6 +5,7 @@
 #include <QSystemTrayIcon>
 #include <QDebug>
 #include "../settings.h"
+#include "../utils.h"
 
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
@@ -46,6 +47,9 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     connect(ui->lineEditExternalFileManager, &QLineEdit::textEdited, [this] (const QString& newtext) {
         settings.setValue(Settings::Keys::ExternalFileManagerCommand, newtext);
     });
+
+    // readonly tasks directory text
+    ui->lineEditTaskDirectory->setText(Lb::dataDirectory());
 }
 
 SettingsDialog::~SettingsDialog()
