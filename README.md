@@ -15,6 +15,13 @@ For more advanced usage:
   * Enable "Triggering". It monitors when new volumes are mounted and performs a backup task when that happens. Combine this with "Keep running in system tray" option from "Settings" for better UX.
   * Finally, switch between "rsynch" and "git-bundle" Action to control what type of backup operation should be applied to this source directory. For git repositories this may prove more appropriate (though slower).
 
+### Command-line
+
+The following command-line options are supported:
+
+- **-d**: override task directory path
+  
+
 
 ### Internals
 

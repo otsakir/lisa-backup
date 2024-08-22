@@ -35,7 +35,6 @@ int main(int argc, char *argv[])
     registerQtMetatypes();
 
     qInfo() << "Starting Lisa Backup " << LBACKUP_VERSION << "...";
-    qDebug() << "Tasks in " << Lb::dataDirectory();
     qDebug() << "Application scripts in " << Lb::appScriptsDir();
     qDebug() << "Application directory is " << QCoreApplication::applicationDirPath();
 
@@ -72,6 +71,8 @@ int main(int argc, char *argv[])
     {
         Lb::Globals::tasksDirectory = parser.value(taskDirectoryOverrideOption);
     }
+
+    qDebug() << "Tasks in " << Lb::dataDirectory();
     settings.setValue("ApplicationFilePath", QApplication::applicationFilePath());
     qInfo() << "Settings file path:" << settings.fileName();
 
