@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QString openingTaskName, AppContext* appContext,  QWidget *parent = nullptr);
+    MainWindow(bool startInTray, QString openingTaskName, AppContext* appContext,  QWidget *parent = nullptr);
     ~MainWindow();
 
 signals:

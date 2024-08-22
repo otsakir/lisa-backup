@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>348</width>
-    <height>399</height>
+    <height>473</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -36,6 +36,13 @@
        <widget class="QCheckBox" name="checkBoxKeepRunningInTray">
         <property name="text">
          <string>Keep running in system tray</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxAutoStart">
+        <property name="text">
+         <string>Automatically start with Desktop</string>
         </property>
        </widget>
       </item>
@@ -69,7 +76,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupBoxTasks">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
        <horstretch>0</horstretch>
@@ -135,6 +142,36 @@
        <widget class="QCheckBox" name="checkBoxShowRunnerPopup">
         <property name="text">
          <string>Show task runner popup</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Task directory</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditTaskDirectory">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
         </property>
        </widget>
       </item>

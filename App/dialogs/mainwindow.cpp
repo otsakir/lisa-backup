@@ -27,7 +27,7 @@
 #include "components/multipledirdialog.h"
 
 
-MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget *parent)
+MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* appContext, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , appContext(appContext)
@@ -73,6 +73,12 @@ MainWindow::MainWindow(QString openingTaskName, AppContext* appContext, QWidget 
     });
     connect(this, &MainWindow::gotClean, this, &MainWindow::onDirtyChanged);
     connect(this, &MainWindow::gotDirty, this, &MainWindow::onDirtyChanged);
+    connect(settingsDialog, &SettingsDialog::autoStartUpdate, [this] (bool autoStart) {
+        if (autoStart)
+            Lb::createDesktopFile();
+        else
+            Lb::removeDesktopFile();
+    });
 
     triggeringCombo = new TriggeringComboBox(this);
     triggeringCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -470,6 +476,7 @@ void MainWindow::showEvent(QShowEvent* event)
     QMetaObject::invokeMethod(this, "afterWindowShown", Qt::ConnectionType::QueuedConnection);
 }
 
+// TODO - remove this. It should be dead code.
 void MainWindow::afterWindowShown()
 {
     if (taskManager->taskCount() == 0)

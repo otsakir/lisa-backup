@@ -45,6 +45,10 @@ QString randomString(unsigned int size);
 QString bestValidDirectoryMatch(const QString& rawpath);
 void startProcess(QProcess& process, const QString& program, const QStringList& arguments);
 
+// auto-start .desktop file
+void createDesktopFile();
+void removeDesktopFile();
+
 }
 
 #endif // UTILS_H

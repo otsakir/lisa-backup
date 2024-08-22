@@ -9,12 +9,14 @@
 #include <QRegularExpression>
 #include <QCoreApplication>
 
-
 #include <QDebug>
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
+
+#include "globals.h"
+#include <QDebug>
 
 
 // stands for Lisa-Backup
@@ -45,9 +47,33 @@ QString appScriptsDir() {
 #endif
 }
 
+QString lbBinaryPath()
+{
+    return QString("%1/LisaBackup").arg(QCoreApplication::applicationDirPath());
+}
+
+QString lbLauncherScriptBinaryPath()
+{
+    return QString("%1/run-LisaBackup.sh").arg(QCoreApplication::applicationDirPath());
+}
+
+QString autoStartDesktopFilePath()
+{
+    return QString("%1/.config/autostart/lisa-backup.desktop").arg(homeDirectory());
+}
+
 // /home/{username}/.lbackup
 QString dataDirectory() {
-    return QString("%1/.lbackup").arg(homeDirectory());
+    QString tasksDirectory = QString("%1/.lbackup").arg(homeDirectory());
+    if ( !Lb::Globals::tasksDirectory.isEmpty() )
+    {
+        QDir dir(Lb::Globals::tasksDirectory);
+        if (dir.exists())
+            tasksDirectory = Lb::Globals::tasksDirectory;
+        else
+            qWarning() << "Can't use tasks directory override " << Lb::Globals::tasksDirectory << ". Switching to default: " << tasksDirectory;
+    }
+    return tasksDirectory;
 }
 
 QString configDirectory() {
@@ -208,6 +234,36 @@ QString bestValidDirectoryMatch(const QString& rawpath) {
     }
 
     return validPath;
+}
+
+void createDesktopFile()
+{
+    // set up .desktop file content
+    QString content("[Desktop Entry]\n\
+Comment=Backup application for the Linux Desktop\n\
+Exec=\"LB_BINARY_PATH\" -m\n\
+Name=Lisa Backup\n\
+Type=Application\n\
+Version=0.5\n\
+");
+    content.replace("LB_BINARY_PATH", lbLauncherScriptBinaryPath() );
+
+    // save .desktop file
+    QFile desktopFile(autoStartDesktopFilePath());
+    if (desktopFile.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&desktopFile);
+        stream << content;
+        stream.flush();
+        desktopFile.close();
+    }
+
+}
+
+void removeDesktopFile()
+{
+    QFile desktopFile(autoStartDesktopFilePath());
+    desktopFile.remove();
 }
 
 
