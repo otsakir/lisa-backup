@@ -37,6 +37,7 @@ MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* app
     QSettings settings;
 
     ui->setupUi(this);
+    setWindowTitle(Lb::windowTitle("woof!"));
     taskLoader = appContext->getTaskLoader();
     initButtonIcons();
     trivialWiring();

@@ -16,17 +16,20 @@
 #include "appcontext.h"
 #include "taskrunnermanager.h"
 
+
 namespace Lb {
     namespace Globals {
-        QString tasksDirectory; // override tasks directory from "~/.lbackup" to something else
+        QString tasksDirectory = RUN_MODE == "DEV" ? QString("%1/.lbackup-dev").arg(homeDirectory()) : QString("%1/.lbackup").arg(homeDirectory());
+        QString applicationName = RUN_MODE == "DEV" ? "Lisa Backup DEV" : "Lisa Backup";
     }
 }
+
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setOrganizationName("otsakir");
-    QApplication::setApplicationName("Lisa Backup");
+    QApplication::setApplicationName(Lb::Globals::applicationName);
 
 
     // set log level
