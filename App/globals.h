@@ -7,6 +7,7 @@ namespace Lb {
 
     namespace Globals {
         extern QString tasksDirectory;
+        extern QString applicationName;
     }
 }
 

@@ -127,7 +127,7 @@ QString lastDirInPath(const QString& path)
 
 
 QString windowTitle(const QString& taskFriendlyName) {
-    return QString("Lisa Backup - %1").arg(taskFriendlyName);
+    return QString("%1 - %2").arg(Lb::Globals::applicationName).arg(taskFriendlyName);
 }
 
 void setupDirs() {

@@ -16,6 +16,8 @@ set(PROJECT_SOURCES
         globals.h
 )
 
+add_compile_definitions(RUN_MODE="${RUN_MODE}")
+
 add_subdirectory(dialogs)
 
 add_library(LisaBackuplib SHARED

@@ -1,6 +1,7 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 #include "../conf.h"
+#include "../globals.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
@@ -8,6 +9,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->labelTitle->setText(Lb::Globals::applicationName);
     ui->labelVersion->setText(QString("Version: %1").arg(LBACKUP_VERSION));
 }
 
