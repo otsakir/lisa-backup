@@ -19,5 +19,6 @@
         <file>custom-icons/settings.svg</file>
         <file>custom-icons/to-external.svg</file>
         <file>custom-icons/backup-icon.svg</file>
+        <file>custom-icons/backup-icon-tray.png</file>
     </qresource>
 </RCC>

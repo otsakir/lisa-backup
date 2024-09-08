@@ -38,6 +38,8 @@ MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* app
 
     ui->setupUi(this);
     setWindowTitle(Lb::windowTitle("woof!"));
+    setWindowIcon(QIcon(":/custom-icons/backup-icon.svg"));
+
     taskLoader = appContext->getTaskLoader();
     initButtonIcons();
     trivialWiring();
@@ -582,7 +584,7 @@ void MainWindow::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setIcon(QIcon(":/custom-icons/backup-icon.svg"));
+    trayIcon->setIcon(QIcon(":/custom-icons/backup-icon-tray.png"));
     connect(trayIcon, &QSystemTrayIcon::activated, this, &QWidget::showNormal); // show main window when just clicking on the tray icon
 }
 
