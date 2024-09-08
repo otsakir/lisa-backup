@@ -38,6 +38,8 @@ MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* app
 
     ui->setupUi(this);
     setWindowTitle(Lb::windowTitle("woof!"));
+    setWindowIcon(QIcon(":/custom-icons/backup-icon.svg"));
+
     taskLoader = appContext->getTaskLoader();
     initButtonIcons();
     trivialWiring();
