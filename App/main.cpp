@@ -21,6 +21,7 @@ namespace Lb {
     namespace Globals {
         QString tasksDirectory = RUN_MODE == "DEV" ? QString("%1/.lbackup-dev").arg(homeDirectory()) : QString("%1/.lbackup").arg(homeDirectory());
         QString applicationName = RUN_MODE == "DEV" ? "Lisa Backup DEV" : "Lisa Backup";
+        QString autoStartFilename = RUN_MODE == "DEV" ? "lisa-backup-dev.desktop" : "lisa-backup.desktop"; // name of autostart file created under ~/.config/autostart
     }
 }
 
