@@ -59,7 +59,7 @@ QString lbLauncherScriptBinaryPath()
 
 QString autoStartDesktopFilePath()
 {
-    return QString("%1/.config/autostart/lisa-backup.desktop").arg(homeDirectory());
+    return QString("%1/.config/autostart/%2").arg(homeDirectory()).arg(Lb::Globals::autoStartFilename);
 }
 
 // /home/{username}/.lbackup
