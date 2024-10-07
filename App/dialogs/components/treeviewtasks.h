@@ -34,6 +34,7 @@ signals:
 protected:
     void showEvent(QShowEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 private:
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);

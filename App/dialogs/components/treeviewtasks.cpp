@@ -272,7 +272,16 @@ void TreeViewTasks::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
-
+void TreeViewTasks::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Delete)
+    {
+        if (!currentTaskId().isEmpty())
+            removeCurrent();
+    } else {
+        QTreeView::keyPressEvent(event);
+    }
+}
 
 void TreeViewTasks::onCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
