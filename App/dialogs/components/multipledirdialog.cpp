@@ -2,11 +2,19 @@
 #include "ui_multipledirdialog.h"
 
 #include <QFileSystemModel>
+#include <QSettings>
+#include "../utils.h"
+#include "../settings.h"
+
+#include <QDebug>
+#include <QTimer>
 
 MultipleDirDialog::MultipleDirDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::MultipleDirDialog)
 {
+    QSettings settings;
+
     ui->setupUi(this);
     fsModel = new QFileSystemModel(this);
     fsModel->setFilter(QDir::Dirs|QDir::NoDot|QDir::NoDotDot);
@@ -27,18 +35,23 @@ MultipleDirDialog::MultipleDirDialog(QWidget *parent) :
         ui->dirTreeView->setRootIndex(rootPosition);
     }
 
-    QModelIndex currentPosition = fsModel->index(QDir::cleanPath("/home/nando/Qt")); //"session.defaultBrowseBackupDirectory"));
+
+    QString startingPath = settings.value(Settings::Keys::SourceDirStartingPoint).toString();
+    if (startingPath.isEmpty())
+        startingPath = Lb::homeDirectory();
+
+    QModelIndex currentPosition = fsModel->index(QDir::cleanPath(startingPath));
     if (currentPosition.isValid())
     {
         ui->dirTreeView->setCurrentIndex(currentPosition);
         ui->dirTreeView->expand(currentPosition);
     }
-
     ui->dirTreeView->show();
 
-    // TODO - it does not really scroll-to. Why ?
-    ui->dirTreeView->scrollTo(currentPosition, QAbstractItemView::EnsureVisible);
-
+    // Scrolling to the selected directory entry only works if it's done async after some time.
+    // TODO - find a decent way to do this
+    QTreeView* treeView = ui->dirTreeView;
+    QTimer::singleShot(30, [treeView]{treeView->scrollTo(treeView->currentIndex()); });
 }
 
 MultipleDirDialog::~MultipleDirDialog()
@@ -47,8 +60,11 @@ MultipleDirDialog::~MultipleDirDialog()
     delete ui;
 }
 
+
 void MultipleDirDialog::on_selectPushButton_clicked()
 {
+    QSettings settings;
+
     QItemSelectionModel* selModel = ui->dirTreeView->selectionModel();
     QModelIndexList selectedIndexes = selModel->selectedRows(); //selectedIndexes();
 
@@ -56,6 +72,10 @@ void MultipleDirDialog::on_selectPushButton_clicked()
     {
         selectedPaths << fsModel->filePath(selectedIndexes[i]);
     }
+    // keep the first of the selected paths for next time we open the dialog
+    if (!selectedPaths.empty())
+        settings.setValue(Settings::Keys::SourceDirStartingPoint,selectedPaths.first());
+
     this->accept();
 }
 
