@@ -58,6 +58,7 @@ namespace Settings
         inline static QString KeepRunningInTray = "keepRunningInTray";
         inline static QString AutoStart = "autoStart";
         inline static QString ExternalFileManagerCommand = "externalFileManagerCommand";
+        inline static QString SourceDirStartingPoint = "sourceDirStartingPoint";
 
         inline static QString TriggerGroup = "triggers/"; // group prefix. Hosts entries like "triggers/backtaskname1"
     };
