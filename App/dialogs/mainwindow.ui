@@ -131,22 +131,7 @@ font-size: 15px;
                   <bool>false</bool>
                  </property>
                  <widget class="QWidget" name="layoutWidget">
-                  <layout class="QVBoxLayout" name="verticalLayout_6">
-                   <item>
-                    <widget class="QListView" name="sourcesListView">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                    </widget>
-                   </item>
+                  <layout class="QVBoxLayout" name="verticalLayout_sourceListWrap">
                    <item>
                     <widget class="QWidget" name="widget" native="true">
                      <property name="font">
