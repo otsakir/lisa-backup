@@ -36,10 +36,19 @@ installer:
 	cd installer && tar zcvf lbackup_$(LBACKUP_VERSION)_amd64.tar.gz lbackup
 	mv installer/lbackup_$(LBACKUP_VERSION)_amd64.tar.gz .
 	
+standalone:
+	rm -rf standalone
+	mkdir -p 	standalone/lbackup
+	cp ../build/App/LisaBackup standalone/lbackup/
+	cp ../build/App/libLisaBackuplib.so standalone/lbackup/
+	cp ../scripts/standalone/* standalone/lbackup/
+	cd standalone && tar zcvf lbackup_$(LBACKUP_VERSION)_standalone_amd64.tar.gz lbackup
+	
 clean:
-	rm *.deb *.tar.gz
+	rm -f *.deb *.tar.gz
 	rm -rf installer/
 	rm -rf lbackup
+	rm -rf standalone
 
 	
 
