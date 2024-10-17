@@ -25,6 +25,7 @@
 #include "components/taskmanager.h"
 #include <components/sourcedetailsview.h>
 #include "components/multipledirdialog.h"
+#include "components/listviewsources.h"
 
 
 MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* appContext, QWidget *parent)
@@ -46,9 +47,12 @@ MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* app
 
     // set up models for sources listview
     sourcesModel = new QStandardItemModel(0,2, this);
-    ui->sourcesListView->setModel(sourcesModel);
-    ui->sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    QItemSelectionModel* selectionModel = ui->sourcesListView->selectionModel();
+    sourcesListView = new ListViewSources(this);
+    sourcesListView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    static_cast<QHBoxLayout*>(ui->verticalLayout_sourceListWrap->layout())->insertWidget(0, sourcesListView);
+    sourcesListView->setModel(sourcesModel);
+    sourcesListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    QItemSelectionModel* selectionModel = sourcesListView->selectionModel();
 
     // Task Manager - create component and do wiring
     taskManager = new TaskManager(appContext, this);
@@ -92,9 +96,10 @@ MainWindow::MainWindow(bool startInTray,QString openingTaskName, AppContext* app
     ui->splitterSources->insertWidget(1, sourceDetails);
     connect(sourceDetails, &SourceDetailsView::gotDirty, this, &MainWindow::onModelUpdated);
     connect(this, &MainWindow::gotClean, sourceDetails, &SourceDetailsView::clearDirty);
-    connect(ui->sourcesListView->model(), &QAbstractItemModel::rowsInserted, this, &MainWindow::onModelUpdated);
-    connect(ui->sourcesListView->model(), &QAbstractItemModel::rowsRemoved, this, &MainWindow::onModelUpdated);
+    connect(sourcesListView->model(), &QAbstractItemModel::rowsInserted, this, &MainWindow::onModelUpdated);
+    connect(sourcesListView->model(), &QAbstractItemModel::rowsRemoved, this, &MainWindow::onModelUpdated);
     connect(ui->labelNoTaskSelected, &QLabel::linkActivated, this, &MainWindow::on_action_New_triggered);
+    connect(sourcesListView, &ListViewSources::deleteKeyPressed, this, &MainWindow::removeSelectedSourceFromList);
 
     activeBackup = new BackupModel();
 
@@ -191,7 +196,7 @@ QStandardItem* MainWindow::appendSource(BackupModel::SourceDetailsIndex iSourceD
     itemList << modelItem;
     sourcesModel->appendRow(itemList);
     // select new item in the list view
-    QItemSelectionModel* selModel = ui->sourcesListView->selectionModel();
+    QItemSelectionModel* selModel = sourcesListView->selectionModel();
 
     return modelItem;
 }
@@ -213,7 +218,7 @@ void MainWindow::updateSourceDetails(QModelIndex rowIndex)
 
 void MainWindow::removeSelectedSourceFromList()
 {
-    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
+    const QItemSelection selection = sourcesListView->selectionModel()->selection();
     if (!selection.isEmpty()) {
         QModelIndex i = selection.indexes().first();
         //qDebug() << "will remove " << i.data();
@@ -246,7 +251,7 @@ void MainWindow::initUIControls(BackupModel& backupModel) {
     if (lastSourceAdded)
     {
         QModelIndex index = sourcesModel->indexFromItem(lastSourceAdded);
-        ui->sourcesListView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+        sourcesListView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
         emit sourceChanged(index);
     }
     else
@@ -435,16 +440,16 @@ void MainWindow::swapSources(BackupModel::SourceDetailsIndex sourceIndex1, Backu
     sourcesModel->insertRow(sourceIndex2,rowItems1);
 
     // restore selected item
-    ui->sourcesListView->selectionModel()->clearSelection();
-    QModelIndex newCurrent = ui->sourcesListView->model()->index(toIndex,0);
-    ui->sourcesListView->selectionModel()->select( newCurrent, QItemSelectionModel::Select );
+    sourcesListView->selectionModel()->clearSelection();
+    QModelIndex newCurrent = sourcesListView->model()->index(toIndex,0);
+    sourcesListView->selectionModel()->select( newCurrent, QItemSelectionModel::Select );
     emit sourceChanged(newCurrent);
 }
 
 
 void MainWindow::moveSourceItemUp()
 {
-    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
+    const QItemSelection selection = sourcesListView->selectionModel()->selection();
     if (!selection.isEmpty()) {
         QModelIndex i = selection.indexes().first();
         qDebug() << "will move up " << i.data();
@@ -457,12 +462,12 @@ void MainWindow::moveSourceItemUp()
 
 void MainWindow::moveSourceItemDown()
 {
-    const QItemSelection selection = ui->sourcesListView->selectionModel()->selection();
+    const QItemSelection selection = sourcesListView->selectionModel()->selection();
     if (!selection.isEmpty()) {
         QModelIndex i = selection.indexes().first();
         qDebug() << "will move down " << i.data();
         BackupModel::SourceDetailsIndex iSourceDetails = i.row();
-        if (iSourceDetails < ui->sourcesListView->model()->rowCount()-1) // is there any space above ?
+        if (iSourceDetails < sourcesListView->model()->rowCount()-1) // is there any space above ?
             swapSources(iSourceDetails, iSourceDetails+1);
     }
 }
@@ -556,7 +561,7 @@ void MainWindow::askUserAndAddSources()
             sourceDetails.sourcePath = dialog.selectedPaths[i];
             activeBackup->allSourceDetails.append(sourceDetails);
             BackupModel::SourceDetailsIndex sourceDetailsIndex = activeBackup->allSourceDetails.size()-1; // points to last item added
-            ui->sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
+            sourcesListView->selectionModel()->setCurrentIndex(sourcesModel->indexFromItem(appendSource(sourceDetailsIndex)), QItemSelectionModel::ClearAndSelect);
         }
     }
 }

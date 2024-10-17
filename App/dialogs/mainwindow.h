@@ -27,6 +27,7 @@ class SourceDetailsView;
 class QSystemTrayIcon;
 class QStandardItemModel;
 class QStandardItem;
+class ListViewSources;
 
 class MainWindow : public QMainWindow
 {
@@ -93,6 +94,7 @@ private:
 
     TriggeringComboBox* triggeringCombo;
     SourceDetailsView* sourceDetails;
+    ListViewSources* sourcesListView;
 
     // tray icon
     QAction *restoreAction;
