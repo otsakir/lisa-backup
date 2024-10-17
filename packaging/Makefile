@@ -1,19 +1,21 @@
 
-LBACKUP_VERSION := $(shell bash -c 'grep Version  lbackup/DEBIAN/control | sed -e "s/Version:\s*//" -e "s/\s+//"')
+LBACKUP_VERSION := $(shell bash -c 'grep Version  lbackup-vanilla/DEBIAN/control | sed -e "s/Version:\s*//" -e "s/\s+//"')
 
 default: debian installer
 
 .PHONY:	debian scripts installer
 
+lbackup:
+	cp -r lbackup-vanilla lbackup
 
-debian:	scripts lbackup.deb doversion 
+debian: lbackup scripts lbackup.deb doversion 
 
 lbackup/usr/bin/lbackup: ../build/App/LisaBackup ../build/App/libLisaBackuplib.so
 	mkdir -p lbackup/usr/bin
 	cp ../build/App/LisaBackup lbackup/usr/bin/lbackup
 	cp ../build/App/libLisaBackuplib.so lbackup/usr/bin/libLisaBackuplib.so
 
-scripts:
+scripts: lbackup
 	mkdir -p lbackup/usr/share/lbackup
 	cp -r ../scripts/app/* lbackup/usr/share/lbackup/
 
@@ -33,6 +35,12 @@ installer:
 	cp -r ../scripts/app/* installer/lbackup/scripts
 	cd installer && tar zcvf lbackup_$(LBACKUP_VERSION)_amd64.tar.gz lbackup
 	mv installer/lbackup_$(LBACKUP_VERSION)_amd64.tar.gz .
+	
+clean:
+	rm *.deb *.tar.gz
+	rm -rf installer/
+	rm -rf lbackup
+
 	
 
 
